@@ -330,6 +330,116 @@ footer p{font-size:.7rem;color:var(--txt3)}
   .chart-layout{flex-direction:column}
   .week-cards{grid-template-columns:1fr 1fr}
 }
+
+/* ═══ MOBILE FIXED-HEADER FIXES (≤640px) ═══ */
+@media(max-width:640px){
+  /* Badge: top-left, compact, no-wrap — away from avatar */
+  .badge-reflect{
+    left:.6rem;
+    right:auto;
+    top:.55rem;
+    font-size:.48rem;
+    padding:.18rem .5rem;
+    letter-spacing:.08em;
+    white-space:nowrap;
+    z-index:999;
+  }
+
+  /* Avatar pill: tighter on mobile */
+  #userAvatar{
+    top:.5rem;
+    right:.6rem;
+    padding:.25rem .55rem .25rem .35rem;
+    gap:.35rem;
+  }
+  #userAvatar #avatarCircle{
+    width:22px;
+    height:22px;
+    font-size:.62rem;
+  }
+  #userAvatar #avatarName{
+    font-size:.65rem;
+    max-width:64px;
+  }
+
+  /* User menu: full width on mobile */
+  #userMenu{
+    right:.5rem;
+    min-width:160px;
+    top:3rem;
+  }
+
+  /* Access timer: move below the badge/avatar strip */
+  #accessTimerBadge{
+    top:2.6rem !important;
+    font-size:.58rem;
+    padding:.22rem .65rem;
+  }
+
+  /* Theme toggle & lang toggle: smaller touch targets */
+  .theme-toggle{
+    bottom:4.8rem;
+    right:.6rem;
+    width:32px;
+    height:32px;
+    font-size:.9rem;
+  }
+  #langToggle{
+    bottom:4.8rem;
+    left:.6rem;
+    font-size:.65rem;
+    padding:.25rem .6rem;
+  }
+
+  /* Ask button: above mobile tabs */
+  #askBtn{
+    bottom:5.2rem;
+    right:.8rem;
+    width:44px;
+    height:44px;
+    font-size:1.2rem;
+  }
+
+  /* Ask modal: full-width on mobile */
+  #askModal{
+    right:.5rem !important;
+    left:.5rem !important;
+    width:auto !important;
+    bottom:5.8rem;
+  }
+
+  /* Summary bar: tighter chip spacing */
+  #summary-bar{
+    padding:.45rem .75rem;
+    gap:.6rem;
+  }
+  .sum-chip{
+    font-size:.7rem;
+    padding:.2rem .5rem;
+  }
+
+  /* Main content: account for bottom tab bar */
+  .main-content{
+    padding:.75rem .75rem 5rem;
+  }
+
+  /* Forecast do/dont grid: stack on narrow screens */
+  .forecast-grid + div > div[style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr !important;
+  }
+
+  /* Celebrity twin card: stack on mobile */
+  #celebrity-twin-card .fc-header,
+  #twin-content > div:first-child{
+    flex-wrap:wrap;
+  }
+
+  /* Passcode modal: full width */
+  #passcodeModal > div{
+    margin:.75rem;
+    padding:1.5rem;
+  }
+}
 /* MOBILE BOTTOM TAB BAR */
 .mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(5,11,26,.95);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08);padding:.4rem .5rem calc(.4rem + env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
 .mob-tab{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.3rem .5rem;border-radius:8px;cursor:pointer;transition:all .2s ease;min-width:48px;position:relative}
