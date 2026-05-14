@@ -265,7 +265,21 @@ const FIVE_YEAR_FORECAST = [
       "Maintain the passive income stream formalised in 2029 as the primary financial anchor — do not restructure or renegotiate these arrangements during Ketu AD unless absolutely necessary; Ketu disrupts renegotiations more often than it improves them."
     ],
     health: "Ketu AD is associated with unexplained health presentations — symptoms that are real but diagnostically elusive, or chronic conditions that intensify without clear cause. Prioritise immune system support, mental health practices, and regular sleep as the baseline. The specific risk pattern for Ketu in the 2nd house involves the face, mouth, and throat — dental and ENT preventive care is particularly relevant. Spiritual or contemplative practices are not merely psychological comfort during Ketu periods; they are physiologically protective, reducing the chronic stress load that Ketu-Saturn combinations can generate.",
-    keyMonths: ["Feb 2030", "May 2030", "Aug 2030", "Nov 2030"]
+    keyMonths: ["Feb 2030", "May 2030", "Aug 2030", "Nov 2030"],
+    do: [
+      "Protect intellectual property, contractual rights, and institutional relationships before Q2",
+      "Move investable assets into low-volatility, hands-off instruments before Ketu AD fully activates",
+      "Use the professional quietude for deep study, retreat, and knowledge absorption",
+      "Maintain the passive income structures formalised in 2029 without renegotiating them",
+      "Prioritise immune support, mental health practices, and dental/ENT preventive care"
+    ],
+    dont: [
+      "Take on new leverage, joint financial complexity, or speculative positions",
+      "Restructure or renegotiate financial arrangements during Ketu AD — it disrupts more than it improves",
+      "Make impulsive career moves or new venture launches during this stripping period",
+      "Let wealth indifference created by Ketu's energy lead to inattentive asset loss",
+      "Fuse professional identity with external validation — Ketu will dissolve what ego cannot hold"
+    ]
   }
 ];
 
