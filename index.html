@@ -1231,6 +1231,18 @@
       document.getElementById('summary-bar').classList.add('visible');
       const results = document.getElementById('results');
       results.classList.add('visible');
+
+      // ── Device-aware initialisation ──
+      if (DEVICE.mobile) {
+        // Mobile: start on Overview tab (not Chart), hide DOB chip to save space
+        switchTab('overview');
+        const dobChip = document.getElementById('sumDobChip');
+        if (dobChip) dobChip.style.display = 'none';
+      } else {
+        // Desktop: start on Overview, show all summary chips
+        switchTab('overview');
+      }
+
       renderChart('chart-svg');
       renderChart('ts-chart-svg', true);
       renderPlanetTable();
