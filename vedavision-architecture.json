@@ -1,0 +1,1139 @@
+{
+  "system": "VedaVision",
+  "version": "1.0.0",
+  "architecture": {
+    "frontend": {
+      "framework": "React 18 + Vite 5",
+      "styling": {
+        "base": "CSS custom properties (design tokens)",
+        "utility_layer": "Tailwind CSS 3.x",
+        "theme_tokens": {
+          "--color-saffron": "#E8690B",
+          "--color-deep-maroon": "#4A0E0E",
+          "--color-gold": "#C9A84C",
+          "--color-ivory": "#FAF6EE",
+          "--color-night-sky": "#0D0D2B",
+          "--color-green-auspicious": "#2D7A4F",
+          "--color-red-inauspicious": "#C0392B",
+          "--font-serif": "Cormorant Garamond, serif",
+          "--font-sans": "Inter, sans-serif"
+        }
+      },
+      "state_management": {
+        "library": "Zustand 4.x",
+        "stores": {
+          "chartStore": {
+            "state_fields": ["chartData", "currentDasha", "selectedHouse", "timeSliderPosition", "isCalculating"],
+            "actions": ["setChartData", "setTimeSliderPosition", "selectHouse", "resetChart"]
+          },
+          "userStore": {
+            "state_fields": ["profile", "subscriptionTier", "altarSessions", "greenRedCache"],
+            "actions": ["setProfile", "setSubscriptionTier", "addAltarSession", "setGreenRedCache"]
+          },
+          "uiStore": {
+            "state_fields": ["activeModal", "upsellTrigger", "isGateVisible", "toastQueue"],
+            "actions": ["openModal", "closeModal", "triggerUpsell", "showToast"]
+          }
+        }
+      },
+      "routing": {
+        "library": "React Router v6",
+        "routes": [
+          { "path": "/", "component": "LandingPage", "auth_required": false },
+          { "path": "/chart", "component": "ChartInputPage", "auth_required": false },
+          { "path": "/chart/:chartId", "component": "ChartDashboard", "auth_required": false },
+          { "path": "/chart/:chartId/forecast", "component": "ForecastPage", "auth_required": true, "min_tier": "dharma_pass" },
+          { "path": "/chart/:chartId/green-red", "component": "GreenRedCalendarPage", "auth_required": false },
+          { "path": "/altar", "component": "DigitalAltarPage", "auth_required": true, "min_tier": "free" },
+          { "path": "/dashboard", "component": "UserDashboard", "auth_required": true, "min_tier": "free" },
+          { "path": "/pricing", "component": "PricingPage", "auth_required": false },
+          { "path": "/login", "component": "AuthPage", "auth_required": false },
+          { "path": "/admin", "component": "AdminPanel", "auth_required": true, "min_tier": "jyotishi_pro" }
+        ]
+      },
+      "key_components": {
+        "LagnaChartSVG": {
+          "description": "North Indian diamond-grid or South Indian square-grid Kundali SVG renderer",
+          "props_interface": {
+            "chartData": "ChartData",
+            "style": "'north_indian' | 'south_indian'",
+            "highlightedHouse": "number | null",
+            "highlightedPlanets": "PlanetId[]",
+            "onHouseClick": "(houseNumber: number) => void",
+            "size": "number",
+            "showAspects": "boolean",
+            "animateTransit": "boolean",
+            "transitChartData": "ChartData | null"
+          }
+        },
+        "TimeSlider": {
+          "description": "Drag-scrub timeline that morphs the Kundali from birth to selected date in real time",
+          "props_interface": {
+            "birthDate": "string",
+            "currentDate": "string",
+            "maxDate": "string",
+            "frames": "TimeSliderFrame[]",
+            "onDateChange": "(isoDate: string) => void",
+            "dashaMarkers": "DashaMarker[]",
+            "isLocked": "boolean",
+            "lockedUntilTier": "SubscriptionTierKey"
+          }
+        },
+        "GreenRedCalendar": {
+          "description": "Monthly calendar view showing auspicious (green) and inauspicious (red) days",
+          "props_interface": {
+            "month": "number",
+            "year": "number",
+            "days": "GreenRedDay[]",
+            "onDayClick": "(day: GreenRedDay) => void",
+            "viewMode": "'month' | 'week'",
+            "freePreviewDays": "number",
+            "isGated": "boolean",
+            "onGateHit": "() => void"
+          }
+        },
+        "HardTruthsSection": {
+          "description": "Gated section surfacing difficult astrological assessments (afflictions, karmic debt, timing warnings)",
+          "props_interface": {
+            "hardTruths": "HardTruth[]",
+            "isUnlocked": "boolean",
+            "triggerContext": "HardTruthTriggerContext",
+            "onUnlockClick": "() => void",
+            "blurIntensity": "'light' | 'heavy'"
+          }
+        },
+        "DigitalAltar": {
+          "description": "Interactive shrine with 9 planetary deities; tap to chant Beej mantra with count tracker",
+          "props_interface": {
+            "dominantPlanet": "PlanetId",
+            "altarSessions": "AltarSession[]",
+            "onMantraChant": "(planet: PlanetId) => void",
+            "audioEnabled": "boolean",
+            "mantras": "Record<PlanetId, MantraConfig>"
+          }
+        },
+        "DashaTimeline": {
+          "description": "Horizontal scrollable Mahadasha/Antardasha/Pratyantar timeline with current position marker",
+          "props_interface": {
+            "dashas": "DashaPeriod[]",
+            "currentDate": "string",
+            "onPeriodClick": "(period: DashaPeriod) => void",
+            "visibleYearsRange": "[number, number]",
+            "showAntardasha": "boolean",
+            "showPratyantar": "boolean",
+            "isExtendedLocked": "boolean"
+          }
+        },
+        "PlanetTable": {
+          "description": "Tabular view of all 9 grahas with sign, house, nakshatra, dignity, and strength scores",
+          "props_interface": {
+            "planets": "PlanetPosition[]",
+            "showStrengthScores": "boolean",
+            "showNakshatra": "boolean",
+            "highlightedPlanetId": "PlanetId | null",
+            "onPlanetClick": "(planet: PlanetPosition) => void",
+            "ayanamsa": "'lahiri' | 'raman' | 'krishnamurti'"
+          }
+        },
+        "ForecastCards": {
+          "description": "Swipeable cards showing monthly/yearly forecasts per life domain",
+          "props_interface": {
+            "forecasts": "ForecastCard[]",
+            "domain": "'career' | 'relationships' | 'health' | 'finance' | 'spirituality'",
+            "visibleMonths": "number",
+            "isYearThreeLocked": "boolean",
+            "onLockedCardClick": "(forecast: ForecastCard) => void",
+            "onDomainChange": "(domain: string) => void"
+          }
+        },
+        "SubscriptionGate": {
+          "description": "Overlay/blur gate component that intercepts premium feature access and drives upsell",
+          "props_interface": {
+            "requiredTier": "SubscriptionTierKey",
+            "currentTier": "SubscriptionTierKey",
+            "featureName": "string",
+            "upsellVariant": "'blur_overlay' | 'bottom_sheet' | 'modal' | 'inline_banner'",
+            "ctaText": "string",
+            "onUpgradeClick": "() => void",
+            "children": "React.ReactNode"
+          }
+        }
+      },
+      "chart_engine": {
+        "library": "swisseph-wasm",
+        "ayanamsa": "Lahiri (Chitrapaksha)",
+        "ayanamsa_id": 1,
+        "calculation_mode": "client_side",
+        "house_system": "Whole Sign",
+        "supported_charts": ["D1_Rasi", "D9_Navamsa", "D10_Dashamsa", "D2_Hora", "D3_Drekkana"],
+        "planets_calculated": ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"],
+        "extra_points": ["Ascendant", "Midheaven", "Gulika", "Mandi"],
+        "wasm_bundle_path": "/static/swisseph.wasm",
+        "ephemeris_data_path": "/static/ephe/"
+      },
+      "animation": {
+        "library": "Framer Motion 11",
+        "animated_components": {
+          "TimeSlider": {
+            "animation_type": "spring interpolation on planetary degree scrub",
+            "config": { "stiffness": 120, "damping": 20, "mass": 0.8 }
+          },
+          "HouseHighlight": {
+            "animation_type": "SVG fill color transition + scale pulse",
+            "config": { "duration": 0.3, "ease": "easeOut" }
+          },
+          "DashaTimeline": {
+            "animation_type": "horizontal scroll with inertia",
+            "config": { "type": "spring", "stiffness": 300, "damping": 30 }
+          },
+          "SubscriptionGate": {
+            "animation_type": "blur-in overlay with backdrop fade",
+            "config": { "duration": 0.4, "ease": "easeInOut" }
+          },
+          "GreenRedCalendar": {
+            "animation_type": "staggered day-cell reveal on month change",
+            "config": { "staggerChildren": 0.015, "delayChildren": 0.05 }
+          }
+        }
+      }
+    },
+    "backend": {
+      "runtime": "Node.js 20 LTS",
+      "framework": "Fastify 4.x",
+      "language": "TypeScript 5.x",
+      "deployment": {
+        "platform": "Railway (primary) or Render",
+        "containerized": true,
+        "dockerfile_base": "node:20-alpine"
+      },
+      "database": {
+        "primary": {
+          "engine": "PostgreSQL 16",
+          "provider": "Supabase (managed)",
+          "use_cases": ["user profiles", "chart metadata", "subscription records", "altar session history", "audit logs"],
+          "connection_pool": { "min": 2, "max": 20 }
+        },
+        "cache": {
+          "engine": "Redis 7",
+          "provider": "Upstash Redis (serverless)",
+          "use_cases": ["session tokens", "green_red_cache (30-day TTL)", "chart_cache (7-day TTL)", "rate limit counters"],
+          "ttl_defaults": {
+            "session": 86400,
+            "green_red_cache": 2592000,
+            "chart_cache": 604800,
+            "rate_limit_window": 3600
+          }
+        }
+      },
+      "auth": {
+        "provider": "Supabase Auth",
+        "methods": ["Google OAuth 2.0", "Email OTP (magic link)"],
+        "jwt_secret_source": "Supabase project JWT secret",
+        "session_strategy": "JWT stored in httpOnly cookie + Redis session mirror",
+        "row_level_security": true
+      },
+      "payment": {
+        "india_primary": {
+          "provider": "Razorpay",
+          "supported_methods": ["UPI", "NetBanking", "Cards", "Wallets", "EMI"],
+          "webhook_endpoint": "/api/webhooks/razorpay",
+          "webhook_secret_env": "RAZORPAY_WEBHOOK_SECRET"
+        },
+        "international": {
+          "provider": "Stripe",
+          "supported_methods": ["Cards", "Apple Pay", "Google Pay"],
+          "webhook_endpoint": "/api/webhooks/stripe",
+          "webhook_secret_env": "STRIPE_WEBHOOK_SECRET"
+        }
+      },
+      "subscription_tables": {
+        "users": {
+          "columns": {
+            "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+            "email": "text UNIQUE NOT NULL",
+            "full_name": "text",
+            "avatar_url": "text",
+            "auth_provider": "text NOT NULL",
+            "created_at": "timestamptz DEFAULT now()",
+            "updated_at": "timestamptz DEFAULT now()",
+            "is_active": "boolean DEFAULT true",
+            "referral_code": "text UNIQUE",
+            "referred_by": "uuid REFERENCES users(id)"
+          }
+        },
+        "subscriptions": {
+          "columns": {
+            "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+            "user_id": "uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+            "tier": "text NOT NULL CHECK (tier IN ('free', 'dharma_pass', 'jyotishi_pro'))",
+            "status": "text NOT NULL CHECK (status IN ('active', 'cancelled', 'past_due', 'trialing'))",
+            "payment_provider": "text NOT NULL CHECK (payment_provider IN ('razorpay', 'stripe'))",
+            "provider_subscription_id": "text UNIQUE",
+            "provider_customer_id": "text",
+            "current_period_start": "timestamptz",
+            "current_period_end": "timestamptz",
+            "cancel_at_period_end": "boolean DEFAULT false",
+            "billing_cycle": "text CHECK (billing_cycle IN ('monthly', 'yearly'))",
+            "amount_paise": "integer",
+            "currency": "text DEFAULT 'INR'",
+            "created_at": "timestamptz DEFAULT now()",
+            "updated_at": "timestamptz DEFAULT now()"
+          }
+        },
+        "chart_cache": {
+          "columns": {
+            "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+            "user_id": "uuid REFERENCES users(id) ON DELETE SET NULL",
+            "chart_hash": "text UNIQUE NOT NULL",
+            "birth_date": "date NOT NULL",
+            "birth_time": "time NOT NULL",
+            "birth_place": "text NOT NULL",
+            "latitude": "numeric(9,6) NOT NULL",
+            "longitude": "numeric(9,6) NOT NULL",
+            "timezone": "text NOT NULL",
+            "chart_json": "jsonb NOT NULL",
+            "ayanamsa": "text DEFAULT 'lahiri'",
+            "is_public": "boolean DEFAULT false",
+            "created_at": "timestamptz DEFAULT now()",
+            "expires_at": "timestamptz DEFAULT now() + interval '7 days'"
+          }
+        },
+        "green_red_cache": {
+          "columns": {
+            "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+            "chart_hash": "text NOT NULL REFERENCES chart_cache(chart_hash) ON DELETE CASCADE",
+            "cache_month": "date NOT NULL",
+            "days_json": "jsonb NOT NULL",
+            "algorithm_version": "text DEFAULT 'v1'",
+            "created_at": "timestamptz DEFAULT now()",
+            "expires_at": "timestamptz DEFAULT now() + interval '30 days'",
+            "UNIQUE": "(chart_hash, cache_month)"
+          }
+        },
+        "altar_sessions": {
+          "columns": {
+            "id": "uuid PRIMARY KEY DEFAULT gen_random_uuid()",
+            "user_id": "uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+            "planet": "text NOT NULL CHECK (planet IN ('Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'))",
+            "mantra_key": "text NOT NULL",
+            "chant_count": "integer NOT NULL DEFAULT 1",
+            "session_date": "date NOT NULL DEFAULT CURRENT_DATE",
+            "audio_played": "boolean DEFAULT false",
+            "created_at": "timestamptz DEFAULT now()"
+          }
+        }
+      },
+      "api_routes": [
+        {
+          "method": "POST",
+          "path": "/api/chart/calculate",
+          "auth_required": false,
+          "rate_limit": "10/hour per IP",
+          "description": "Calculate full Kundali from birth details; returns ChartData and chart_hash; caches result in PostgreSQL"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chart/:chartHash",
+          "auth_required": false,
+          "rate_limit": "60/hour",
+          "description": "Retrieve cached chart by hash; returns ChartData with subscription-gated fields omitted for free tier"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chart/:chartHash/green-red",
+          "auth_required": false,
+          "rate_limit": "30/hour",
+          "query_params": { "month": "YYYY-MM", "days": "7|30" },
+          "description": "Fetch green/red day scores for given month; free tier limited to 7 days, full month requires dharma_pass"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chart/:chartHash/forecast",
+          "auth_required": true,
+          "min_tier": "dharma_pass",
+          "query_params": { "domain": "career|relationships|health|finance|spirituality", "years": "1|3|5" },
+          "description": "Generate domain-specific forecast cards; years 2-5 gated to dharma_pass+"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chart/:chartHash/time-slider",
+          "auth_required": true,
+          "min_tier": "dharma_pass",
+          "query_params": { "from": "ISO date", "to": "ISO date", "step_days": "integer" },
+          "description": "Generate TimeSliderFrame array for the requested date range"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chart/:chartHash/hard-truths",
+          "auth_required": true,
+          "min_tier": "dharma_pass",
+          "description": "Return locked HardTruth items based on chart afflictions and current dasha timing"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chart/:chartHash/dashas",
+          "auth_required": false,
+          "description": "Return full Vimshottari Mahadasha tree with Antardasha and Pratyantar periods"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/register",
+          "auth_required": false,
+          "description": "Register new user with email; initiates Supabase OTP flow"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/verify-otp",
+          "auth_required": false,
+          "description": "Verify OTP and issue session JWT"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google",
+          "auth_required": false,
+          "description": "Initiate Google OAuth flow via Supabase Auth"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/logout",
+          "auth_required": true,
+          "description": "Invalidate session JWT and clear Redis session mirror"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/profile",
+          "auth_required": true,
+          "description": "Fetch authenticated user profile and active subscription tier"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/user/profile",
+          "auth_required": true,
+          "description": "Update user display name or avatar"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/charts",
+          "auth_required": true,
+          "description": "List saved charts for the authenticated user"
+        },
+        {
+          "method": "POST",
+          "path": "/api/user/charts/:chartHash/save",
+          "auth_required": true,
+          "description": "Associate a chart hash with the authenticated user account"
+        },
+        {
+          "method": "POST",
+          "path": "/api/subscriptions/create-order",
+          "auth_required": true,
+          "body": { "tier": "dharma_pass|jyotishi_pro", "cycle": "monthly|yearly", "provider": "razorpay|stripe" },
+          "description": "Create a Razorpay order or Stripe PaymentIntent and return client secret/order_id"
+        },
+        {
+          "method": "POST",
+          "path": "/api/subscriptions/verify-payment",
+          "auth_required": true,
+          "description": "Verify Razorpay payment signature post-checkout and activate subscription"
+        },
+        {
+          "method": "POST",
+          "path": "/api/subscriptions/cancel",
+          "auth_required": true,
+          "description": "Set cancel_at_period_end = true on active subscription"
+        },
+        {
+          "method": "GET",
+          "path": "/api/subscriptions/status",
+          "auth_required": true,
+          "description": "Return current subscription tier, status, and next billing date"
+        },
+        {
+          "method": "POST",
+          "path": "/api/webhooks/razorpay",
+          "auth_required": false,
+          "description": "Handle Razorpay webhook events (payment.captured, subscription.charged, subscription.cancelled)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/webhooks/stripe",
+          "auth_required": false,
+          "description": "Handle Stripe webhook events (invoice.paid, customer.subscription.deleted)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/altar/chant",
+          "auth_required": true,
+          "min_tier": "free",
+          "body": { "planet": "PlanetId", "count": "integer" },
+          "description": "Record altar mantra chant session; increments daily chant counter"
+        },
+        {
+          "method": "GET",
+          "path": "/api/altar/sessions",
+          "auth_required": true,
+          "query_params": { "days": "integer default 30" },
+          "description": "Retrieve altar session history with per-planet chant totals"
+        },
+        {
+          "method": "GET",
+          "path": "/api/altar/mantras",
+          "auth_required": false,
+          "description": "Return mantra config for all 9 planets including CDN audio URLs"
+        },
+        {
+          "method": "GET",
+          "path": "/api/health",
+          "auth_required": false,
+          "description": "Health check endpoint returning service status and DB connectivity"
+        }
+      ]
+    },
+    "data_models": {
+      "ChartData": {
+        "description": "Core Kundali data contract — VedaVision extended version",
+        "schema": {
+          "chartHash": "string",
+          "version": "string",
+          "calculatedAt": "string (ISO 8601)",
+          "input": {
+            "birthDate": "string (YYYY-MM-DD)",
+            "birthTime": "string (HH:MM:SS)",
+            "birthPlace": "string",
+            "latitude": "number",
+            "longitude": "number",
+            "timezone": "string (IANA tz)",
+            "ayanamsa": "string ('lahiri')"
+          },
+          "ascendant": {
+            "sign": "string",
+            "signIndex": "number (0-11)",
+            "degree": "number",
+            "nakshatra": "string",
+            "nakshatraPada": "number (1-4)"
+          },
+          "planets": {
+            "type": "array",
+            "items": {
+              "id": "PlanetId ('Sun'|'Moon'|'Mars'|'Mercury'|'Jupiter'|'Venus'|'Saturn'|'Rahu'|'Ketu')",
+              "sign": "string",
+              "signIndex": "number (0-11)",
+              "house": "number (1-12)",
+              "degree": "number (0-30)",
+              "absoluteDegree": "number (0-360)",
+              "nakshatra": "string",
+              "nakshatraPada": "number (1-4)",
+              "isRetrograde": "boolean",
+              "isCombust": "boolean",
+              "dignity": "'exalted'|'moolatrikona'|'own'|'friendly'|'neutral'|'enemy'|'debilitated'",
+              "shadbala": "number",
+              "ashtakavarga": "number (0-8)"
+            }
+          },
+          "houses": {
+            "type": "array",
+            "items": {
+              "number": "number (1-12)",
+              "sign": "string",
+              "signIndex": "number (0-11)",
+              "lord": "PlanetId",
+              "occupants": "PlanetId[]",
+              "ashtakavargaScore": "number"
+            }
+          },
+          "dashas": {
+            "current_mahadasha": {
+              "planet": "PlanetId",
+              "start": "string (ISO date)",
+              "end": "string (ISO date)",
+              "current_antardasha": {
+                "planet": "PlanetId",
+                "start": "string (ISO date)",
+                "end": "string (ISO date)",
+                "current_pratyantar": {
+                  "planet": "PlanetId",
+                  "start": "string (ISO date)",
+                  "end": "string (ISO date)"
+                }
+              }
+            },
+            "full_tree": "DashaPeriod[]"
+          },
+          "yogas": {
+            "classical": "Yoga[]",
+            "bnn_yogas": {
+              "description": "Bhrigu Nandi Nadi extended yoga set — VedaVision extension",
+              "items": {
+                "type": "array",
+                "schema": {
+                  "yogaId": "string",
+                  "name": "string",
+                  "domain": "'wealth'|'career'|'relationships'|'health'|'spirituality'",
+                  "strength": "number (0-100)",
+                  "activationDasha": "PlanetId[]",
+                  "description": "string",
+                  "remedies": "string[]"
+                }
+              }
+            }
+          },
+          "wealth_score": {
+            "total": "number (0-100)",
+            "parashari_component": "number (0-60)",
+            "bnn_component": "number (0-40)",
+            "breakdown": {
+              "dhan_yogas_count": "number",
+              "second_house_strength": "number",
+              "eleventh_house_strength": "number",
+              "jupiter_strength": "number",
+              "venus_strength": "number",
+              "active_dasha_multiplier": "number"
+            }
+          },
+          "green_red_score": {
+            "description": "Precomputed 30-day auspiciousness baseline — VedaVision extension",
+            "baseline": "number (0-100)",
+            "primary_benefics": "PlanetId[]",
+            "primary_malefics": "PlanetId[]",
+            "sensitivity_factors": "string[]"
+          },
+          "hard_truths_locked": {
+            "description": "Gated assessment flags — VedaVision extension",
+            "has_afflicted_seventh": "boolean",
+            "has_afflicted_fifth": "boolean",
+            "has_shani_sade_sati": "boolean",
+            "has_kaal_sarp_dosha": "boolean",
+            "has_mangal_dosha": "boolean",
+            "career_switch_window_active": "boolean",
+            "antardasha_warning_active": "boolean",
+            "hard_truths_count": "number"
+          }
+        }
+      },
+      "TimeSliderFrame": {
+        "description": "Single animation frame for Time Slider scrub (skill.md Section 9.3)",
+        "schema": {
+          "isoDate": "string",
+          "julianDay": "number",
+          "ascendantDegree": "number",
+          "planets": {
+            "type": "array",
+            "items": {
+              "id": "PlanetId",
+              "absoluteDegree": "number",
+              "house": "number",
+              "isRetrograde": "boolean",
+              "transitingHouse": "number"
+            }
+          },
+          "activeDasha": {
+            "mahadasha": "PlanetId",
+            "antardasha": "PlanetId",
+            "pratyantar": "PlanetId | null"
+          },
+          "keyEvent": {
+            "type": "null | 'dasha_change' | 'eclipse' | 'saturn_return' | 'jupiter_return'",
+            "description": "string | null"
+          }
+        }
+      },
+      "GreenRedDay": {
+        "description": "Daily auspiciousness record for Green/Red Calendar (skill.md Section 9.2)",
+        "schema": {
+          "date": "string (YYYY-MM-DD)",
+          "score": "number (0-100)",
+          "verdict": "'auspicious'|'neutral'|'inauspicious'",
+          "color": "'green'|'yellow'|'red'",
+          "factors": {
+            "tithi": { "name": "string", "score": "number (-20 to +20)" },
+            "vara": { "name": "string", "score": "number (-10 to +10)" },
+            "nakshatra": { "name": "string", "score": "number (-15 to +15)" },
+            "yoga": { "name": "string", "score": "number (-10 to +10)" },
+            "karana": { "name": "string", "score": "number (-5 to +5)" },
+            "moon_transit": { "sign": "string", "score": "number (-15 to +15)" },
+            "personal_dasha": { "mahadasha": "PlanetId", "antardasha": "PlanetId", "score": "number (-25 to +25)" }
+          },
+          "best_hours": "string[]",
+          "avoid_hours": "string[]",
+          "dominant_activity": "string",
+          "is_preview": "boolean"
+        }
+      },
+      "SubscriptionTier": {
+        "description": "Subscription tier enumeration and metadata",
+        "schema": {
+          "key": "'free' | 'dharma_pass' | 'jyotishi_pro'",
+          "display_name": "string",
+          "price_monthly_inr": "number | null",
+          "price_yearly_inr": "number | null",
+          "price_monthly_usd": "number | null",
+          "features": "string[]",
+          "green_red_days_limit": "number",
+          "forecast_years_limit": "number",
+          "time_slider_enabled": "boolean",
+          "hard_truths_enabled": "boolean",
+          "altar_enabled": "boolean",
+          "consultation_booking": "boolean",
+          "white_label_export": "boolean",
+          "api_access": "boolean"
+        }
+      },
+      "AltarSession": {
+        "description": "Single Digital Altar mantra chant session record",
+        "schema": {
+          "id": "string (uuid)",
+          "userId": "string (uuid)",
+          "planet": "PlanetId ('Sun'|'Moon'|'Mars'|'Mercury'|'Jupiter'|'Venus'|'Saturn'|'Rahu'|'Ketu')",
+          "mantraKey": "string",
+          "chantCount": "number",
+          "sessionDate": "string (YYYY-MM-DD)",
+          "audioPlayed": "boolean",
+          "createdAt": "string (ISO 8601)"
+        }
+      },
+      "DashaPeriod": {
+        "schema": {
+          "planet": "PlanetId",
+          "level": "'mahadasha' | 'antardasha' | 'pratyantar'",
+          "start": "string (ISO date)",
+          "end": "string (ISO date)",
+          "durationYears": "number",
+          "children": "DashaPeriod[]"
+        }
+      },
+      "HardTruth": {
+        "schema": {
+          "id": "string",
+          "category": "'relationship' | 'career' | 'health' | 'finance' | 'karma'",
+          "severity": "'warning' | 'caution' | 'critical'",
+          "title": "string",
+          "body": "string",
+          "remedy": "string",
+          "triggerCondition": "string",
+          "isLocked": "boolean",
+          "unlockRequiredTier": "SubscriptionTierKey"
+        }
+      },
+      "MantraConfig": {
+        "schema": {
+          "planet": "PlanetId",
+          "beejMantra": "string",
+          "vedaMantra": "string",
+          "audioUrl": "string (Cloudflare R2 CDN URL)",
+          "chantCount108": "boolean",
+          "color": "string (hex)",
+          "deity": "string",
+          "gemstone": "string",
+          "bestDay": "string"
+        }
+      }
+    },
+    "revenue_engine": {
+      "wealth_yoga_calculation": {
+        "description": "Combined Parashari + Bhrigu Nandi Nadi wealth scoring (skill.md Section 9.1)",
+        "algorithm_version": "v1",
+        "parashari_component": {
+          "max_score": 60,
+          "factors": {
+            "dhan_yoga_count": {
+              "description": "2nd and 11th lord conjunction/mutual aspect/exchange",
+              "score_per_yoga": 8,
+              "cap": 24
+            },
+            "second_house_strength": {
+              "description": "Shadbala of 2nd lord × house occupant benefic count",
+              "max_score": 10
+            },
+            "eleventh_house_strength": {
+              "description": "Shadbala of 11th lord × ashtakavarga score of 11th house",
+              "max_score": 10
+            },
+            "jupiter_venus_strength": {
+              "description": "Combined Shadbala of Jupiter and Venus normalized to 0-16",
+              "max_score": 16
+            }
+          }
+        },
+        "bnn_component": {
+          "max_score": 40,
+          "factors": {
+            "bhrigu_bindu_activation": {
+              "description": "Moon-Rahu midpoint falls in trine to 2nd or 11th lord",
+              "score": 15
+            },
+            "nadi_yoga_wealth": {
+              "description": "Specific Nadi planetary pairs (Jupiter-Saturn 3-11 axis, Venus-Mercury 2-12 axis)",
+              "score_per_pair": 10,
+              "cap": 20
+            },
+            "active_dasha_multiplier": {
+              "description": "If current Mahadasha/Antardasha lord is a wealth yoga activator, multiply total by 1.0-1.5",
+              "multiplier_range": [1.0, 1.5]
+            }
+          }
+        },
+        "output_thresholds": {
+          "0-30": "Modest wealth potential",
+          "31-55": "Moderate wealth potential",
+          "56-75": "Strong wealth potential",
+          "76-100": "Exceptional wealth potential — trigger Hard Truths unlock prompt"
+        }
+      },
+      "green_red_algorithm": {
+        "description": "Weighted Panchanga + personal Dasha scoring per skill.md Section 9.2",
+        "algorithm_version": "v1",
+        "total_weight": 100,
+        "panchanga_factors": {
+          "tithi": { "weight": 20, "source": "Moon elongation from Sun (0-360° / 12°)", "auspicious_tithis": [1,2,3,5,7,10,11,13], "inauspicious_tithis": [4,6,8,9,12,14,30] },
+          "vara": { "weight": 10, "auspicious_varas": ["Wednesday", "Thursday", "Friday"], "neutral_varas": ["Monday", "Sunday"], "inauspicious_varas": ["Tuesday", "Saturday"] },
+          "nakshatra": { "weight": 15, "auspicious_nakshatras": ["Ashwini","Rohini","Mrigashira","Punarvasu","Pushya","Hasta","Chitra","Swati","Anuradha","Mula","Uttara Phalguni","Uttara Ashadha","Uttara Bhadrapada","Revati"], "inauspicious_nakshatras": ["Bharani","Krittika","Ardra","Ashlesha","Magha","Vishakha","Jyeshtha","Shatabhisha"] },
+          "yoga": { "weight": 10, "auspicious_yogas": ["Siddhi","Amrita","Shubha","Shukla","Brahma","Indra","Vaidhriti_avoided"], "inauspicious_yogas": ["Vishkambha","Atiganda","Vyaghata","Parigha","Vajra","Vaidhriti"] },
+          "karana": { "weight": 5, "auspicious_karanas": ["Bava","Balava","Kaulava","Taitila","Gara","Vanija"], "inauspicious_karanas": ["Vishti (Bhadra)"] }
+        },
+        "personal_dasha_factor": {
+          "weight": 25,
+          "logic": "Score based on natal benefic/malefic designation of Mahadasha lord (±15) + Antardasha lord (±10) for the individual chart"
+        },
+        "moon_transit_factor": {
+          "weight": 15,
+          "logic": "Transiting Moon's relationship to natal Moon and Ascendant (trine/sextile = +15, square/opposition = -15, conjunction = variable)"
+        },
+        "cache_strategy": "Pre-compute full month on first request; store in green_red_cache table with 30-day Redis TTL"
+      },
+      "hard_truths_trigger": {
+        "description": "Conditions that generate gated Hard Truths content requiring dharma_pass unlock",
+        "triggers": [
+          {
+            "id": "antardasha_malefic_overlap",
+            "condition": "Current Antardasha lord is a malefic AND is 6th/8th/12th lord in natal chart",
+            "content": "Detailed warning about upcoming challenging 18-month window with domain-specific cautions",
+            "severity": "critical"
+          },
+          {
+            "id": "career_switch_window",
+            "condition": "10th lord Mahadasha OR Antardasha active AND Saturn transiting 10th house from Moon",
+            "content": "Career inflection point analysis with recommended action windows",
+            "severity": "warning"
+          },
+          {
+            "id": "afflicted_seventh_house",
+            "condition": "7th house has 2+ malefic occupants OR 7th lord is debilitated/combust",
+            "content": "Relationship karmic pattern assessment with remedial guidance",
+            "severity": "caution"
+          },
+          {
+            "id": "kaal_sarp_dosha",
+            "condition": "All 7 planets (excluding Rahu/Ketu) fall between Rahu and Ketu axis",
+            "content": "Kaal Sarp dosha intensity level, affected domains, and Rahu/Ketu Mahadasha timing warnings",
+            "severity": "critical"
+          },
+          {
+            "id": "shani_sade_sati",
+            "condition": "Saturn transiting 12th, 1st, or 2nd house from natal Moon sign",
+            "content": "Sade Sati phase (rising/peak/setting), impact timeline, and remedial protocol",
+            "severity": "warning"
+          },
+          {
+            "id": "high_wealth_yoga_unlocked",
+            "condition": "wealth_score.total > 75",
+            "content": "Specific dasha windows for peak earning potential and wealth yoga activation timing",
+            "severity": "positive_gate"
+          }
+        ]
+      },
+      "upsell_triggers": [
+        {
+          "id": "year3_forecast_blur",
+          "moment": "User scrolls to Year 3 forecast card and sees blur overlay",
+          "variant": "blur_overlay",
+          "cta": "Unlock 3-Year Forecast — ₹499/month",
+          "conversion_priority": 1
+        },
+        {
+          "id": "green_red_7day_limit",
+          "moment": "User tries to view Green/Red calendar beyond day 7 on free tier",
+          "variant": "bottom_sheet",
+          "cta": "See Full Month — Upgrade to Dharma Pass",
+          "conversion_priority": 2
+        },
+        {
+          "id": "hard_truths_gate_tap",
+          "moment": "User taps the blurred Hard Truths section after chart summary",
+          "variant": "modal",
+          "cta": "Reveal Your Hard Truths — ₹499/month",
+          "conversion_priority": 1
+        },
+        {
+          "id": "time_slider_lock",
+          "moment": "User drags Time Slider past current date and hits the future lock",
+          "variant": "inline_banner",
+          "cta": "Unlock Future Transit View — Dharma Pass",
+          "conversion_priority": 3
+        },
+        {
+          "id": "altar_session_streak",
+          "moment": "User completes 7-day chant streak and sees streak badge prompt",
+          "variant": "bottom_sheet",
+          "cta": "Unlock Full Altar Analytics + Mantra Prescriptions",
+          "conversion_priority": 4
+        },
+        {
+          "id": "dasha_change_notification",
+          "moment": "User receives email that their Mahadasha changes within 90 days and clicks through",
+          "variant": "modal",
+          "cta": "Get Your Dasha Transition Deep-Dive — ₹499/month",
+          "conversion_priority": 2
+        }
+      ]
+    },
+    "subscription_tiers": {
+      "free": {
+        "key": "free",
+        "display_name": "Free",
+        "price_monthly_inr": 0,
+        "price_yearly_inr": 0,
+        "features": [
+          "Full D1 Rasi chart calculation (client-side, Lahiri ayanamsa)",
+          "All 9 planet positions with sign, house, nakshatra, dignity",
+          "Ascendant and basic house lord display",
+          "Current Mahadasha and Antardasha display",
+          "Green/Red Calendar — 7-day preview only",
+          "Digital Altar access (chant tracking, basic 9-planet shrine)",
+          "Chart sharing via unique URL",
+          "Basic Dasha timeline (Mahadasha level only)",
+          "Wealth Yoga count display (no detailed breakdown)",
+          "Hard Truths section teaser (blurred, count revealed)",
+          "1 saved chart per account"
+        ],
+        "green_red_days_limit": 7,
+        "forecast_years_limit": 1,
+        "time_slider_enabled": false,
+        "hard_truths_enabled": false,
+        "altar_enabled": true,
+        "consultation_booking": false,
+        "white_label_export": false,
+        "api_access": false
+      },
+      "dharma_pass": {
+        "key": "dharma_pass",
+        "display_name": "Dharma Pass",
+        "price_monthly_inr": 499,
+        "price_yearly_inr": 3999,
+        "price_monthly_usd": 5.99,
+        "price_yearly_usd": 47.99,
+        "razorpay_plan_id_monthly": "plan_dharma_monthly",
+        "razorpay_plan_id_yearly": "plan_dharma_yearly",
+        "stripe_price_id_monthly": "price_dharma_monthly_usd",
+        "stripe_price_id_yearly": "price_dharma_yearly_usd",
+        "features": [
+          "Everything in Free",
+          "Full Green/Red Calendar — 30-day view for any month",
+          "3-Year Domain Forecast (Career, Relationships, Health, Finance, Spirituality)",
+          "Time Slider — scrub from birth to 10 years future",
+          "Hard Truths section fully unlocked (all 6 trigger categories)",
+          "Antardasha and Pratyantar Dasha timeline",
+          "D9 Navamsa and D10 Dashamsa divisional charts",
+          "Wealth Yoga detailed breakdown with activation dasha timing",
+          "BNN Yoga analysis with domain-specific scoring",
+          "Altar session history and streak analytics",
+          "Priority email support",
+          "Unlimited saved charts",
+          "PDF chart export (VedaVision branded)"
+        ],
+        "green_red_days_limit": 30,
+        "forecast_years_limit": 3,
+        "time_slider_enabled": true,
+        "hard_truths_enabled": true,
+        "altar_enabled": true,
+        "consultation_booking": false,
+        "white_label_export": false,
+        "api_access": false
+      },
+      "jyotishi_pro": {
+        "key": "jyotishi_pro",
+        "display_name": "Jyotishi Pro",
+        "price_monthly_inr": 1499,
+        "price_yearly_inr": 14999,
+        "price_monthly_usd": 17.99,
+        "price_yearly_usd": 179.99,
+        "razorpay_plan_id_monthly": "plan_pro_monthly",
+        "razorpay_plan_id_yearly": "plan_pro_yearly",
+        "stripe_price_id_monthly": "price_pro_monthly_usd",
+        "stripe_price_id_yearly": "price_pro_yearly_usd",
+        "features": [
+          "Everything in Dharma Pass",
+          "5-Year Domain Forecast with monthly granularity",
+          "Time Slider — scrub from birth to 25 years future",
+          "Consultation Booking — 1-on-1 Jyotishi sessions (external booking integration)",
+          "White-label Chart Export — PDF/SVG with custom branding removed",
+          "All 6 divisional charts (D1, D2, D3, D9, D10, D12)",
+          "Ashtakavarga full table with transit bindhu scores",
+          "Sarvashtakavarga cumulative chart",
+          "Shadbala strength scores for all planets",
+          "Compatibility (Kundali Milan) — 36-point Guna matching",
+          "Muhurta auspicious timing calculator",
+          "Bulk chart generation via REST API (100 charts/day)",
+          "Webhook support for dasha change alerts",
+          "Team seats — up to 3 sub-accounts",
+          "Priority Crisp chat support with dedicated queue",
+          "Early access to new features"
+        ],
+        "green_red_days_limit": 365,
+        "forecast_years_limit": 5,
+        "time_slider_enabled": true,
+        "hard_truths_enabled": true,
+        "altar_enabled": true,
+        "consultation_booking": true,
+        "white_label_export": true,
+        "api_access": true,
+        "api_rate_limit": "100 charts/day"
+      }
+    },
+    "integrations": {
+      "swisseph_wasm": {
+        "package": "swisseph-wasm",
+        "version": "^2.10.3",
+        "purpose": "Client-side Vedic planetary calculation",
+        "ayanamsa": "Lahiri (SE_SIDM_LAHIRI = 1)",
+        "house_system": "W (Whole Sign)",
+        "wasm_load_strategy": "dynamic import with loading spinner gate",
+        "ephemeris_files": ["seas_18.se1", "sepl_18.se1", "semo_18.se1"],
+        "ephemeris_cdn": "https://cdn.vedavision.app/ephe/",
+        "fallback": "Server-side calculation via /api/chart/calculate if WASM fails"
+      },
+      "google_fonts": {
+        "fonts": [
+          {
+            "family": "Cormorant Garamond",
+            "weights": [300, 400, 500, 600, 700],
+            "styles": ["normal", "italic"],
+            "use": "All headings, chart labels, mantra text, brand wordmark"
+          },
+          {
+            "family": "Inter",
+            "weights": [400, 500, 600],
+            "styles": ["normal"],
+            "use": "Body text, UI labels, data tables, navigation"
+          }
+        ],
+        "load_strategy": "font-display: swap via <link rel=preconnect> + @import in global CSS",
+        "self_hosted_fallback": true
+      },
+      "audio_cdn": {
+        "provider": "Cloudflare R2",
+        "bucket": "vedavision-audio",
+        "cdn_base_url": "https://audio.vedavision.app",
+        "files": {
+          "Sun": { "key": "mantras/sun-beej.mp3", "mantra": "Om Hraam Hreem Hroum Sah Suryaya Namah", "duration_seconds": 12 },
+          "Moon": { "key": "mantras/moon-beej.mp3", "mantra": "Om Shraam Shreem Shroum Sah Chandraaya Namah", "duration_seconds": 13 },
+          "Mars": { "key": "mantras/mars-beej.mp3", "mantra": "Om Kraam Kreem Kroum Sah Bhaumaaya Namah", "duration_seconds": 12 },
+          "Mercury": { "key": "mantras/mercury-beej.mp3", "mantra": "Om Braam Breem Broum Sah Budhaaya Namah", "duration_seconds": 12 },
+          "Jupiter": { "key": "mantras/jupiter-beej.mp3", "mantra": "Om Graam Greem Groum Sah Gurave Namah", "duration_seconds": 11 },
+          "Venus": { "key": "mantras/venus-beej.mp3", "mantra": "Om Draam Dreem Droum Sah Shukraaya Namah", "duration_seconds": 12 },
+          "Saturn": { "key": "mantras/saturn-beej.mp3", "mantra": "Om Praam Preem Proum Sah Shanaischaraaya Namah", "duration_seconds": 14 },
+          "Rahu": { "key": "mantras/rahu-beej.mp3", "mantra": "Om Bhraam Bhreem Bhroum Sah Raahave Namah", "duration_seconds": 13 },
+          "Ketu": { "key": "mantras/ketu-beej.mp3", "mantra": "Om Straam Streem Stroum Sah Ketave Namah", "duration_seconds": 12 }
+        },
+        "format": "MP3 128kbps",
+        "total_files": 9,
+        "cache_control": "public, max-age=31536000"
+      },
+      "analytics": {
+        "provider": "PostHog",
+        "host": "https://app.posthog.com",
+        "api_key_env": "POSTHOG_API_KEY",
+        "tracked_events": [
+          "chart_calculated",
+          "green_red_viewed",
+          "hard_truths_gate_hit",
+          "time_slider_drag_start",
+          "time_slider_future_lock_hit",
+          "altar_chant_completed",
+          "altar_streak_milestone",
+          "subscription_gate_shown",
+          "subscription_gate_cta_clicked",
+          "subscription_checkout_started",
+          "subscription_payment_completed",
+          "subscription_cancelled",
+          "forecast_card_viewed",
+          "forecast_year3_blur_seen",
+          "dasha_timeline_extended_locked",
+          "chart_shared"
+        ],
+        "funnels": [
+          { "name": "Free to Dharma Pass", "steps": ["chart_calculated", "hard_truths_gate_hit", "subscription_gate_cta_clicked", "subscription_payment_completed"] },
+          { "name": "Green/Red Upgrade", "steps": ["green_red_viewed", "subscription_gate_shown", "subscription_gate_cta_clicked", "subscription_payment_completed"] },
+          { "name": "Altar Retention", "steps": ["altar_chant_completed", "altar_streak_milestone"] }
+        ],
+        "feature_flags": ["new_onboarding_flow", "altar_v2", "compatibility_beta"]
+      },
+      "email": {
+        "provider": "Resend",
+        "api_key_env": "RESEND_API_KEY",
+        "from_address": "noreply@vedavision.app",
+        "from_name": "VedaVision",
+        "templates": [
+          {
+            "id": "chart_ready",
+            "trigger": "chart calculation complete for logged-in user",
+            "subject": "Your Kundali is ready — {{name}}",
+            "content": "Chart summary link, current dasha, top 3 yogas"
+          },
+          {
+            "id": "subscription_confirm",
+            "trigger": "successful subscription payment",
+            "subject": "Dharma Pass activated — Welcome, {{name}}",
+            "content": "Tier confirmation, features unlocked, next billing date"
+          },
+          {
+            "id": "subscription_cancelled",
+            "trigger": "cancel_at_period_end set to true",
+            "subject": "Your Dharma Pass ends on {{date}}",
+            "content": "Access end date, resubscribe CTA, feature loss summary"
+          },
+          {
+            "id": "dasha_change_alert",
+            "trigger": "90 days before Mahadasha change (cron job)",
+            "subject": "A major cycle shifts in 90 days — Are you ready?",
+            "content": "Outgoing dasha summary, incoming dasha preview, upgrade CTA"
+          },
+          {
+            "id": "green_red_weekly",
+            "trigger": "weekly digest for dharma_pass+ users (Sunday)",
+            "subject": "Your week ahead — {{start_date}} to {{end_date}}",
+            "content": "Top 3 green days, 1 red day warning, dominant transit"
+          }
+        ]
+      },
+      "support": {
+        "provider": "Crisp",
+        "website_id_env": "CRISP_WEBSITE_ID",
+        "widget_position": "bottom-right",
+        "auto_hide_on_routes": ["/chart/:chartId"],
+        "user_data_sync": ["email", "name", "subscription_tier", "account_age_days"],
+        "pro_queue": {
+          "enabled": true,
+          "trigger_tier": "jyotishi_pro",
+          "label": "Pro Support"
+        }
+      },
+      "supabase": {
+        "project_url_env": "SUPABASE_URL",
+        "anon_key_env": "SUPABASE_ANON_KEY",
+        "service_role_key_env": "SUPABASE_SERVICE_ROLE_KEY",
+        "features_used": ["Auth (Google + OTP)", "PostgreSQL database", "Row Level Security", "Realtime (altar session sync)", "Storage (chart exports)"]
+      },
+      "razorpay": {
+        "key_id_env": "RAZORPAY_KEY_ID",
+        "key_secret_env": "RAZORPAY_KEY_SECRET",
+        "webhook_secret_env": "RAZORPAY_WEBHOOK_SECRET",
+        "test_mode_env": "RAZORPAY_TEST_MODE"
+      },
+      "stripe": {
+        "publishable_key_env": "STRIPE_PUBLISHABLE_KEY",
+        "secret_key_env": "STRIPE_SECRET_KEY",
+        "webhook_secret_env": "STRIPE_WEBHOOK_SECRET"
+      }
+    }
+  }
+}

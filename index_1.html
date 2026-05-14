@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jyotiṣa · Birth Chart Reflection</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0A0618; }
+    #root { min-height: 100vh; }
+  </style>
+  <!-- React 18 + Babel standalone for local development without a build step -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!--
+    IMPORTANT: This inline script tag loads KundaliApp.jsx via a fetch+eval pattern
+    because Babel standalone cannot import ES modules from file:// directly.
+    For production, use Vite / Create React App and import normally.
+  -->
+  <script type="text/babel" data-type="module">
+    /*
+     * Inline reimport shim for standalone HTML use.
+     * The full source lives in KundaliApp.jsx — this file loads it dynamically.
+     *
+     * If you open this file over http:// (e.g. via VS Code Live Server or
+     * `npx serve .`), the fetch below will pick up KundaliApp.jsx automatically.
+     * If you open it as a local file:// URL, paste the KundaliApp.jsx contents
+     * below the "PASTE HERE" comment instead.
+     */
+
+    // ─── Attempt dynamic load (works over HTTP) ───────────────────────────
+    async function main() {
+      let source;
+      try {
+        const res = await fetch("./KundaliApp.jsx");
+        if (!res.ok) throw new Error("fetch failed");
+        source = await res.text();
+        // Strip ES module syntax so Babel standalone can process it
+        source = source
+          .replace(/^import\s.*?;?\s*$/gm, "")
+          .replace(/^export default /, "const KundaliApp = ")
+          .replace(/^export /gm, "");
+        // Eval with Babel
+        const transformed = Babel.transform(source, { presets: ["react"] }).code;
+        // eslint-disable-next-line no-new-func
+        new Function("React", "useState", "useEffect", "useRef", "ReactDOM", transformed + `
+          const container = document.getElementById("root");
+          const root = ReactDOM.createRoot(container);
+          root.render(React.createElement(KundaliApp));
+        `)(React, React.useState, React.useEffect, React.useRef, ReactDOM);
+      } catch (e) {
+        // ─── Fallback: file:// mode — show helpful message ───────────────
+        document.getElementById("root").innerHTML = `
+          <div style="
+            min-height:100vh; display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            background:#0A0618; color:#7A6A9A;
+            font-family:'Cormorant Garamond',Georgia,serif; text-align:center; padding:40px;
+          ">
+            <h1 style="color:#C0A860;font-size:28px;font-weight:300;margin-bottom:16px;">
+              Jyotiṣa · Birth Chart Reflection
+            </h1>
+            <p style="max-width:420px;line-height:1.8;font-size:15px;margin-bottom:20px;">
+              Open this file over a local server to load the app.
+            </p>
+            <div style="
+              background:rgba(88,55,140,0.18);border:1px solid #4A3A6A;
+              border-radius:8px;padding:16px 24px;max-width:480px;text-align:left;
+              font-family:monospace;font-size:12px;color:#C0A860;
+            ">
+              <p style="margin-bottom:8px;">Option 1 — Node:</p>
+              <code style="color:#A08050;">cd "Kundali APP" &amp;&amp; npx serve .</code>
+              <br/><br/>
+              <p style="margin-bottom:8px;">Option 2 — Python:</p>
+              <code style="color:#A08050;">cd "Kundali APP" &amp;&amp; python -m http.server 3000</code>
+              <br/><br/>
+              <p style="margin-bottom:8px;">Then open:</p>
+              <code style="color:#A08050;">http://localhost:3000</code>
+            </div>
+            <p style="margin-top:24px;font-size:12px;color:#4A3A6A;">
+              Error detail: ${e.message}
+            </p>
+          </div>
+        `;
+      }
+    }
+    main();
+  </script>
+</body>
+</html>
