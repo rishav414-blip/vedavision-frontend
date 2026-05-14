@@ -1599,8 +1599,11 @@
         </div>
       </div>
       ${(y.do && y.dont) ? `
-      <div style="margin-top:1.25rem">
-        <div style="font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:.75rem">Guidance for ${y.year}</div>
+      <details style="margin-top:1.25rem" ${DEVICE.desktop ? 'open' : ''}>
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:.65rem;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3)">
+          Guidance for ${y.year}
+          <span style="font-size:.75rem;opacity:.5">▾</span>
+        </summary>
         <div class="do-dont-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
           <div style="padding:.9rem 1rem;border-radius:14px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2)">
             <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#22C55E;margin-bottom:.6rem">✓ This Year — Do</div>
@@ -1611,7 +1614,7 @@
             ${y.dont.map(item => `<div style="display:flex;gap:.5rem;margin-bottom:.45rem;font-size:.78rem;color:var(--txt2);line-height:1.55"><span style="color:#EF4444;flex-shrink:0;font-size:.7rem;margin-top:.2rem">▸</span><span>${item}</span></div>`).join('')}
           </div>
         </div>
-      </div>` : ''}
+      </details>` : ''}
       <div class="health-card">❤ <strong>Health (${y.year}):</strong> ${y.health}</div>
     </div>`;
       }).join('');
