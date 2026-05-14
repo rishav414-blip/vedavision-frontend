@@ -3106,11 +3106,8 @@
           const chart = window._activeChart || SAMPLE_CHART;
           const md = chart.dasha && chart.dasha.current ? (chart.dasha.current.planet || 'Saturn') : 'Saturn';
           const lagna = chart.lagna ? (chart.lagna.signEn || 'Scorpio') : 'Scorpio';
-          if (DEVICE.mobile) {
-            addAskMessage(`${lagna} Lagna · ${md} Mahādaśā active.\nAsk about career, money, health, or any placement.`, false);
-          } else {
-            addAskMessage(`Your chart is ready. I'm Jyoti — here to help you explore what your birth chart holds.\n\nYou have ${lagna} Lagna with ${md} Mahādaśā active. Is there a particular house, planet, period, or theme you'd like to explore first?`, false);
-          }
+          addAskMessage(`${lagna} Lagna · ${md} Mahādaśā. I'm Jyoti — what's on your mind?`, false);
+          addQuickReplies(['Career outlook?', 'Wealth this period?', 'Relationship outlook?', 'Health check?']);
         }
       });
 
