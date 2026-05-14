@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://vedavision-backend.onrender.com https://geocoding-api.open-meteo.com https://wa.me wss:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; worker-src blob:;">
 <title>VedaVision — Your Cosmic Destiny Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,13 +183,13 @@
 
 <!-- ═══ SUMMARY BAR ═══ -->
 <div id="summary-bar">
-  <div class="sum-chip">👤 <span id="sumName">—</span></div>
-  <div class="sum-chip">🎂 <span id="sumDob">—</span></div>
-  <div class="sum-chip">⬆ Lagna: <span id="sumLagna" style="color:var(--violet2)">—</span></div>
-  <div class="sum-chip">🌙 Moon: <span id="sumMoon" style="color:#94A3B8">—</span></div>
-  <div class="sum-chip">☀ Sun: <span id="sumSun" style="color:#F59E0B">—</span></div>
-  <div class="sum-chip">⏳ Dasha: <span id="sumDasha" style="color:#6366F1">—</span></div>
-  <span class="sum-edit" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth'})">Edit ✎</span>
+  <div class="sum-chip">👤 <span id="sumName" style="font-weight:700;color:var(--txt)">—</span></div>
+  <div class="sum-chip" style="display:none" id="sumDobChip">🎂 <span id="sumDob">—</span></div>
+  <div class="sum-chip">⬆ <span id="sumLagna" style="color:var(--violet2);font-weight:600">—</span></div>
+  <div class="sum-chip">🌙 <span id="sumMoon" style="color:#94A3B8;font-weight:600">—</span></div>
+  <div class="sum-chip">☀ <span id="sumSun" style="color:#F59E0B;font-weight:600">—</span></div>
+  <div class="sum-chip" style="border-color:rgba(99,102,241,.3);background:rgba(99,102,241,.08)">⏳ <span id="sumDasha" style="color:#9D9EF6;font-weight:600">—</span></div>
+  <span class="sum-edit" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth'})">✎ Edit</span>
 </div>
 
 <!-- ═══ RESULTS ═══ -->
@@ -285,8 +286,8 @@
         <div class="yoga-card glass" style="opacity:.4"><h4>Yogas load after chart calculation</h4><p>Submit your birth details to identify active Yogas in your chart.</p></div>
       </div>
 
-      <!-- CELEBRITY TWIN -->
-      <div id="celebrity-twin-card" class="glass" style="padding:1.25rem 1.5rem;border-radius:var(--r-lg);margin-top:1rem;display:none">
+      <!-- CELEBRITY TWIN — moved above compat card -->
+      <div id="celebrity-twin-card" style="padding:1.25rem 1.5rem;border-radius:var(--r-lg);margin-bottom:1rem;display:none;background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(245,158,11,.05));border:1px solid rgba(124,58,237,.2)">
         <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.75rem">⭐ Your Cosmic Twin</div>
         <div id="twin-content"></div>
       </div>
@@ -321,6 +322,10 @@
             <tbody id="planet-tbody"></tbody>
           </table>
         </div>
+      </div>
+      <div id="chart-insights-summary" style="margin-top:1.5rem;display:none">
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.75rem">📊 Chart Reading Summary</div>
+        <div id="chart-insights-content" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem"></div>
       </div>
       <div class="house-tooltip glass" id="houseTooltip"></div>
     </div>
@@ -772,6 +777,8 @@ function initResults(name, dob, pob, apiData) {
   // Update summary bar
   document.getElementById('sumName').textContent = name;
   document.getElementById('sumDob').textContent = new Date(dob).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const dobChip = document.getElementById('sumDobChip');
+  if (dobChip) dobChip.style.display = 'flex';
 
   // Summary bar chips by ID
   const lagnaEl = document.getElementById('sumLagna');
@@ -871,6 +878,7 @@ function initResults(name, dob, pob, apiData) {
   renderChart('chart-svg');
   renderChart('ts-chart-svg', true);
   renderPlanetTable();
+  renderChartInsights(window._activeChart);
   renderForecast(window._activeChart);
   renderRemedies(window._activeChart);
   renderInsights(window._activeChart);
@@ -1030,6 +1038,106 @@ function renderPlanetTable() {
     </tr>`).join('');
 }
 document.addEventListener('DOMContentLoaded', renderPlanetTable);
+
+function renderChartInsights(chart) {
+  const wrap = document.getElementById('chart-insights-summary');
+  const content = document.getElementById('chart-insights-content');
+  if (!wrap || !content || !chart) return;
+
+  const GG = {Sun:'☉',Moon:'☽',Mars:'♂',Mercury:'☿',Jupiter:'♃',Venus:'♀',Saturn:'♄',Rahu:'☊',Ketu:'☋'};
+  const CC = {Sun:'#F59E0B',Moon:'#94A3B8',Mars:'#EF4444',Mercury:'#10B981',Jupiter:'#F97316',Venus:'#EC4899',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C'};
+
+  // Find strongest planet
+  const dignityRank = {'Exalted':5,'Own Sign':4,'Moolatrikona':4,'Friendly':3,'Neutral/Friendly':3,'Neutral':2,'Enemy':1,'Debilitated':0};
+  const planets = chart.planetTable || [];
+  const sorted = [...planets].sort((a,b) => (dignityRank[b.dignity]||2) - (dignityRank[a.dignity]||2));
+  const strongest = sorted[0];
+  const weakest = sorted[sorted.length-1];
+
+  // Lagna theme
+  const LAGNA_THEMES = {
+    Aries:'Pioneering energy and natural leadership. You initiate where others hesitate.',
+    Taurus:'Patient builder with deep appreciation for beauty and material stability.',
+    Gemini:'Quick intellect and adaptability. You thrive in communication and connection.',
+    Cancer:'Deeply intuitive and nurturing. Emotional intelligence is your superpower.',
+    Leo:'Natural authority and creative expression. You are meant to be seen.',
+    Virgo:'Analytical precision and service-orientation. Excellence through detail.',
+    Libra:'Balance-seeking diplomat. Partnerships and justice are your natural arenas.',
+    Scorpio:'Depth, transformation, and penetrating insight. Nothing superficial satisfies you.',
+    Sagittarius:'Philosophical explorer. Wisdom, freedom, and meaning drive everything you do.',
+    Capricorn:'Disciplined achiever. You build empires through patience and structure.',
+    Aquarius:'Unconventional innovator. You think for the collective, not just yourself.',
+    Pisces:'Empathic mystic. Creativity, spirituality, and compassion define your path.'
+  };
+
+  const lagna = chart.lagna ? (chart.lagna.signEn || chart.lagna.sign) : '';
+  const lagnaTheme = LAGNA_THEMES[lagna] || 'Your rising sign shapes your entire personality and approach to life.';
+
+  // Key life focus (10th house)
+  const house10 = chart.houses ? chart.houses.find(h => h.id === 10) : null;
+  const house2  = chart.houses ? chart.houses.find(h => h.id === 2)  : null;
+  const house11 = chart.houses ? chart.houses.find(h => h.id === 11) : null;
+
+  const yogaCount = chart.yogas ? chart.yogas.length : 0;
+  const yogaNames = chart.yogas ? chart.yogas.map(y => y.name).join(', ') : 'None';
+
+  const insights = [
+    {
+      icon: strongest ? (GG[strongest.planet]||'✦') : '✦',
+      color: strongest ? (CC[strongest.planet]||'#7C3AED') : '#7C3AED',
+      title: 'Strongest Planet',
+      value: strongest ? `${strongest.planet} in ${strongest.sign}` : '—',
+      desc: strongest ? `${strongest.dignity} — this planet's themes (${strongest.notes||'see planet table'}) are maximally expressed in your life.` : ''
+    },
+    {
+      icon: '⬆',
+      color: '#9D5CF6',
+      title: `${lagna} Lagna`,
+      value: 'Your Core Nature',
+      desc: lagnaTheme
+    },
+    {
+      icon: house10 ? '💼' : '🎯',
+      color: '#F59E0B',
+      title: 'Career House (10th)',
+      value: house10 ? house10.sign : '—',
+      desc: house10 && house10.planets.length ? `${house10.planets.join(', ')} placed here — career is actively energised and directly expressed through these planetary themes.` : 'No planets here — career unfolds through the 10th lord\'s placement elsewhere in the chart.'
+    },
+    {
+      icon: '💰',
+      color: '#22C55E',
+      title: 'Wealth Houses',
+      value: `2nd: ${house2?house2.sign:'—'} · 11th: ${house11?house11.sign:'—'}`,
+      desc: `Your wealth accumulation (2nd house) and income gains (11th house) flow through these signs. ${chart.wealthScore ? `Wealth Yoga Score: ${chart.wealthScore.total}/100.` : ''}`
+    },
+    {
+      icon: '✨',
+      color: '#06B6D4',
+      title: `${yogaCount} Active Yoga${yogaCount!==1?'s':''}`,
+      value: yogaCount > 0 ? 'Auspicious Combinations' : 'Individual Planet Strength',
+      desc: yogaCount > 0 ? `${yogaNames}. These combinations indicate specific areas where life tends to flow favorably — they activate most fully during the Dasha of the planets forming them.` : 'Your chart\'s strength comes from individual planetary dignities rather than classical yogic combinations.'
+    },
+    {
+      icon: weakest ? '⚠' : '✓',
+      color: weakest && ['Debilitated','Enemy'].includes(weakest.dignity) ? '#EF4444' : '#22C55E',
+      title: weakest && ['Debilitated','Enemy'].includes(weakest.dignity) ? 'Planet Needing Support' : 'Balanced Chart',
+      value: weakest && ['Debilitated','Enemy'].includes(weakest.dignity) ? `${weakest.planet} in ${weakest.sign}` : 'No major weakness',
+      desc: weakest && ['Debilitated','Enemy'].includes(weakest.dignity) ? `${weakest.planet} is ${weakest.dignity} here — this planet\'s significations may require conscious effort and remedies to express positively. See the Remedies tab for specific upayas.` : 'Your planetary placements are relatively balanced without major debilitation.'
+    }
+  ];
+
+  content.innerHTML = insights.map(ins => `
+    <div style="padding:.9rem 1rem;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-left:3px solid ${ins.color}">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+        <span style="color:${ins.color};font-size:1rem">${ins.icon}</span>
+        <span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3)">${ins.title}</span>
+      </div>
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">${ins.value}</div>
+      <div style="font-size:.77rem;color:var(--txt2);line-height:1.55">${ins.desc}</div>
+    </div>`).join('');
+
+  wrap.style.display = 'block';
+}
 
 // ── FORECAST ──
 function renderForecast(chart) {
@@ -2369,15 +2477,68 @@ window.addEventListener('load', () => {
 
 /* ═══ ASK YOUR CHART ═══ */
 const ASK_RESPONSES = {
-  job: (md, ad, lagna) => `Based on your ${lagna} Lagna and current ${md}/${ad} Dasha period: ${md === 'Jupiter' || md === 'Mercury' || md === 'Venus' ? `This is actually a strong period for career moves — ${md} Mahadasha supports professional expansion. If the opportunity feels right, the planetary energy supports action.` : md === 'Saturn' ? `Saturn Mahadasha rewards patience and structural changes over impulsive leaps. A job change works best if it moves you toward more discipline and long-term security — not just better pay.` : `The ${md} Mahadasha period suggests evaluating the opportunity carefully. Look at whether it aligns with the houses ${md} rules in your chart.`} The best months to act are when Jupiter transits your 10th or 11th house.`,
+  job: (md, ad, lagna) => {
+    const advice = {
+      Jupiter:`This is actually one of the better periods to make a move. Jupiter as your Antardasha lord naturally expands opportunities — if an offer feels genuinely aligned with your values and skills, the planetary support is there. The key question isn't "should I change?" but "does this new role allow me to teach, advise, or grow others?" — that's where Jupiter thrives.`,
+      Mercury:`Mercury Antardasha favors those who communicate and think quickly. A move into a role with more intellectual challenge, writing, analysis, or client communication would be well-supported right now. If you're feeling mentally bored in your current role, that's the planet talking.`,
+      Venus:`Venus periods favor partnerships and creative work. A change that brings you into more collaborative, aesthetically engaging, or client-facing work is supported. If the new role involves relationships, beauty, or luxury sectors — lean in.`,
+      Saturn:`Saturn Antardasha is cautious about job changes, not because they're wrong, but because Saturn rewards patience. If the change is toward something more structured, stable, and long-term — go for it. If it's a lateral move for more money but less security — wait.`,
+      Mars:`Mars wants action. If you've been sitting on this decision for more than 3 months, that's too long for a Mars period — just move. Mars supports bold career shifts, startups, technical roles, and anything requiring initiative.`,
+      Rahu:`Rahu periods support unconventional moves — the job that doesn't quite fit any category, the foreign opportunity, the startup, the industry pivot. If the new role feels slightly risky or unusual, that's actually the Rahu signal pointing you toward it.`,
+      Moon:`Trust your gut here — Moon Antardasha means your instincts are sharper than your logic right now. If the new environment feels emotionally right and the people feel trustworthy, that matters more than the job description.`,
+      Sun:`Sun Antardasha asks: does this new role give you more visibility, authority, or recognition? If yes, the planetary timing supports the move. If it's a step sideways or downward in visibility, wait for a stronger window.`,
+      Ketu:`Ketu periods are honestly not ideal for major external career moves. The energy is inward, not outward. This doesn't mean don't move — but check your motivation. If you're running toward something meaningful, fine. If you're running away from discomfort, wait.`
+    };
+    return `For your ${lagna} Lagna with ${md}/${ad} Dasha active right now:\n\n${advice[ad] || advice[md] || `The ${ad} Antardasha is the active force shaping your professional decisions. Before making any move, ask whether the new opportunity aligns with what ${ad} naturally supports — that alignment is more important than the timing.`}`;
+  },
+  money: (md, ad, lagna) => {
+    const advice = {
+      Jupiter:`Jupiter periods are genuinely favorable for wealth-building — but through growth and opportunity, not speculation. The best use of this period is to identify one area where your expertise can be monetized more systematically. Investments in education, coaching, or advisory services tend to compound well under Jupiter.`,
+      Venus:`Material comfort increases in Venus periods. This is a good time for property-related decisions, aesthetic or creative business ventures, and partnership-based income. The caution: Venus periods also make luxury feel necessary — watch lifestyle inflation outpacing income growth.`,
+      Mercury:`Multiple income streams suit Mercury perfectly. If you've been relying on one source, now is the time to add a second — consulting, writing, content, or trading. Mercury periods reward those who diversify and move quickly.`,
+      Saturn:`Saturn periods build wealth slowly and permanently. The honest truth: this is not a windfall period. It is a debt-clearance, savings-building, foundation-laying period. What you build now will outlast you — but it won't feel exciting while you're building it.`,
+      Rahu:`Rahu can deliver unusual gains — sudden income from unexpected sources, foreign connections, or new-economy opportunities. The risk is equally unusual losses if you speculate. Keep 30% of any gains liquid. Don't put everything into one bet during Rahu periods.`,
+      Mars:`Short-term gains are very possible — Mars rewards bold, fast action. Property, technical projects, or entrepreneurial moves can pay off quickly. The trap is impulsive financial decisions made in the heat of momentum. Make the move, but sleep on any commitment above ₹50,000.`,
+      Moon:`Income may be less predictable month to month — this is normal for Moon periods and not a reason to panic. Build a 3-month buffer and focus on consistent, recurring income sources rather than one-time gains.`,
+      Sun:`Income grows through authority and recognition this period. Asking for a raise, negotiating a better contract, or positioning yourself as an expert are all supported. Income tied to your personal brand or institutional role will perform well.`,
+      Ketu:`Ketu periods often bring unexpected expenses rather than gains. Protect what you have. If you're feeling called to donate, give, or invest in spiritual or research-oriented ventures — that's actually appropriate use of Ketu energy.`
+    };
+    return `${lagna} Lagna · ${md} Mahadasha · ${ad} Antardasha:\n\n${advice[ad] || advice[md] || `The ${ad} Antardasha shapes your financial decisions right now. Focus on what ${ad} naturally supports rather than fighting against its grain.`}`;
+  },
 
-  money: (md, ad, lagna) => `Your ${md}/${ad} period says: ${md === 'Jupiter' || md === 'Venus' ? `This is a favorable period for wealth-building. Systematic investments, not speculation, will compound well under this Dasha.` : md === 'Saturn' ? `Saturn periods reward debt clearance and conservative savings. Avoid speculative investments — build your foundation instead.` : md === 'Rahu' ? `Rahu periods can produce sudden gains but also sudden losses. Diversify and keep liquidity — don't put everything into one bet.` : `The ${md} period has mixed wealth signals. Focus on protecting what you have and building one steady income stream.`}`,
+  relationship: (md, ad, lagna) => {
+    const advice = {
+      Venus:`Venus Antardasha is one of the most supportive periods for relationships in the entire cycle. Partnerships formed now tend to have genuine staying power. If you're in a relationship, this is a good time to deepen commitment. If you're single, you're in a magnetism period — put yourself in social situations.`,
+      Moon:`Moon periods make you emotionally expressive and genuinely nurturing — which is attractive but also means you need a partner who can handle depth. Relationships feel very important right now, sometimes overwhelmingly so. Choose emotional stability over excitement.`,
+      Jupiter:`Jupiter Antardasha brings wisdom into relationships — you're attracting people who are intellectually and spiritually aligned with you. This is a period where a significant, lasting partnership can begin. The connection will likely involve teaching each other.`,
+      Saturn:`Relationships in Saturn periods are serious, tested, and real. Casual connections don't survive — and that's the point. If your relationship is going through a difficult period, it's being stress-tested for durability. Patience and honesty are your tools, not charm.`,
+      Mars:`Mars periods bring passion and sometimes conflict. New romantic connections have intensity but need grounding. If you're in a relationship, direct the Mars energy into shared projects and physical activity rather than arguments.`,
+      Mercury:`Intellectual compatibility matters most to you right now. You need someone you can talk to endlessly. Light, communicative, mentally stimulating connections thrive in Mercury periods.`,
+      Sun:`You need a partner who respects your authority and visibility right now. Any relationship that makes you feel small or unseen will feel unbearable during Sun periods. Look for someone who celebrates your achievements.`,
+      Rahu:`Relationships in Rahu periods are unconventional — cross-cultural, unexpected, or intensely karmic. They can be transformative. Approach with awareness: Rahu connections are magnetic but need ethical grounding.`,
+      Ketu:`Ketu periods bring detachment from relationships — not coldness, but a need for spiritual space. Existing relationships may feel less urgent. This is normal. If a relationship ends during Ketu, it was likely completing a karmic cycle.`
+    };
+    return `${lagna} Lagna · ${ad} Antardasha — relationship lens:\n\n${advice[ad] || advice[md] || `The ${ad} Antardasha shapes how you experience connection right now. Understanding what ${ad} seeks in relationships will help you navigate this period with clarity.`}`;
+  },
 
-  relationship: (md, ad, lagna) => `Your ${md}/${ad} Dasha and ${lagna} Lagna suggest: ${md === 'Venus' ? `Venus Mahadasha is one of the strongest periods for relationships. Partnerships formed now tend to be lasting and meaningful.` : md === 'Moon' ? `Moon Mahadasha makes relationships deeply emotional — you give and need more. Nurturing connections thrive; superficial ones feel hollow.` : md === 'Saturn' ? `Saturn periods test relationships through patience and responsibility. Relationships that survive this period are built on something real.` : md === 'Ketu' ? `Ketu periods can bring detachment from relationships — not a great time to start new ones, but good for deepening existing bonds.` : `The ${md} period influences relationships through its natural significations. Look at what ${md} rules in your chart for more specific guidance.`}`,
+  health: (md, ad, lagna) => {
+    const advice = {
+      Sun:`Sun periods demand attention to cardiovascular health, eyes, and vitality. High achievers in Sun periods often ignore early warning signs because they feel invincible — don't. Schedule a check-up. Your energy is high but sustainable only with adequate rest.`,
+      Moon:`Mental and emotional health are the primary health indicators this period. When you're emotionally well, everything else follows. When you're not, physical symptoms often emerge. Prioritise: 7+ hours sleep, adequate water, and reducing news/social media consumption.`,
+      Mars:`Blood pressure, muscle strain, and accidents are the classic Mars health concerns. You have more physical energy than usual — channel it deliberately through exercise rather than letting it accumulate as stress, impatience, or inflammation.`,
+      Mercury:`Your nervous system is working overtime. Anxiety, overthinking, and restlessness are the characteristic challenges of Mercury periods. Build deliberate pauses into your day. Gut health and skin can also act up when Mercury is under pressure.`,
+      Jupiter:`Weight management and liver health are the Jupiter period health themes. The abundance mindset that helps you financially can translate into overindulgence physically. Maintain your movement routine — Jupiter periods make it tempting to become sedentary.`,
+      Venus:`Reproductive health, kidneys, and lower back are the Venus period focus areas. Keep moving — Venus energy is comfortable and slightly sedentary. Sugar consumption deserves monitoring.`,
+      Saturn:`Joints, spine, teeth, and chronic patterns surface during Saturn periods. This is not punishment — it's the body clearing what has been suppressed. Preventive care now prevents larger issues later. Routine exercise, especially weight-bearing, is protective.`,
+      Rahu:`Rahu periods can produce symptoms that are hard to diagnose — mysterious fatigue, gut disruption, or sleep irregularity. Reduce chemical exposure, processed food, and screen time after 9pm. Gut health is particularly important.`,
+      Ketu:`Ketu periods can bring subtle neurological patterns — vague discomfort, feeling ungrounded, or fatigue without obvious cause. Grounding practices help significantly: barefoot walking, time in nature, consistent sleep schedule, reduced technology.`
+    };
+    return `${lagna} Lagna · ${md}/${ad} Dasha — health focus:\n\n${advice[md] || `The ${md} Mahadasha sets the background health theme.`} ${advice[ad] !== advice[md] ? `\n\nDuring ${ad} Antardasha specifically: ${advice[ad] || ''}` : ''}`;
+  },
 
-  health: (md, ad, lagna) => `Your ${md} Mahadasha health theme: ${md === 'Sun' ? `Sun periods demand attention to heart, eyes, and vitality. Rest adequately — solar energy can mask burnout.` : md === 'Moon' ? `Moon periods highlight mental and emotional health. Sleep and emotional regulation are your primary health practices.` : md === 'Mars' ? `Mars periods bring energy but also injury risk. Channel physical energy through structured exercise; watch blood pressure.` : md === 'Saturn' ? `Saturn periods often surface chronic or structural health patterns. Preventive care and routine are your best tools.` : md === 'Rahu' ? `Rahu periods can bring mysterious or hard-to-diagnose symptoms. Gut health and sleep quality are priority areas.` : `The ${md} period has specific health associations. General advice: maintain routine, sleep well, and schedule a check-up.`}`,
+  timing: (md, ad, lagna) => `Timing questions are the hardest in Jyotisha — and the most important to get right. Here's the honest framework for your chart:\n\nYour ${md} Mahadasha runs until ${md === 'Saturn' ? '2038' : md === 'Jupiter' ? '2034' : md === 'Rahu' ? '2040' : md === 'Venus' ? '2038' : '2030'}. The ${ad} Antardasha is the active sub-current right now. For any major decision, the ideal window is when:\n\n1. Your Antardasha lord is favorable to the action you want to take\n2. Jupiter is transiting the 1st, 5th, 9th, or 11th house from your Moon\n3. Saturn is not transiting the 12th, 1st, or 2nd from your Moon (Sade Sati)\n\nFor your specific situation — share what you're trying to time (marriage, career move, investment, travel) and I can reflect more specifically on whether the current ${ad} Antardasha is supportive.`,
 
-  default: (md, ad, lagna) => `Your ${lagna} Lagna chart with ${md}/${ad} Dasha is active. This period's core theme is: ${md === 'Jupiter' ? 'growth, wisdom, and expansion — say yes to the bigger opportunity.' : md === 'Saturn' ? 'discipline, structure, and long-term building — slow and steady wins.' : md === 'Mercury' ? 'communication, intellect, and multiple opportunities — your mind is your asset.' : md === 'Venus' ? 'partnership, creativity, and material comfort — collaborate and create.' : md === 'Mars' ? 'energy, action, and enterprise — move fast and act decisively.' : md === 'Moon' ? 'emotional intelligence and public connection — lead with empathy.' : md === 'Sun' ? 'authority and visibility — step into the spotlight.' : md === 'Rahu' ? 'unconventional paths and disruption — embrace the unexpected.' : 'release, research, and inner work — go deep rather than wide.'} Ask me something specific about career, money, relationships, or health for a more detailed reflection.`
+  default: (md, ad, lagna) => `Your ${lagna} Lagna chart is active with ${md} Mahadasha and ${ad} Antardasha right now.\n\nThe dominant theme of this period: ${md === 'Jupiter' ? 'expansion, wisdom, and opportunities that require you to think bigger than you currently are.' : md === 'Saturn' ? 'discipline, foundations, and the slow building of something that will last.' : md === 'Mercury' ? 'communication, analysis, and multiple opportunities pulling in different directions.' : md === 'Venus' ? 'partnership, creativity, and material comfort — both as gifts and as temptations.' : md === 'Mars' ? 'energy, initiative, and the courage to act on what you have been postponing.' : md === 'Moon' ? 'emotional depth, public connection, and the need for genuine nourishment.' : md === 'Sun' ? 'authority, visibility, and the assertion of your authentic identity.' : md === 'Rahu' ? 'unconventional opportunities, disruption, and the pull toward unfamiliar territory.' : 'release, research, and inward movement — the quiet before a significant new chapter.'}\n\nAsk me something specific — career, money, relationships, health, or timing — and I'll reflect your chart's perspective on it.`
 };
 
 function addAskMessage(text, isUser) {
@@ -2404,19 +2565,20 @@ function submitAsk() {
 
   const qLow = q.toLowerCase();
   let response;
-  if (qLow.includes('job') || qLow.includes('career') || qLow.includes('work') || qLow.includes('change')) {
+  if (qLow.match(/job|career|work|change|resign|quit|promotion|fired|boss|office/))
     response = ASK_RESPONSES.job(md, ad, lagna);
-  } else if (qLow.includes('money') || qLow.includes('invest') || qLow.includes('wealth') || qLow.includes('finance') || qLow.includes('rich')) {
+  else if (qLow.match(/money|invest|wealth|finance|rich|salary|income|earn|business|profit/))
     response = ASK_RESPONSES.money(md, ad, lagna);
-  } else if (qLow.includes('relation') || qLow.includes('marriage') || qLow.includes('love') || qLow.includes('partner')) {
+  else if (qLow.match(/marr|relation|love|partner|girl|boy|wife|husband|divorce|breakup|dating/))
     response = ASK_RESPONSES.relationship(md, ad, lagna);
-  } else if (qLow.includes('health') || qLow.includes('sick') || qLow.includes('body')) {
+  else if (qLow.match(/health|sick|ill|body|pain|disease|hospital|doctor|diet|weight/))
     response = ASK_RESPONSES.health(md, ad, lagna);
-  } else {
+  else if (qLow.match(/when|time|year|month|period|best time|right time|good time/))
+    response = ASK_RESPONSES.timing(md, ad, lagna);
+  else
     response = ASK_RESPONSES.default(md, ad, lagna);
-  }
 
-  setTimeout(() => addAskMessage(response, false), 600);
+  setTimeout(() => addAskMessage(response, false), 700);
 }
 
 document.getElementById('askBtn').addEventListener('click', () => {
@@ -2581,19 +2743,43 @@ function renderCelebrityTwin(chart) {
     return '✦ Closest cosmic signature';
   })();
 
+  const compatTraits = {
+    'Founder':   ['Risk tolerance', 'Vision over process', 'Creates from scratch'],
+    'Commander': ['Decisive authority', 'Systems builder', 'Leads through structure'],
+    'Specialist': ['Deep expertise', 'Analytical precision', 'Masters one domain']
+  };
+  const userType = chart && chart.leadershipType ? chart.leadershipType : 'Commander';
+  const twinType = twin.lagna === lagna ? userType : (twin.lagna === 'Scorpio' || twin.lagna === 'Aries' || twin.lagna === 'Leo' ? 'Commander' : twin.lagna === 'Gemini' || twin.lagna === 'Virgo' ? 'Specialist' : 'Founder');
+  const sharedTraits = compatTraits[userType] || compatTraits['Commander'];
+  const matchScore = twin.lagna === lagna && twin.nakshatra === (chart&&chart.nakshatra?chart.nakshatra.name:'') ? 98 : twin.nakshatra === (chart&&chart.nakshatra?chart.nakshatra.name:'') ? 85 : twin.lagna === lagna ? 75 : 62;
+
   content.innerHTML = `
-    <div style="display:flex;align-items:flex-start;gap:1.25rem;flex-wrap:wrap">
-      <div style="font-size:3rem;line-height:1">${twin.emoji}</div>
+    <div style="display:flex;align-items:flex-start;gap:1.25rem;flex-wrap:wrap;margin-bottom:.9rem">
+      <div style="font-size:3rem;line-height:1;filter:drop-shadow(0 4px 12px rgba(245,158,11,.3))">${twin.emoji}</div>
       <div style="flex:1;min-width:200px">
-        <div style="font-family:var(--font-h);font-size:1.2rem;font-weight:700;margin-bottom:.2rem">${twin.name}</div>
-        <div style="font-size:.75rem;color:var(--txt3);margin-bottom:.5rem">${twin.prof} · ${twin.lagna} Lagna · ${twin.nakshatra} Nakshatra</div>
-        <div style="font-size:.72rem;font-weight:600;color:var(--gold);margin-bottom:.4rem">${matchType}</div>
-        <div style="font-size:.82rem;color:var(--txt2);line-height:1.6">${twin.note}</div>
+        <div style="font-family:var(--font-h);font-size:1.25rem;font-weight:700;margin-bottom:.15rem">${twin.name}</div>
+        <div style="font-size:.75rem;color:var(--txt3);margin-bottom:.4rem">${twin.prof} · ${twin.lagna} Lagna · ${twin.nakshatra} Nakshatra</div>
+        <div style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;font-weight:700;color:var(--gold);background:rgba(245,158,11,.1);padding:.2rem .65rem;border-radius:99px;border:1px solid rgba(245,158,11,.3);margin-bottom:.5rem">${matchType}</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-family:var(--font-h);font-size:1.8rem;font-weight:800;color:var(--gold)">${matchScore}%</div>
+        <div style="font-size:.62rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Cosmic Match</div>
       </div>
     </div>
-    <div style="margin-top:.9rem;display:flex;gap:.5rem;flex-wrap:wrap">
-      <button onclick="renderCelebrityTwin(window._activeChart)" style="font-size:.72rem;padding:.3rem .7rem;border-radius:var(--r-full);border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer">✦ Find Another Twin</button>
-      <button onclick="shareCelebrityTwin('${twin.name}','${twin.emoji}')" style="font-size:.72rem;padding:.3rem .7rem;border-radius:var(--r-full);border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.08);color:#25D366;cursor:pointer">📱 Share on WhatsApp</button>
+    <div style="font-size:.82rem;color:var(--txt2);line-height:1.65;margin-bottom:.9rem;padding:.65rem .85rem;background:rgba(255,255,255,.03);border-radius:10px">${twin.note}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.9rem">
+      <div style="padding:.65rem .85rem;border-radius:10px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2)">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:.35rem">Shared Energy</div>
+        ${sharedTraits.map(t=>`<div style="font-size:.75rem;color:var(--txt2);margin-bottom:.2rem">✦ ${t}</div>`).join('')}
+      </div>
+      <div style="padding:.65rem .85rem;border-radius:10px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2)">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:.35rem">What This Match Means</div>
+        <div style="font-size:.75rem;color:var(--txt2);line-height:1.55">${matchScore >= 85 ? 'You share the same core planetary signature — your fundamental drives, challenges, and life themes have deep resonance.' : matchScore >= 75 ? 'You share the same rising energy — how the world sees you and how you approach life has significant overlap.' : 'Your soul star shares themes — the nakshatra energy running through both charts creates a meaningful cosmic connection.'}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button onclick="renderCelebrityTwin(window._activeChart)" style="font-size:.72rem;padding:.35rem .85rem;border-radius:var(--r-full);border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer">✦ Find Another Twin</button>
+      <button onclick="shareCelebrityTwin('${twin.name}','${twin.emoji}')" style="font-size:.72rem;padding:.35rem .85rem;border-radius:var(--r-full);border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.08);color:#25D366;cursor:pointer">📱 Share on WhatsApp</button>
     </div>
   `;
 

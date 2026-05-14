@@ -77,7 +77,9 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 /* SUMMARY BAR */
 #summary-bar{display:none;position:sticky;top:0;z-index:100;padding:.6rem 1.5rem;background:rgba(5,11,26,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);align-items:center;gap:1.5rem;flex-wrap:wrap}
 #summary-bar.visible{display:flex}
-.sum-chip{font-size:.72rem;color:var(--txt2)}.sum-chip span{color:var(--txt);font-weight:600}
+.sum-chip{font-size:.72rem;color:var(--txt2);display:flex;align-items:center;gap:.25rem;white-space:nowrap}.sum-chip span{color:var(--txt);font-weight:600}
+#summary-bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+#summary-bar::-webkit-scrollbar{display:none}
 .sum-edit{margin-left:auto;font-size:.72rem;color:var(--violet);cursor:pointer;text-decoration:underline}
 
 /* RESULTS LAYOUT */
