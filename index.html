@@ -1233,17 +1233,17 @@
       results.classList.add('visible');
 
       // ── Device-aware initialisation ──
+      switchTab('overview');
       if (DEVICE.mobile) {
-        // Mobile: start on Overview tab (not Chart), hide DOB chip to save space
-        switchTab('overview');
+        // Mobile: hide DOB chip (saves space in narrow summary bar)
         const dobChip = document.getElementById('sumDobChip');
         if (dobChip) dobChip.style.display = 'none';
+        // Mobile: compact main chart (fits single-column layout)
+        renderChart('chart-svg', true);
       } else {
-        // Desktop: start on Overview, show all summary chips
-        switchTab('overview');
+        // Desktop: full-size main chart
+        renderChart('chart-svg');
       }
-
-      renderChart('chart-svg');
       renderChart('ts-chart-svg', true);
       renderPlanetTable();
       renderChartInsights(window._activeChart);
