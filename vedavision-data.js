@@ -148,7 +148,21 @@ const FIVE_YEAR_FORECAST = [
       "Review the liability cleared or reduced in 2026 and ensure it has not crept back — Saturn tests the permanence of structural improvements, not just their initial achievement."
     ],
     health: "Jupiter's exaltation in Cancer mid-year provides a genuine vitality boost — this is the best health window of the Saturn-Saturn period and should be used to address anything deferred from 2026. The second half of 2027 sees Saturn's influence reassert as it prepares for the Mercury handoff — maintain the structural health practices (sleep hygiene, joint care, regular exercise) that Saturn demands as non-negotiable baseline. Avoid the common trap of neglecting health when work intensity increases in Q3.",
-    keyMonths: ["Mar 2027", "Jun 2027", "Sep 2027", "Nov 2027"]
+    keyMonths: ["Mar 2027", "Jun 2027", "Sep 2027", "Nov 2027"],
+    do: [
+      "Present documented professional output to a decision-maker between May and September",
+      "Increase SIP or systematic investment contributions in Q2 during Jupiter-Cancer transit",
+      "Formalise any income from intellectual or advisory work through written agreements",
+      "Deepen one high-value professional relationship — mentor, patron, or senior collaborator",
+      "Address health matters deferred from 2026 during Jupiter's vitality window mid-year"
+    ],
+    dont: [
+      "Spend or invest as though Saturn-Mercury AD has already arrived — it hasn't",
+      "Let liabilities cleared in 2026 quietly re-accumulate",
+      "Skip health maintenance when work intensity increases in Q3",
+      "Make speculative or high-risk financial moves — the medium signal is permission to stabilise, not accelerate",
+      "Force career acceleration before the Mercury AD window is properly open"
+    ]
   },
   {
     year: 2028,
