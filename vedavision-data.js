@@ -677,7 +677,85 @@ function generateDynamicForecast(chart) {
         `For ${lagna} Lagna, ${mdPlanet} Mahadasha wealth comes through ${mdHouses.includes(2) ? 'accumulated savings and family resources.' : mdHouses.includes(11) ? 'income, networks, and fulfilled desires.' : mdHouses.includes(9) ? 'fortune, dharma, and long-distance connections.' : mdHouses.includes(10) ? 'career achievements and authority.' : `the significations of the houses ${mdPlanet} rules in your chart.`}`
       ],
       health: `${mdTheme.health} During ${adPlanet} Antardasha: ${adTheme.health}`,
-      keyMonths: generateKeyMonths(year, adPlanet)
+      keyMonths: generateKeyMonths(year, adPlanet),
+      do: (() => {
+        const base = {
+          bullish: [
+            `Make the boldest career or investment move available — the planetary alignment is at peak support`,
+            `Formalise a passive income stream now so it outlasts this active period`,
+            `Present attributed, public-facing work — visibility is what this period rewards`,
+            `Build and deepen the professional relationships that will carry you into the next cycle`
+          ],
+          high: [
+            `Position for a role or project that rewards ${adPlanet}-ruled qualities: ${adPlanet === 'Mercury' ? 'analysis and communication' : adPlanet === 'Jupiter' ? 'wisdom and expansion' : adPlanet === 'Venus' ? 'creativity and partnership' : adPlanet === 'Sun' ? 'authority and leadership' : 'initiative and execution'}`,
+            `Deploy savings built in quieter periods — this is the window for growth-oriented decisions`,
+            `Document and systematise your professional outputs to compound the period's gains`,
+            `Conduct a financial audit early in the year to remove hidden drag before the gains window opens`
+          ],
+          medium: [
+            `Consolidate one professional relationship or credential that will be load-bearing in the next peak`,
+            `Increase systematic investment contributions — medium signals are permission to stabilise, not stagnate`,
+            `Address health matters deferred from more demanding periods — vitality windows matter`,
+            `Formalise income from intellectual or advisory work through written agreements`
+          ],
+          low: [
+            `Audit and remove one dead-weight professional role, relationship, or financial commitment`,
+            `Build a 6-month cash reserve and treat it as untouchable until the signal improves`,
+            `Invest in a certifiable skill credential aligned with the next peak period's requirements`,
+            `Schedule preventive health checks — structural health needs attention when pace is slower`
+          ],
+          critical: [
+            `Protect intellectual property, contractual rights, and key institutional relationships now`,
+            `Move investable assets into low-volatility, hands-off instruments before the period fully activates`,
+            `Use the professional quietude for deep study and skill absorption — Ketu periods reward mastery`,
+            `Maintain passive income structures established in prior years without renegotiating them`
+          ]
+        };
+        const items = (base[signal] || base.low).slice();
+        // Add house-specific do
+        if (adHouses.includes(10) || adHouses.includes(11)) items.push(`Activate your ${adHouseStr} themes deliberately — ${lagna} Lagna benefits most when ${adPlanet} energy is directed toward these areas`);
+        else if (adHouses.includes(9) || adHouses.includes(5)) items.push(`Channel energy into learning, creative output, and dharmic work — ${adPlanet} as lord of ${adHouseStr} amplifies these specifically`);
+        return items.slice(0, 5);
+      })(),
+      dont: (() => {
+        const base = {
+          bullish: [
+            `Over-leverage during the bullish window — even peak periods carry hidden complexity in certain houses`,
+            `Enter financial partnerships or joint arrangements without full written documentation`,
+            `Neglect physical recovery while riding professional and financial momentum`,
+            `Assume the peak will last — begin building post-peak passive structures before the window closes`
+          ],
+          high: [
+            `Stay in roles that suppress ${adPlanet}-ruled expression — the AD energy has nowhere to manifest`,
+            `Make verbal-only financial commitments — get significant agreements in writing`,
+            `Treat the high signal as guaranteed — it requires active preparation to materialise`,
+            `Ignore anxiety or nervous system signals — high-activity periods have a physical cost`
+          ],
+          medium: [
+            `Accelerate spending or investment as if a bullish signal were already present`,
+            `Make speculative or high-concentration financial bets — medium signal means stabilise, not gamble`,
+            `Skip health maintenance when work intensity increases — the medium period is often busy`,
+            `Force career acceleration before the next genuine window has opened`
+          ],
+          low: [
+            `Launch new ventures, businesses, or make impulsive career jumps for short-term gain`,
+            `Speculate, take on leverage, or concentrate wealth in a single bet`,
+            `Overspend when pressure briefly eases — the discipline installed now builds future capacity`,
+            `Ignore the body's signals — slower periods surface what was deferred in busier ones`
+          ],
+          critical: [
+            `Take on new leverage, joint financial complexity, or actively managed speculative positions`,
+            `Restructure or renegotiate financial arrangements unless absolutely necessary`,
+            `Make impulsive career moves or new venture launches — the energy does not support outward push`,
+            `Let wealth indifference created by the period's energy lead to inattentive asset loss`
+          ]
+        };
+        const items = (base[signal] || base.low).slice();
+        // Add house-specific dont
+        if (adHouses.includes(8) || adHouses.includes(12)) items.push(`Ignore the ${adHouseStr} activation — these houses surface what has been deferred and require honest attention, not avoidance`);
+        else if (adHouses.includes(6)) items.push(`Neglect health routines or allow conflicts to escalate unresolved — the 6th house activation makes these particularly costly`);
+        return items.slice(0, 5);
+      })()
     };
   });
 }
