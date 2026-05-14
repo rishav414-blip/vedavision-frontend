@@ -109,7 +109,21 @@ const FIVE_YEAR_FORECAST = [
       "Audit all recurring financial commitments (subscriptions, retainers, EMIs) and eliminate those that do not directly support skill-building or core operations."
     ],
     health: "Saturn Mahadasha demands consistent attention to skeletal structure, joints, and the nervous system — this is not optional maintenance but a Mahadasha-level imperative. Saturn-Saturn intensifies this: dental health, knees, lower spine, and chronic stress patterns all require scheduled preventive intervention in Q1 2026. The psycho-emotional dimension is equally important — prolonged Saturnian pressure without adequate rest and solitude creates a slow-burn depletion that does not announce itself dramatically until it becomes acute.",
-    keyMonths: ["Feb 2026", "May 2026", "Sep 2026", "Dec 2026"]
+    keyMonths: ["Feb 2026", "May 2026", "Sep 2026", "Dec 2026"],
+    do: [
+      "Audit one professional role or relationship that has become dead weight — formally exit it",
+      "Build a 6-month cash reserve and treat it as untouchable until Mercury AD begins",
+      "Clear or significantly reduce one liability — loan, credit balance, or outstanding dues",
+      "Invest in a certifiable credential in analytics, writing, or systems design",
+      "Schedule preventive health checks for joints, spine, and dental — defer nothing"
+    ],
+    dont: [
+      "Launch new ventures, businesses, or make impulsive career jumps for short-term salary",
+      "Sign financial instruments or take on guarantees in February or September",
+      "Speculate or concentrate wealth into a single bet — preserve, don't expand",
+      "Over-extend spending when pressure briefly eases — Saturn tests the permanence of discipline",
+      "Ignore the body's signals under the illusion that pressure is temporary"
+    ]
   },
   {
     year: 2027,
