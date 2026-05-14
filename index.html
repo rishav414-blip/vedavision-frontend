@@ -2974,22 +2974,77 @@
         default: (md, ad, lagna) => `${lagna} Lagna, ${md} Mahādaśā, ${ad} Antardaśā — you're in an interesting window.\nAsk me about career, wealth, relationships, health, timing, or any Vedic concept. What's on your mind?`
       };
 
+      // Inject typing-dot keyframe once
+      (function(){
+        if (!document.getElementById('jyoti-css')) {
+          const s = document.createElement('style');
+          s.id = 'jyoti-css';
+          s.textContent = '@keyframes jdot{0%,80%,100%{transform:scale(0);opacity:.4}40%{transform:scale(1);opacity:1}}';
+          document.head.appendChild(s);
+        }
+      })();
+
       function addAskMessage(text, isUser) {
         const msgs = document.getElementById('askMessages');
         if (!msgs) return;
         const div = document.createElement('div');
-        div.style.cssText = `padding:.55rem .75rem;border-radius:12px;font-size:.8rem;line-height:1.6;max-width:90%;${isUser ? 'align-self:flex-end;background:rgba(124,58,237,.25);color:#F1F5FE;' : 'align-self:flex-start;background:rgba(255,255,255,.06);color:#94A3B8;'}`;
+        div.style.cssText = `padding:.55rem .75rem;border-radius:12px;font-size:.8rem;line-height:1.6;max-width:88%;${isUser ? 'align-self:flex-end;background:rgba(124,58,237,.25);color:#F1F5FE;border-bottom-right-radius:4px;' : 'align-self:flex-start;background:rgba(255,255,255,.06);color:#C8C0D8;border-bottom-left-radius:4px;'}`;
         if (isUser) {
           div.textContent = text;
         } else {
           div.innerHTML = text
             .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-            .replace(/\*(.*?)\*/g,'<em>$1</em>')
-            .replace(/\n\n/g,'<br><br>')
+            .replace(/\*(.*?)\*/g,'<em style="color:#D4B870">$1</em>')
             .replace(/\n/g,'<br>');
         }
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
+        return div;
+      }
+
+      function showTyping() {
+        const msgs = document.getElementById('askMessages');
+        if (!msgs || document.getElementById('ask-typing')) return;
+        const d = document.createElement('div');
+        d.id = 'ask-typing';
+        d.style.cssText = 'padding:.5rem .75rem;border-radius:12px;border-bottom-left-radius:4px;align-self:flex-start;background:rgba(255,255,255,.06);display:flex;gap:4px;align-items:center;margin-bottom:.1rem';
+        ['0s','.18s','.36s'].forEach(delay => {
+          const dot = document.createElement('span');
+          dot.style.cssText = `width:7px;height:7px;border-radius:50%;background:#7C3AED;display:inline-block;animation:jdot .9s ease-in-out ${delay} infinite`;
+          d.appendChild(dot);
+        });
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      function hideTyping() {
+        const t = document.getElementById('ask-typing');
+        if (t) t.remove();
+      }
+
+      function addQuickReplies(opts) {
+        const msgs = document.getElementById('askMessages');
+        if (!msgs || !opts || !opts.length) return;
+        const row = document.createElement('div');
+        row.className = 'ask-chips';
+        row.style.cssText = 'display:flex;gap:.35rem;flex-wrap:wrap;align-self:flex-start;max-width:95%;margin:.15rem 0 .25rem';
+        opts.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.textContent = opt;
+          btn.style.cssText = 'padding:.25rem .65rem;border-radius:99px;border:1px solid rgba(124,58,237,.35);background:rgba(124,58,237,.08);color:#9D5CF6;font-size:.7rem;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s';
+          btn.onmouseover = () => { btn.style.background = 'rgba(124,58,237,.2)'; };
+          btn.onmouseout  = () => { btn.style.background = 'rgba(124,58,237,.08)'; };
+          btn.onclick = () => { submitAskWithText(opt); };
+          row.appendChild(btn);
+        });
+        msgs.appendChild(row);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      function submitAskWithText(text) {
+        const input = document.getElementById('askInput');
+        if (input) { input.value = text; }
+        submitAsk();
       }
 
       function submitAsk() {
@@ -2997,6 +3052,9 @@
         if (!input || !input.value.trim()) return;
         const q = input.value.trim();
         input.value = '';
+        // Remove old chips
+        const msgs = document.getElementById('askMessages');
+        if (msgs) { const old = msgs.querySelector('.ask-chips'); if (old) old.remove(); }
         addAskMessage(q, true);
 
         const chart = window._activeChart || SAMPLE_CHART;
@@ -3005,33 +3063,38 @@
         const lagna = chart.lagna ? (chart.lagna.signEn || chart.lagna.sign || 'Scorpio') : 'Scorpio';
 
         const qLow = q.toLowerCase();
-        let response;
+        let response, chipKey = 'default';
         if (qLow.match(/hopeless|can.t go on|no point|end it all|end my life|harm myself|suicidal|what.s the point of living/))
-          response = ASK_RESPONSES.crisis();
+          { response = ASK_RESPONSES.crisis(); chipKey = 'other'; }
         else if (qLow.match(/real person|are you ai|are you human|are you real|who are you|what are you/))
-          response = ASK_RESPONSES.identity();
+          { response = ASK_RESPONSES.identity(); chipKey = 'other'; }
         else if (qLow.match(/gem|stone|ruby|emerald|pearl|coral|sapphire|diamond|topaz|ratan|panna|manikya/))
-          response = ASK_RESPONSES.gemstone();
+          { response = ASK_RESPONSES.gemstone(); chipKey = 'other'; }
         else if (qLow.match(/predict|will i |when will|what will happen|destiny|fate|my future/))
-          response = ASK_RESPONSES.prediction(md, ad, lagna);
+          { response = ASK_RESPONSES.prediction(md, ad, lagna); chipKey = 'other'; }
         else if (qLow.match(/what is |explain |meaning of |define |nakshatra|yoga |dasha|rashi|bhava|karaka|navamsa|jyotish|vedic astro|lagna mean|house mean/))
-          response = ASK_RESPONSES.concept();
+          { response = ASK_RESPONSES.concept(); chipKey = 'other'; }
         else if (qLow.match(/where|how do i find|which tab|navigate|app help|not load|didn.t load|how to use/))
-          response = ASK_RESPONSES.app();
+          { response = ASK_RESPONSES.app(); chipKey = 'other'; }
         else if (qLow.match(/job|career|work|change|resign|quit|promotion|fired|boss|office|role/))
-          response = ASK_RESPONSES.job(md, ad, lagna);
+          { response = ASK_RESPONSES.job(md, ad, lagna); chipKey = 'job'; }
         else if (qLow.match(/money|invest|wealth|finance|rich|salary|income|earn|business|profit|loan|debt/))
-          response = ASK_RESPONSES.money(md, ad, lagna);
+          { response = ASK_RESPONSES.money(md, ad, lagna); chipKey = 'money'; }
         else if (qLow.match(/marr|relation|love|partner|girl|boy|wife|husband|divorce|breakup|dating|girlfriend|boyfriend/))
-          response = ASK_RESPONSES.relationship(md, ad, lagna);
+          { response = ASK_RESPONSES.relationship(md, ad, lagna); chipKey = 'relationship'; }
         else if (qLow.match(/health|sick|ill|body|pain|disease|hospital|doctor|diet|weight|sleep|stress/))
-          response = ASK_RESPONSES.health(md, ad, lagna);
+          { response = ASK_RESPONSES.health(md, ad, lagna); chipKey = 'health'; }
         else if (qLow.match(/when|time|year|month|period|best time|right time|good time|timing/))
-          response = ASK_RESPONSES.timing(md, ad, lagna);
+          { response = ASK_RESPONSES.timing(md, ad, lagna); chipKey = 'timing'; }
         else
-          response = ASK_RESPONSES.default(md, ad, lagna);
+          { response = ASK_RESPONSES.default(md, ad, lagna); chipKey = 'default'; }
 
-        setTimeout(() => addAskMessage(response, false), 700);
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          addAskMessage(response, false);
+          addQuickReplies(CHIPS[chipKey]);
+        }, 680);
       }
 
       document.getElementById('askBtn').addEventListener('click', () => {
