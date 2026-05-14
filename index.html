@@ -929,6 +929,31 @@
 
   <script src="vedavision-data.js"></script>
   <script>
+    /* ═══ DEVICE DETECTION ═══ */
+    const DEVICE = (() => {
+      const ua = navigator.userAgent || '';
+      const isMobileUA = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      const isTouchDevice = navigator.maxTouchPoints > 0;
+      const isNarrow = window.innerWidth <= 768;
+      const mobile = isMobileUA || (isTouchDevice && isNarrow);
+      return {
+        mobile,
+        desktop: !mobile,
+        width: window.innerWidth,
+        // Re-check on resize (e.g. rotation)
+        refresh() {
+          const narrow = window.innerWidth <= 768;
+          this.mobile = isMobileUA || (navigator.maxTouchPoints > 0 && narrow);
+          this.desktop = !this.mobile;
+          this.width = window.innerWidth;
+        }
+      };
+    })();
+    window.addEventListener('resize', () => DEVICE.refresh(), { passive: true });
+    // Usage anywhere in code:
+    //   if (DEVICE.mobile)  { /* mobile-specific logic */ }
+    //   if (DEVICE.desktop) { /* desktop-specific logic */ }
+
     /* ═══ API CONFIG ═══ */
     const API_BASE = 'https://vedavision-backend.onrender.com';
     const APP_URL = window.location.origin; // auto-detects Netlify URL
