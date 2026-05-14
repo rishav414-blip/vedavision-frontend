@@ -2882,10 +2882,21 @@
       });
 
       /* ═══ ASK YOUR CHART ═══ */
+      // CHIPS per category — shown as quick-reply buttons after each response
+      const CHIPS = {
+        job:          ['Wealth this period?', 'Health check?', 'Best timing?'],
+        money:        ['Career advice?', 'Relationship outlook?', 'When does it improve?'],
+        relationship: ['Career this period?', 'Wealth check?', 'Timing advice?'],
+        health:       ['Career outlook?', 'Wealth check?', 'What\'s my Dasha?'],
+        timing:       ['Career advice?', 'Wealth outlook?', 'Relationship period?'],
+        default:      ['Career outlook?', 'Wealth this period?', 'Health check?'],
+        other:        ['Career outlook?', 'Wealth this period?', 'Health check?']
+      };
+
       const ASK_RESPONSES = {
         job: (md, ad, lagna) => {
           const themes = {
-            Jupiter: `Your ${lagna} Lagna with Guru (Jupiter) as Antardasha lord — the classical Jyotiṣa framework associates this period with expansion through dharmic alignment: advisory, mentorship-oriented, and institution-building work tends to resonate most naturally with this energy.\n\nThe pattern here is one of slow, compounding growth rather than rapid repositioning. Roles that allow genuine wisdom-sharing tend to align with Jupiter's sub-period energy more than purely competitive or high-velocity transitions.\n\n*What aspect of your work feels most aligned with something larger than immediate gain — where do purpose and income most naturally converge for you?*\n\nFor placement-specific career guidance — particularly your natal 10th Bhava, its lord, and Jupiter's current transit — a qualified Jyotiṣī can offer considerably more precision than general Antardasha themes provide.`,
+            Jupiter: `Guru (Jupiter) Antardasha — advisory, mentorship, and growth-oriented work are where this period pays off.\nSlow expansion beats lateral moves right now. What kind of move are you weighing?`,
 
             Saturn: `Your ${lagna} Lagna with Śani (Saturn) as the dominant planetary influence — classical Jyotiṣa associates this with karma-niryāṇa, a deliberate testing of what was built and what remains genuinely solid.\n\nThe symbolism here tends toward consolidation rather than expansion: roles offering structural stability, senior mentorship, and long-term institution-building tend to align with Saturn's energy more than high-risk transitions. The pattern is one of quality over velocity.\n\n*Where in your professional life does impatience feel strongest — and what might that impatience be protecting you from looking at directly?*\n\nThe precise interaction of these themes with your natal placements warrants a full chart reading from a qualified Jyotiṣī.`,
 
