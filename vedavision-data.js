@@ -187,7 +187,21 @@ const FIVE_YEAR_FORECAST = [
       "Formalise any income diversification (consulting, advisory, freelance intellectual work) through proper structures — Mercury AD rewards those who have built multiple income architectures, and formalisation amplifies returns."
     ],
     health: "Mercury governs the nervous system and skin — watch for anxiety-pattern intensification as Mercury AD's rapid cognitive pace conflicts with Saturn MD's structural demands. The combination can create a specific stress signature: high mental output, insufficient physical recovery. Prioritise a consistent physical practice (not just mental work) and schedule quarterly health check-ins. Mercury in the 8th house natally suggests metabolic or digestive sensitivity that benefits from dietary regularity.",
-    keyMonths: ["Feb 2028", "Jun 2028", "Sep 2028", "Dec 2028"]
+    keyMonths: ["Feb 2028", "Jun 2028", "Sep 2028", "Dec 2028"],
+    do: [
+      "Conduct a full financial audit in Q1 before Mercury AD fully activates — resolve any complexity first",
+      "Transition into a role that specifically values analytical or communicative competence",
+      "Launch one public-facing intellectual output: a publication, methodology, or documented system",
+      "Deploy capital from 2026-2027 reserves into Mercury-domain investments — tech, data, or advisory",
+      "Build direct relationships in Rahu/Mercury-ruled domains where network income compounds fastest"
+    ],
+    dont: [
+      "Stay in execution-only roles that suppress intelligence — Mercury AD is wasted there",
+      "Make verbal-only financial commitments — get all significant agreements in writing",
+      "Over-leverage in the first gains window — Mercury in the 8th carries hidden complexity",
+      "Ignore anxiety or nervous system signals — the rapid cognitive pace has a physical cost",
+      "Skip the proactive financial audit that clears the path for Mercury AD gains"
+    ]
   },
   {
     year: 2029,
