@@ -478,7 +478,7 @@
     <!-- INSIGHTS -->
     <div class="tab-panel" id="tab-insights">
       <div class="section-heading">Deep Insights</div>
-      <div class="section-sub">Swiss Ephemeris raw data · Jaimini Karakas · Tarot Reflection</div>
+      <div class="section-sub">Your planetary blueprint · Soul &amp; career planets · What's active now · Symbolic reflection cards</div>
 
       <!-- EPHEMERIS DATA -->
       <div style="margin-bottom:1.5rem">
@@ -506,16 +506,16 @@
 
       <!-- BNN TRANSITS -->
       <div style="margin-bottom:1.5rem">
-        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.75rem">🌀 BNN Transit Overlay — Current Planetary Activations</div>
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.75rem">🌀 What the Planets Are Activating in Your Life Right Now</div>
         <div id="bnn-cards" style="display:flex;flex-direction:column;gap:.75rem"></div>
       </div>
 
       <!-- TAROT REFLECTION -->
       <div style="margin-bottom:1rem">
-        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.25rem">🃏 Tarot Reflection</div>
-        <div style="font-size:.72rem;color:var(--txt3);margin-bottom:.75rem">Cards drawn symbolically from your chart's planetary signature — for contemplation, not prediction.</div>
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.25rem">🃏 Symbolic Reflection Cards</div>
+        <div style="font-size:.72rem;color:var(--txt3);margin-bottom:.75rem">Three cards drawn from your Dasha and Soul planet energy — not random, not predictive. Each card is a mirror for contemplation, paired with a journal prompt.</div>
         <div id="tarot-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem"></div>
-        <button onclick="redrawTarot()" style="margin-top:1rem;padding:.45rem 1rem;border-radius:var(--r-full);border:1px solid var(--border);background:transparent;color:var(--txt2);font-size:.78rem;cursor:pointer">✦ Redraw Cards</button>
+        <button onclick="redrawTarot()" style="margin-top:1rem;padding:.45rem 1rem;border-radius:var(--r-full);border:1px solid var(--border);background:transparent;color:var(--txt2);font-size:.78rem;cursor:pointer">✦ Explore Different Aspects</button>
       </div>
     </div>
 
@@ -1791,120 +1791,174 @@ function renderInsights(chart) {
 }
 
 function renderEphemerisTable(chart) {
-  const tbody = document.getElementById('ephemeris-tbody');
-  if (!tbody || !chart.planetTable) return;
-  tbody.innerHTML = chart.planetTable.map(p => `
-    <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
-      <td style="padding:.5rem 1rem"><span style="color:${p.color};font-size:1rem;margin-right:.4rem">${p.glyph}</span><strong>${p.planet}</strong></td>
-      <td style="padding:.5rem 1rem;color:var(--txt2)">${p.sign}</td>
-      <td style="padding:.5rem 1rem;color:var(--txt2);font-family:monospace">${p.notes || '—'}</td>
-      <td style="padding:.5rem 1rem;color:var(--txt2)">${p.house}th</td>
-      <td style="padding:.5rem 1rem"><span style="font-size:.7rem;padding:.15rem .45rem;border-radius:99px;background:${p.dignity==='Exalted'?'rgba(6,182,212,.15)':p.dignity==='Own Sign'?'rgba(34,197,94,.15)':p.dignity==='Debilitated'?'rgba(239,68,68,.15)':'rgba(148,163,184,.1)'};color:${p.dignity==='Exalted'?'#06B6D4':p.dignity==='Own Sign'?'#22C55E':p.dignity==='Debilitated'?'#EF4444':'#94A3B8'}">${p.dignity}</span></td>
-      <td style="padding:.5rem 1rem;color:var(--txt3);font-size:.8rem">${p.retrograde?'℞':''}</td>
-    </tr>`).join('');
+  const wrap = document.getElementById('ephemeris-table-wrap');
+  if (!wrap || !chart.planetTable) return;
+  const DS = (typeof DIGNITY_STRENGTH!=='undefined') ? DIGNITY_STRENGTH : {};
+  const PH = (typeof PLANET_IN_HOUSE_PLAIN!=='undefined') ? PLANET_IN_HOUSE_PLAIN : {};
+  const strong = chart.planetTable.filter(p=>['Exalted','Own Sign','Moolatrikona'].includes(p.dignity));
+  const weak   = chart.planetTable.filter(p=>['Debilitated','Enemy'].includes(p.dignity));
+  const stars  = n => '⭐'.repeat(n)+'☆'.repeat(5-n);
+  wrap.innerHTML = `
+    <div style="padding:.85rem 1.25rem;border-bottom:1px solid var(--border);display:flex;gap:2rem;flex-wrap:wrap;background:rgba(255,255,255,.02)">
+      <div><div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Strong Planets</div>
+        <div style="font-size:.85rem;color:#22C55E;font-weight:600">${strong.length?strong.map(p=>`<span style="color:${p.color}">${p.glyph}</span> ${p.planet}`).join(' · '):'None at peak'}</div></div>
+      <div><div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Planets Needing Support</div>
+        <div style="font-size:.85rem;color:#F59E0B;font-weight:600">${weak.length?weak.map(p=>`<span style="color:${p.color}">${p.glyph}</span> ${p.planet}`).join(' · '):'None — well-balanced chart'}</div></div>
+    </div>
+    ${chart.planetTable.map(p=>{
+      const ds = DS[p.dignity]||{stars:2,label:'Moderate',color:'#94A3B8',plain:'Average strength'};
+      const hd = PH[p.planet]&&PH[p.planet][p.house]?PH[p.planet][p.house]:'';
+      return `<div style="padding:.85rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'">
+        <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:.5rem;min-width:115px">
+            <span style="font-size:1.2rem;color:${p.color};filter:drop-shadow(0 0 4px ${p.color})">${p.glyph}</span>
+            <div><div style="font-weight:700;font-size:.88rem">${p.planet}</div><div style="font-size:.67rem;color:var(--txt3)">${p.skt||''}</div></div>
+          </div>
+          <div style="min-width:125px"><div style="font-size:.82rem;color:var(--txt2)">${p.sign} · House ${p.house}</div><div style="font-size:.68rem;color:var(--txt3);font-family:monospace">${p.notes||''}${p.retrograde?' · ℞':''}</div></div>
+          <div style="min-width:145px"><div style="font-size:.78rem;color:${ds.color};font-weight:600">${stars(ds.stars)} ${ds.label}</div><div style="font-size:.68rem;color:var(--txt3);margin-top:.1rem">${ds.plain}</div></div>
+        </div>
+        ${hd?`<div style="margin-top:.45rem;padding:.45rem .75rem;background:rgba(255,255,255,.03);border-radius:7px;border-left:2px solid ${p.color}44;font-size:.77rem;color:var(--txt2);line-height:1.55">${hd}</div>`:''}
+      </div>`;
+    }).join('')}`;
 }
 
 function renderKarakas(chart) {
   const grid = document.getElementById('karakas-grid');
   if (!grid || !chart.karakas) return;
-  const KARAKA_INFO = {
-    atmakaraka:   { label:'Ātmakāraka', emoji:'⭐', desc:'Soul planet — your deepest drive and core life theme' },
-    amatyakaraka: { label:'Amātyakāraka', emoji:'💼', desc:'Career planet — your professional path and how you rise' },
-    bhratrukaraka:{ label:'Bhrātṛkāraka', emoji:'🤝', desc:'Courage and sibling indicator' },
-    matrukaraka:  { label:'Mātṛkāraka', emoji:'🏠', desc:'Mother and property indicator' },
-    putrakaraka:  { label:'Putrakāraka', emoji:'✨', desc:'Children and creative intelligence' },
-    gnatikaraka:  { label:'Gnātikāraka', emoji:'🔮', desc:'Spiritual growth and struggle indicator' },
-    darakaraka:   { label:'Dārakāraka', emoji:'💞', desc:'Spouse and partnership indicator' }
+  const KP = (typeof KARAKA_PLAIN!=='undefined') ? KARAKA_PLAIN : {};
+  const GG = {Sun:'☉',Moon:'☽',Mars:'♂',Mercury:'☿',Jupiter:'♃',Venus:'♀',Saturn:'♄',Rahu:'☊',Ketu:'☋'};
+  const CC = {Sun:'#F59E0B',Moon:'#94A3B8',Mars:'#EF4444',Mercury:'#10B981',Jupiter:'#F97316',Venus:'#EC4899',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C'};
+  const KI = {
+    atmakaraka:   {emoji:'⭐',label:'Your Soul Planet',      sub:'Ātmakāraka (AK)',   key:'soul',   desc:'The planet carrying your soul\'s deepest drive — what you are here to express and master in this lifetime.'},
+    amatyakaraka: {emoji:'💼',label:'Your Career Planet',    sub:'Amātyakāraka (AmK)',key:'career', desc:'The planet that shows your natural professional path — the work that aligns with your cosmic purpose.'},
+    bhratrukaraka:{emoji:'🤝',label:'Siblings & Courage',    sub:'Bhrātṛkāraka (BK)', key:null,     desc:'Influences your relationship with siblings, courage, and initiative.'},
+    matrukaraka:  {emoji:'🏠',label:'Mother & Property',     sub:'Mātṛkāraka (MK)',  key:null,     desc:'Influences your relationship with mother, home, property, and emotional foundations.'},
+    putrakaraka:  {emoji:'✨',label:'Children & Creativity', sub:'Putrakāraka (PK)',  key:null,     desc:'Influences children, creative intelligence, and past-life merit.'},
+    gnatikaraka:  {emoji:'🔮',label:'Spiritual Growth',      sub:'Gnātikāraka (GK)', key:null,     desc:'Indicates the area of spiritual struggle and growth in this lifetime.'},
+    darakaraka:   {emoji:'💞',label:'Spouse & Partnership',  sub:'Dārakāraka (DK)',  key:null,     desc:'Influences the nature of your primary partnership and what you seek in a partner.'}
   };
-  const PLANET_GLYPHS_MAP = {Sun:'☉',Moon:'☽',Mars:'♂',Mercury:'☿',Jupiter:'♃',Venus:'♀',Saturn:'♄',Rahu:'☊',Ketu:'☋'};
-  const PLANET_COLORS_MAP = {Sun:'#F59E0B',Moon:'#94A3B8',Mars:'#EF4444',Mercury:'#10B981',Jupiter:'#F97316',Venus:'#EC4899',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C'};
-  grid.innerHTML = Object.entries(chart.karakas).map(([key, val]) => {
-    const info = KARAKA_INFO[key] || { label: key, emoji: '🪬', desc: '' };
-    const pname = val.planet_name || val.planet || '—';
-    const glyph = PLANET_GLYPHS_MAP[pname] || '?';
-    const color = PLANET_COLORS_MAP[pname] || '#94A3B8';
-    return `<div class="glass" style="padding:1rem;border-radius:var(--r-md);border-left:3px solid ${color}">
-      <div style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.35rem">${info.emoji} ${info.label}</div>
-      <div style="font-size:1.1rem;font-weight:700;margin-bottom:.15rem"><span style="color:${color}">${glyph}</span> ${pname}</div>
-      <div style="font-size:.72rem;color:var(--txt2);margin-bottom:.25rem">${val.sign || ''} · House ${val.house || ''} · ${val.degree || ''}</div>
-      <div style="font-size:.72rem;color:var(--txt3)">${info.desc}</div>
+  const entries = Object.entries(chart.karakas);
+  const primary = entries.slice(0,2);
+  const secondary = entries.slice(2);
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      ${primary.map(([key,val])=>{
+        const info = KI[key]||{emoji:'🪬',label:key,sub:key,key:null,desc:''};
+        const pname = val.planet_name||val.planet||'—';
+        const color = CC[pname]||'#94A3B8';
+        const kp = KP[pname]||{};
+        const meaning = info.key&&kp[info.key] ? kp[info.key] : info.desc;
+        return `<div style="padding:1.25rem;border-radius:15px;background:rgba(255,255,255,.05);border:1px solid ${color}33;border-top:3px solid ${color}">
+          <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.4rem">${info.emoji} ${info.label}</div>
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+            <span style="font-size:2rem;color:${color};filter:drop-shadow(0 0 8px ${color})">${GG[pname]||'?'}</span>
+            <div><div style="font-family:var(--font-h);font-size:1.1rem;font-weight:700">${pname}</div>
+              <div style="font-size:.68rem;color:var(--txt3)">${info.sub} · ${val.sign||''} · House ${val.house||''}</div></div>
+          </div>
+          <div style="font-size:.79rem;color:var(--txt2);line-height:1.65;padding:.55rem .7rem;background:rgba(255,255,255,.03);border-radius:8px">${meaning}</div>
+          <div style="margin-top:.4rem;font-size:.68rem;color:var(--txt3);font-style:italic">Exact degree: ${val.degree||'—'}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="grid-column:1/-1">
+      <details>
+        <summary style="font-size:.78rem;font-weight:600;color:var(--txt3);list-style:none;padding:.5rem 0;cursor:pointer;display:flex;align-items:center;gap:.4rem"><span>▸</span> Show all 7 Karakas — deeper Jaimini analysis</summary>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.75rem;margin-top:.75rem">
+          ${secondary.map(([key,val])=>{
+            const info = KI[key]||{emoji:'🪬',label:key,sub:key,desc:''};
+            const pname = val.planet_name||val.planet||'—';
+            const color = CC[pname]||'#94A3B8';
+            return `<div style="padding:.9rem 1rem;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${color}">
+              <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:.3rem">${info.emoji} ${info.label}</div>
+              <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem"><span style="color:${color};font-size:1rem">${GG[pname]||'?'}</span><span style="font-weight:700;font-size:.9rem">${pname}</span></div>
+              <div style="font-size:.7rem;color:var(--txt3);margin-bottom:.3rem">${info.sub} · ${val.sign||''} · House ${val.house||''}</div>
+              <div style="font-size:.74rem;color:var(--txt2);line-height:1.5">${info.desc}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </details>
     </div>`;
-  }).join('');
 }
 
 function renderBNN(chart) {
   const wrap = document.getElementById('bnn-cards');
   if (!wrap || !chart.bnnTransits) return;
-  const PLANET_COLORS_MAP = {Jupiter:'#F97316',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C',Mars:'#EF4444'};
-  wrap.innerHTML = chart.bnnTransits.map(t => `
-    <div class="glass" style="padding:1rem 1.25rem;border-radius:var(--r-md);display:flex;gap:1rem;align-items:flex-start">
-      <div style="width:36px;height:36px;border-radius:50%;background:rgba(${t.transit==='Jupiter'?'249,115,22':t.transit==='Saturn'?'99,102,241':'139,92,246'},.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">${t.transit==='Jupiter'?'♃':t.transit==='Saturn'?'♄':'☊'}</div>
-      <div>
-        <div style="font-weight:700;font-size:.9rem;margin-bottom:.2rem">${t.transit} in ${t.transitSign} → ${t.natalContact}</div>
-        <div style="font-size:.8rem;color:var(--txt2)">${t.theme}</div>
+  const BTP = (typeof BNN_TRANSIT_PLAIN!=='undefined') ? BNN_TRANSIT_PLAIN : {};
+  const CC = {Jupiter:'#F97316',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C',Mars:'#EF4444'};
+  const GG = {Jupiter:'♃',Saturn:'♄',Rahu:'☊',Ketu:'☋',Mars:'♂'};
+  wrap.innerHTML = chart.bnnTransits.map(t=>{
+    const color = CC[t.transit]||'#7C3AED';
+    const glyph = GG[t.transit]||'✦';
+    const plain = BTP[t.transit] ? BTP[t.transit](t.transitSign,t.natalContact,t.theme) : null;
+    return `<div style="padding:1.1rem 1.25rem;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-left:3px solid ${color}">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem">
+        <div style="width:38px;height:38px;border-radius:50%;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;color:${color}">${glyph}</div>
+        <div style="flex:1"><div style="font-weight:700;font-size:.9rem">${plain?plain.headline:`${t.transit} in ${t.transitSign} → ${t.natalContact}`}</div>
+          <div style="font-size:.68rem;color:var(--txt3);margin-top:.1rem">${plain?plain.duration:''}</div></div>
       </div>
-    </div>`).join('');
+      <div style="font-size:.8rem;color:var(--txt2);line-height:1.65;margin-bottom:.5rem">${plain?plain.plain:t.theme}</div>
+      ${plain?`<div style="padding:.5rem .75rem;background:rgba(255,255,255,.04);border-radius:8px;font-size:.75rem;color:var(--txt3);line-height:1.5">${plain.practical}</div>`:''}
+      <details style="margin-top:.45rem"><summary style="font-size:.68rem;color:var(--txt3);cursor:pointer;list-style:none">▸ Technical detail</summary>
+        <div style="font-size:.7rem;color:var(--txt3);margin-top:.3rem;padding:.35rem .6rem;background:rgba(255,255,255,.03);border-radius:6px">${t.transit} in ${t.transitSign} — ${t.natalContact} — ${t.theme}</div>
+      </details>
+    </div>`;
+  }).join('');
 }
 
-// Tarot system — cards drawn symbolically from chart's planetary energy
 const TAROT_DECK = {
-  Sun:     [{ name:'The Sun', number:'XIX', meaning:'Vitality, joy, success, clarity. A period of illumination and outward achievement.', emoji:'☀️' },
-            { name:'The Emperor', number:'IV', meaning:'Authority, structure, and the assertion of will. Leadership through discipline.', emoji:'👑' }],
-  Moon:    [{ name:'The High Priestess', number:'II', meaning:'Intuition, inner knowing, and what lies beneath the surface. Trust the quiet voice.', emoji:'🌙' },
-            { name:'The Moon', number:'XVIII', meaning:'Illusion, cycles, and the unconscious. Not everything is as it appears — look deeper.', emoji:'🌊' }],
-  Mars:    [{ name:'The Chariot', number:'VII', meaning:'Willpower, determination, and victory through focused effort. Forward momentum.', emoji:'⚔️' },
-            { name:'The Tower', number:'XVI', meaning:'Sudden change, disruption of structures that needed to fall. Liberation through upheaval.', emoji:'⚡' }],
-  Mercury: [{ name:'The Magician', number:'I', meaning:'Skill, resourcefulness, and the power of clear communication. All tools are available to you.', emoji:'🪄' },
-            { name:'The Lovers', number:'VI', meaning:'Choice, discernment, and alignment. A decision point that will define the path forward.', emoji:'✨' }],
-  Jupiter: [{ name:'The Wheel of Fortune', number:'X', meaning:'Cycles turning in your favor. Expansion, abundance, and the recognition of larger patterns.', emoji:'🎯' },
-            { name:'The Star', number:'XVII', meaning:'Hope, renewal, and trust in the future. After difficulty, clarity and healing return.', emoji:'⭐' }],
-  Venus:   [{ name:'The Empress', number:'III', meaning:'Abundance, creativity, and the beauty of the material world. Nurture what you love.', emoji:'🌸' },
-            { name:'The World', number:'XXI', meaning:'Completion, integration, and wholeness. A cycle fulfills itself with grace.', emoji:'🌍' }],
-  Saturn:  [{ name:'The Hermit', number:'IX', meaning:'Solitude, inner wisdom, and the light found in quiet reflection. The teacher within.', emoji:'🏔️' },
-            { name:'The Judgement', number:'XX', meaning:'Reckoning, transformation, and the call to rise. A karmic account settles.', emoji:'🔔' }],
-  Rahu:    [{ name:'The Fool', number:'0', meaning:'A new beginning, leap of faith, and the courage to step into the unknown. Trust the journey.', emoji:'🌀' },
-            { name:'The Hanged Man', number:'XII', meaning:'Suspension, new perspective, and the wisdom gained by pausing. See it differently.', emoji:'🔄' }],
-  Ketu:    [{ name:'The Hermit', number:'IX', meaning:'Withdrawal, inner guidance, and the light of solitude. The outer world quiets so the inner can speak.', emoji:'🕯️' },
-            { name:'The Star', number:'XVII', meaning:'Release, trust, and the peace that comes after surrender. Let go of what no longer serves.', emoji:'🌟' }]
+  Sun:    [{name:'The Sun',number:'XIX',meaning:'Vitality, joy, and outward achievement. A period where your efforts become visible and recognised.',emoji:'☀️'},{name:'The Emperor',number:'IV',meaning:'Authority, structure, and the assertion of will. Leadership built through discipline and clear boundaries.',emoji:'👑'}],
+  Moon:   [{name:'The High Priestess',number:'II',meaning:'Intuition, inner knowing, and what lies beneath the surface. Trust what you sense but cannot yet explain.',emoji:'🌙'},{name:'The Moon',number:'XVIII',meaning:'Illusion, cycles, and the unconscious. Not everything is as it appears — patience brings clarity.',emoji:'🌊'}],
+  Mars:   [{name:'The Chariot',number:'VII',meaning:'Willpower, determination, and victory through focused effort. Your energy is your greatest asset right now.',emoji:'⚔️'},{name:'The Tower',number:'XVI',meaning:'Sudden change and disruption of structures that needed to fall. What breaks now was already unstable.',emoji:'⚡'}],
+  Mercury:[{name:'The Magician',number:'I',meaning:'Skill, resourcefulness, and the power of clear communication. Every tool you need is already in your hands.',emoji:'🪄'},{name:'The Lovers',number:'VI',meaning:'A meaningful choice that requires full awareness. Not just about love — about alignment with your values.',emoji:'✨'}],
+  Jupiter:[{name:'The Wheel of Fortune',number:'X',meaning:'Cycles turning in your favor. Expansion and opportunity arrive — be ready to act when they do.',emoji:'🎯'},{name:'The Star',number:'XVII',meaning:'Hope, renewal, and trust in what is coming. After difficulty, this card brings clarity and direction.',emoji:'⭐'}],
+  Venus:  [{name:'The Empress',number:'III',meaning:'Abundance, creativity, and the beauty of the material world. Nurture what you love and watch it flourish.',emoji:'🌸'},{name:'The World',number:'XXI',meaning:'Completion, integration, and wholeness. A significant cycle in your life is fulfilling itself.',emoji:'🌍'}],
+  Saturn: [{name:'The Hermit',number:'IX',meaning:'Solitude, inner wisdom, and the light found in quiet reflection. The answers you seek are within.',emoji:'🏔️'},{name:'The Judgement',number:'XX',meaning:'Reckoning and the call to rise. A karmic account is settling — honestly assess what needs to change.',emoji:'🔔'}],
+  Rahu:   [{name:'The Fool',number:'0',meaning:'A leap of faith into the unknown. The universe is asking you to trust the path before it is fully visible.',emoji:'🌀'},{name:'The Hanged Man',number:'XII',meaning:'Suspension and a new perspective. The situation will not resolve through force — pause and see it differently.',emoji:'🔄'}],
+  Ketu:   [{name:'The Hermit',number:'IX',meaning:'Withdrawal and inner guidance. The outer world quiets so the inner voice can finally be heard.',emoji:'🕯️'},{name:'The Star',number:'XVII',meaning:'Release, trust, and the peace that follows surrender. Let go of what no longer serves your growth.',emoji:'🌟'}]
 };
 
 let _tarotSeed = 0;
 function renderTarot(chart) {
-  const c = chart || SAMPLE_CHART;
-  const md = c.dasha && c.dasha.current ? (c.dasha.current.planet || 'Saturn') : 'Saturn';
-  const ad = c.dasha && c.dasha.antardasha ? (c.dasha.antardasha.planet || 'Jupiter') : 'Jupiter';
-  const ak = c.ak ? (c.ak.planet || c.ak) : 'Jupiter';
-  _tarotSeed = 0;
-  drawTarotCards(md, ad, ak);
+  const c = chart||SAMPLE_CHART;
+  const md = c.dasha&&c.dasha.current?(c.dasha.current.planet||'Saturn'):'Saturn';
+  const ad = c.dasha&&c.dasha.antardasha?(c.dasha.antardasha.planet||'Jupiter'):'Jupiter';
+  const ak = c.ak?(c.ak.planet||c.ak):'Jupiter';
+  _tarotSeed = 0; drawTarotCards(md,ad,ak);
 }
-
 function redrawTarot() {
-  _tarotSeed = (_tarotSeed + 1) % 2;
-  const c = window._activeChart || SAMPLE_CHART;
-  const md = c.dasha && c.dasha.current ? (c.dasha.current.planet || 'Saturn') : 'Saturn';
-  const ad = c.dasha && c.dasha.antardasha ? (c.dasha.antardasha.planet || 'Jupiter') : 'Jupiter';
-  const ak = c.ak ? (c.ak.planet || c.ak) : 'Jupiter';
-  drawTarotCards(md, ad, ak);
+  _tarotSeed = (_tarotSeed+1)%2;
+  const c = window._activeChart||SAMPLE_CHART;
+  drawTarotCards(c.dasha&&c.dasha.current?(c.dasha.current.planet||'Saturn'):'Saturn',c.dasha&&c.dasha.antardasha?(c.dasha.antardasha.planet||'Jupiter'):'Jupiter',c.ak?(c.ak.planet||c.ak):'Jupiter');
 }
-
-function drawTarotCards(md, ad, ak) {
+function drawTarotCards(md,ad,ak) {
   const wrap = document.getElementById('tarot-cards');
   if (!wrap) return;
   const idx = _tarotSeed;
+  const TJP = (typeof TAROT_JOURNAL_PROMPTS!=='undefined') ? TAROT_JOURNAL_PROMPTS : {};
+  const CC = {Sun:'#F59E0B',Moon:'#94A3B8',Mars:'#EF4444',Mercury:'#10B981',Jupiter:'#F97316',Venus:'#EC4899',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C'};
   const cards = [
-    { ...((TAROT_DECK[md]||TAROT_DECK.Saturn)[idx % (TAROT_DECK[md]||TAROT_DECK.Saturn).length]), position:'Your Current Period', planet: md },
-    { ...((TAROT_DECK[ad]||TAROT_DECK.Jupiter)[idx % (TAROT_DECK[ad]||TAROT_DECK.Jupiter).length]), position:'The Active Force', planet: ad },
-    { ...((TAROT_DECK[ak]||TAROT_DECK.Jupiter)[(idx+1) % (TAROT_DECK[ak]||TAROT_DECK.Jupiter).length]), position:'Your Soul Signature', planet: ak }
+    {...((TAROT_DECK[md]||TAROT_DECK.Saturn)[idx%2]),position:'Your Current Period',source:`Drawn from your ${md} Mahadasha energy`,planet:md},
+    {...((TAROT_DECK[ad]||TAROT_DECK.Jupiter)[idx%2]),position:'The Active Force',source:`Drawn from your ${ad} Antardasha energy`,planet:ad},
+    {...((TAROT_DECK[ak]||TAROT_DECK.Jupiter)[(idx+1)%2]),position:'Your Soul Signature',source:`Drawn from your Soul Planet (${ak})`,planet:ak}
   ];
-  const PLANET_COLORS_MAP = {Sun:'#F59E0B',Moon:'#94A3B8',Mars:'#EF4444',Mercury:'#10B981',Jupiter:'#F97316',Venus:'#EC4899',Saturn:'#6366F1',Rahu:'#8B5CF6',Ketu:'#78716C'};
-  wrap.innerHTML = cards.map(card => `
-    <div class="glass" style="padding:1.25rem;border-radius:var(--r-lg);text-align:center;border-top:3px solid ${PLANET_COLORS_MAP[card.planet]||'#7C3AED'}">
-      <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:.5rem">${card.position}</div>
-      <div style="font-size:2.5rem;margin-bottom:.35rem">${card.emoji}</div>
-      <div style="font-family:var(--font-h);font-size:1rem;font-weight:700;margin-bottom:.1rem">${card.name}</div>
-      <div style="font-size:.72rem;color:var(--txt3);margin-bottom:.6rem">Arcana ${card.number} · ${card.planet} energy</div>
-      <div style="font-size:.78rem;color:var(--txt2);line-height:1.6">${card.meaning}</div>
-    </div>`).join('');
+  wrap.innerHTML = cards.map(card=>{
+    const color = CC[card.planet]||'#7C3AED';
+    const prompt = TJP[card.name]||'What does this card\'s energy reflect in your life right now?';
+    return `<div style="padding:1.25rem;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-top:3px solid ${color};display:flex;flex-direction:column;gap:.55rem">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3)">${card.position}</div>
+      <div style="text-align:center;padding:.4rem 0">
+        <div style="font-size:2.8rem;margin-bottom:.25rem">${card.emoji}</div>
+        <div style="font-family:var(--font-h);font-size:1.05rem;font-weight:700;margin-bottom:.15rem">${card.name}</div>
+        <div style="font-size:.68rem;color:var(--txt3)">Major Arcana ${card.number}</div>
+      </div>
+      <div style="font-size:.68rem;padding:.28rem .6rem;background:${color}15;border-radius:6px;color:${color};font-weight:600;text-align:center">${card.source}</div>
+      <div style="font-size:.8rem;color:var(--txt2);line-height:1.65">${card.meaning}</div>
+      <div style="padding:.55rem .75rem;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid ${color}50">
+        <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:.25rem">✍ Reflection Prompt</div>
+        <div style="font-size:.77rem;color:var(--txt2);line-height:1.55;font-style:italic">${prompt}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 </script>
 
