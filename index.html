@@ -2627,15 +2627,27 @@ function submitAsk() {
 
   const qLow = q.toLowerCase();
   let response;
-  if (qLow.match(/job|career|work|change|resign|quit|promotion|fired|boss|office/))
+  if (qLow.match(/hopeless|can.t go on|no point|end it all|end my life|harm myself|suicidal|what.s the point of living/))
+    response = ASK_RESPONSES.crisis();
+  else if (qLow.match(/real person|are you ai|are you human|are you real|who are you|what are you/))
+    response = ASK_RESPONSES.identity();
+  else if (qLow.match(/gem|stone|ruby|emerald|pearl|coral|sapphire|diamond|topaz|ratan|panna|manikya/))
+    response = ASK_RESPONSES.gemstone();
+  else if (qLow.match(/predict|will i |when will|what will happen|destiny|fate|my future/))
+    response = ASK_RESPONSES.prediction(md, ad, lagna);
+  else if (qLow.match(/what is |explain |meaning of |define |nakshatra|yoga |dasha|rashi|bhava|karaka|navamsa|jyotish|vedic astro|lagna mean|house mean/))
+    response = ASK_RESPONSES.concept();
+  else if (qLow.match(/where|how do i find|which tab|navigate|app help|not load|didn.t load|how to use/))
+    response = ASK_RESPONSES.app();
+  else if (qLow.match(/job|career|work|change|resign|quit|promotion|fired|boss|office|role/))
     response = ASK_RESPONSES.job(md, ad, lagna);
-  else if (qLow.match(/money|invest|wealth|finance|rich|salary|income|earn|business|profit/))
+  else if (qLow.match(/money|invest|wealth|finance|rich|salary|income|earn|business|profit|loan|debt/))
     response = ASK_RESPONSES.money(md, ad, lagna);
-  else if (qLow.match(/marr|relation|love|partner|girl|boy|wife|husband|divorce|breakup|dating/))
+  else if (qLow.match(/marr|relation|love|partner|girl|boy|wife|husband|divorce|breakup|dating|girlfriend|boyfriend/))
     response = ASK_RESPONSES.relationship(md, ad, lagna);
-  else if (qLow.match(/health|sick|ill|body|pain|disease|hospital|doctor|diet|weight/))
+  else if (qLow.match(/health|sick|ill|body|pain|disease|hospital|doctor|diet|weight|sleep|stress/))
     response = ASK_RESPONSES.health(md, ad, lagna);
-  else if (qLow.match(/when|time|year|month|period|best time|right time|good time/))
+  else if (qLow.match(/when|time|year|month|period|best time|right time|good time|timing/))
     response = ASK_RESPONSES.timing(md, ad, lagna);
   else
     response = ASK_RESPONSES.default(md, ad, lagna);
