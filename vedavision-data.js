@@ -226,7 +226,21 @@ const FIVE_YEAR_FORECAST = [
       "Review all partnership and network-based financial arrangements (joint ventures, shared accounts, business partnerships) and ensure they are governed by written agreements — Mercury as 11th lord creates wealth through networks, but the 8th house placement means undocumented arrangements carry hidden risk."
     ],
     health: "The peak activity year creates a specific health vulnerability: neglecting physical recovery while riding the professional and financial momentum. Mercury AD's high cognitive pace has been running for 12+ months by 2029, and the nervous system's reserves require deliberate replenishment. Schedule a full health assessment in Q1 2029 and treat it as non-negotiable infrastructure maintenance, not a luxury. Jupiter in Leo provides vitality support through H2 2029 — leverage this window for any elective health interventions or intensive physical rehabilitation.",
-    keyMonths: ["Jan 2029", "Apr 2029", "Aug 2029", "Nov 2029"]
+    keyMonths: ["Jan 2029", "Apr 2029", "Aug 2029", "Nov 2029"],
+    do: [
+      "Make the primary wealth-building investment of the five-year cycle in H2 during Jupiter-Leo transit",
+      "Pursue the most ambitious role transition available in H1 — the Jupiter-Leo window is a 12-year event",
+      "Formalise a passive income stream — equity, licensing, advisory retainer — before Mercury AD ends",
+      "Present attributed thought-leadership work publicly — own the authorship of your contributions",
+      "Build the professional brand and institutional relationships that will outlast Mercury AD"
+    ],
+    dont: [
+      "Over-leverage during the bullish window — Mercury's optimism plus 8th house = dangerous if unchecked",
+      "Enter undocumented financial partnerships or joint arrangements without written agreements",
+      "Let the Jupiter-Leo transit window (Aug–Dec) pass without a formal career-level bid",
+      "Neglect physical recovery while riding professional and financial momentum",
+      "Restructure existing passive income arrangements — Ketu AD is approaching; protect what works"
+    ]
   },
   {
     year: 2030,
