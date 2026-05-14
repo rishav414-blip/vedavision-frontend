@@ -21,7 +21,7 @@ body{font-family:var(--font-b);background:var(--bg-deep);color:var(--txt);min-he
 .glass-strong{background:rgba(255,255,255,0.07);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.12)}
 
 /* BADGE */
-.badge-reflect{position:fixed;top:.75rem;right:.75rem;z-index:999;font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2);background:rgba(5,11,26,.85);backdrop-filter:blur(12px);border:1px solid var(--border);padding:.3rem .7rem;border-radius:var(--r-full)}
+.badge-reflect{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);z-index:999;font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2);background:rgba(5,11,26,.85);backdrop-filter:blur(12px);border:1px solid var(--border);padding:.3rem .7rem;border-radius:var(--r-full)}
 
 /* HERO */
 #hero{min-height:100vh;display:flex;position:relative}

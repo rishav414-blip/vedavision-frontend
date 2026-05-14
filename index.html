@@ -2744,9 +2744,9 @@ function renderCelebrityTwin(chart) {
   const twin = findCelebrityTwin(chart);
   if (!twin) return;
 
+  const lagna = chart.lagna ? (chart.lagna.signEn || chart.lagna.sign) : '';
+  const nak = chart.nakshatra ? chart.nakshatra.name : '';
   const matchType = (() => {
-    const lagna = chart.lagna ? (chart.lagna.signEn || chart.lagna.sign) : '';
-    const nak = chart.nakshatra ? chart.nakshatra.name : '';
     if (twin.lagna === lagna && twin.nakshatra === nak) return '✦ Exact match — same Lagna & Nakshatra';
     if (twin.nakshatra === nak) return '✦ Same Nakshatra (Birth Star)';
     if (twin.lagna === lagna) return '✦ Same Lagna (Ascendant)';
