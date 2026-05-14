@@ -424,7 +424,7 @@ footer p{font-size:.7rem;color:var(--txt3)}
   }
 
   /* Forecast do/dont grid: stack on narrow screens */
-  .forecast-grid + div > div[style*="grid-template-columns:1fr 1fr"]{
+  .do-dont-grid{
     grid-template-columns:1fr !important;
   }
 
