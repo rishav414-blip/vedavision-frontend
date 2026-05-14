@@ -2833,9 +2833,10 @@
 
       // Toggle button label
       if (btn) btn.textContent = lang === 'en' ? 'हिं' : 'EN';
-      btn.title = lang === 'en' ? 'Switch to Hindi' : 'Switch to English';
+      if (btn) btn.title = lang === 'en' ? 'Switch to Hindi' : 'Switch to English';
+    }
 
-      window.addEventListener('load', () => {
+    window.addEventListener('load', () => {
         const saved = localStorage.getItem('vv_lang');
         if (saved && saved !== 'en') applyLanguage(saved);
       });
