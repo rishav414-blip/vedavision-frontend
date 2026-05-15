@@ -60,7 +60,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 .form-input{width:100%;padding:.75rem 1rem;background:rgba(19,15,36,0.85);border:1px solid rgba(74,58,106,.6);border-radius:var(--r-md);color:var(--txt);font-family:var(--font-b);font-size:.9rem;outline:none;transition:border-color .2s ease,box-shadow .2s ease;box-shadow:inset 0 1px 3px rgba(0,0,0,.45)}
 select.form-input,select.form-input option{background:#0D1B3E;color:var(--txt)}
 select.form-input option:hover{background:rgba(124,58,237,.3)}
-.form-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.2)}
+.form-input:focus{border-color:#C4A45A;box-shadow:inset 0 1px 3px rgba(0,0,0,.45),0 0 0 3px rgba(196,164,90,.15)}
 .form-input::placeholder{color:var(--txt3)}
 .form-input:disabled{opacity:.4;cursor:not-allowed}
 .time-row{display:flex;gap:.5rem}
