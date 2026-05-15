@@ -1989,6 +1989,48 @@
     }
 
     // ── ANIMATIONS ──
+    // Count-up animation for numeric KPI values
+    function countUp(el, target, duration) {
+      if (!el) return;
+      duration = duration || 1000;
+      const start = Date.now();
+      const tick = () => {
+        const p = Math.min(1, (Date.now() - start) / duration);
+        const ease = 1 - Math.pow(1 - p, 3); // ease-out cubic
+        el.textContent = Math.round(ease * target);
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    // Daily Green/Red Day card on Overview
+    function renderDailyCard() {
+      const el = document.getElementById('daily-card');
+      if (!el || typeof generateCalendar === 'undefined') return;
+      const today = generateCalendar(1)[0];
+      if (!today) return;
+      const SIG_COLOR = { green:'#22C55E', neutral:'#F59E0B', red:'#EF4444' };
+      const SIG_LABEL = { green:'Green Day', neutral:'Neutral Day', red:'Caution Day' };
+      const SIG_ICON  = { green:'🟢', neutral:'🟡', red:'🔴' };
+      const c = SIG_COLOR[today.signal] || '#7C3AED';
+      el.style.borderLeftColor = c;
+      el.style.background = `rgba(${today.signal==='green'?'34,197,94':today.signal==='red'?'239,68,68':'245,158,11'},.05)`;
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div style="text-align:center;min-width:56px">
+            <div style="font-family:var(--font-h);font-size:2rem;font-weight:900;color:${c};line-height:1">${today.score}</div>
+            <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3)">Today</div>
+          </div>
+          <div style="flex:1;min-width:160px">
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${c};margin-bottom:.2rem">${SIG_ICON[today.signal]} ${SIG_LABEL[today.signal]}</div>
+            <div style="font-size:.82rem;color:var(--txt);font-weight:600;margin-bottom:.15rem">${today.factor}</div>
+            <div style="font-size:.75rem;color:var(--txt2)">${today.guidance}</div>
+          </div>
+          <div onclick="switchTab('calendar')" style="font-size:.72rem;color:var(--violet2);cursor:pointer;white-space:nowrap;flex-shrink:0">Full calendar →</div>
+        </div>`;
+      el.style.display = 'block';
+    }
+
     function animateBars() {
       document.querySelectorAll('.progress-bar-fill').forEach(bar => {
         const target = bar.dataset.target || 60;
