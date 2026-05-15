@@ -1440,8 +1440,8 @@
         if (!_fwEl) {
           const _fw = document.createElement('div');
           _fw.id = 'fallback-warning';
-          _fw.style.cssText = 'padding:.65rem 1.25rem;background:rgba(245,158,11,.1);border-bottom:2px solid rgba(245,158,11,.4);display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;font-size:.78rem;color:#F59E0B;z-index:101;position:relative';
-          _fw.innerHTML = `<span>⚠ <strong>Sample chart</strong> — live calculation unavailable. Astrological data shown is illustrative, not yours. <span style="color:var(--txt2)">Try resubmitting once the backend wakes (~30s).</span></span><button onclick="document.getElementById('fallback-warning').remove();document.getElementById('hero').style.display='flex';document.getElementById('summary-bar').classList.remove('visible');document.getElementById('results').classList.remove('visible');" style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);color:#F59E0B;border-radius:8px;padding:.25rem .65rem;font-size:.72rem;cursor:pointer;white-space:nowrap">← Try again</button>`;
+          _fw.className = 'fallback-banner';
+          _fw.innerHTML = `<div class="fallback-inner"><div class="fallback-icon">⚠</div><div class="fallback-body"><strong>Illustrative chart</strong><span>Live calculation is unavailable — backend warming up (~30s). Data shown is for Arjun Sharma, not you.</span></div><button class="fallback-btn" onclick="document.getElementById('fallback-warning').remove();document.getElementById('hero').style.display='flex';document.getElementById('summary-bar').classList.remove('visible');document.getElementById('results').classList.remove('visible');">← Try again</button></div>`;
           document.getElementById('summary-bar').insertAdjacentElement('afterend', _fw);
         }
       } else if (_fwEl) {
