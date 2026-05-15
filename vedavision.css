@@ -100,7 +100,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .sidebar-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);padding:.5rem .75rem;margin-bottom:.25rem}
 .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:var(--r-md);color:var(--txt2);font-size:.85rem;cursor:pointer;transition:background var(--tr),color var(--tr);margin-bottom:.1rem;user-select:none}
 .sidebar-link:hover{background:var(--bg-hover);color:var(--txt)}
-.sidebar-link.active{background:rgba(124,58,237,.15);color:#fff;border-left:2px solid var(--violet)}
+.sidebar-link.active{background:rgba(212,184,112,.08);color:#F0EBF4;border-left:2px solid var(--gold)}
 .sidebar-link .lk-icon{font-size:1rem;width:20px;text-align:center}
 .sidebar-link.dharma{color:var(--gold);border:1px solid rgba(245,158,11,.3);margin-top:.5rem}
 .main-content{flex:1;padding:2rem;min-width:0}
