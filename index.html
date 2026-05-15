@@ -1256,10 +1256,12 @@
     // ── INIT RESULTS ──
     function initResults(name, dob, pob, apiData) {
       let chart;
+      let _isRealChart = false;
       if (apiData && apiData.lagna) {
         // Real data from backend — use directly
         chart = apiData;
         chart.native = chart.native || { name, dob, tob: document.getElementById('fTob').value || '—', pob };
+        _isRealChart = true;
       } else {
         // Fallback: hash-based variant from sample
         const variant = (typeof getChartVariant !== 'undefined') ? getChartVariant(dob) : null;
