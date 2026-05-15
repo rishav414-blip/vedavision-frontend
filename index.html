@@ -3779,6 +3779,19 @@ ${APP_URL}
 
   <!-- ═══ COMPATIBILITY RENDERING ═══ -->
   <script>
+    function resetCompatForm() {
+      ['compat-name','compat-dob'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.value = '';
+      });
+      ['compat-nak','compat-moon','compat-lagna','compat-dasha'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.value = '';
+      });
+      var mangal = document.getElementById('compat-mangal');
+      if (mangal) mangal.checked = false;
+      var results = document.getElementById('compat-results');
+      if (results) results.style.display = 'none';
+    }
+
     function autoFillMoonSign() {
       const nak = document.getElementById('compat-nak').value;
       if (!nak || typeof COMPAT_NAK === 'undefined') return;
