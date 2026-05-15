@@ -3908,7 +3908,6 @@
           const data = await res.json();
           const reply = data.reply || '';
           hideTyping();
-          addAskMessage(reply, false);
           const _jStatOk = document.getElementById('jyoti-status');
           if (_jStatOk) _jStatOk.textContent = 'AI';
           // Update conversation history
@@ -3923,7 +3922,9 @@
             : qLow.match(/health|sick|body/) ? 'health'
             : qLow.match(/when|time|period/) ? 'timing'
             : 'default';
-          addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
+          typewriterMessage(reply, () => {
+            addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
+          });
         } catch (err) {
           // Graceful fallback to pattern-matched responses
           hideTyping();
