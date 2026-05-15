@@ -85,7 +85,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .form-note{text-align:center;font-size:.72rem;color:var(--txt3);margin-top:.75rem}
 
 /* SUMMARY BAR */
-#summary-bar{display:none;position:sticky;top:0;z-index:100;padding:.6rem 1.5rem;background:rgba(5,11,26,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);align-items:center;gap:1.5rem;flex-wrap:wrap}
+#summary-bar{display:none;position:sticky;top:0;z-index:100;padding:.6rem 1.5rem;background:rgba(8,5,18,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);align-items:center;gap:1.5rem;flex-wrap:wrap}
 #summary-bar.visible{display:flex}
 .sum-chip{font-size:.72rem;color:var(--txt2);display:flex;align-items:center;gap:.25rem;white-space:nowrap}.sum-chip span{color:var(--txt);font-weight:600}
 #summary-bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
