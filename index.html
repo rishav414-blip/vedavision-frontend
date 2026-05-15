@@ -4612,6 +4612,35 @@ ${APP_URL}
       btn.classList.add('rippling');
       setTimeout(function() { btn.classList.remove('rippling'); }, 520);
     });
+
+    // ── SCROLL REVEAL ──
+    (function() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('.reveal-on-scroll').forEach(function(el) { el.classList.add('revealed'); });
+        return;
+      }
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('revealed'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.12 });
+      function attachObserver() {
+        document.querySelectorAll('.reveal-on-scroll:not(.revealed)').forEach(function(el) { obs.observe(el); });
+      }
+      // Attach on tab switch and on results visible
+      var _origSwitchTab = window.switchTab;
+      if (typeof switchTab !== 'undefined') {
+        var _stOrig = switchTab;
+        switchTab = function(id) { _stOrig(id); setTimeout(attachObserver, 50); };
+      }
+      document.addEventListener('DOMContentLoaded', attachObserver);
+      var _rvObs = new MutationObserver(function() {
+        var r = document.getElementById('results');
+        if (r && r.classList.contains('visible')) setTimeout(attachObserver, 100);
+      });
+      var _rv = document.getElementById('results');
+      if (_rv) _rvObs.observe(_rv, { attributes: true, attributeFilter: ['class'] });
+    })();
   </script>
 
 </body>
