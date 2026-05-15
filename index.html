@@ -3836,12 +3836,11 @@
         submitAsk();
       }
 
-      function submitAsk() {
+      async function submitAsk() {
         const input = document.getElementById('askInput');
         if (!input || !input.value.trim()) return;
         const q = input.value.trim();
         input.value = '';
-        // Remove old chips
         const msgs = document.getElementById('askMessages');
         if (msgs) { const old = msgs.querySelector('.ask-chips'); if (old) old.remove(); }
         addAskMessage(q, true);
@@ -3851,39 +3850,83 @@
         const ad = chart.dasha && chart.dasha.antardasha ? (chart.dasha.antardasha.planet || chart.dasha.antardasha.lord || 'Jupiter') : 'Jupiter';
         const lagna = chart.lagna ? (chart.lagna.signEn || chart.lagna.sign || 'Scorpio') : 'Scorpio';
 
+        // Crisis check — always client-side regardless of API
         const qLow = q.toLowerCase();
-        let response, chipKey = 'default';
-        if (qLow.match(/hopeless|can.t go on|no point|end it all|end my life|harm myself|suicidal|what.s the point of living/))
-          { response = ASK_RESPONSES.crisis(); chipKey = 'other'; }
-        else if (qLow.match(/real person|are you ai|are you human|are you real|who are you|what are you/))
-          { response = ASK_RESPONSES.identity(); chipKey = 'other'; }
-        else if (qLow.match(/gem|stone|ruby|emerald|pearl|coral|sapphire|diamond|topaz|ratan|panna|manikya/))
-          { response = ASK_RESPONSES.gemstone(); chipKey = 'other'; }
-        else if (qLow.match(/predict|will i |when will|what will happen|destiny|fate|my future/))
-          { response = ASK_RESPONSES.prediction(md, ad, lagna); chipKey = 'other'; }
-        else if (qLow.match(/what is |explain |meaning of |define |nakshatra|yoga |dasha|rashi|bhava|karaka|navamsa|jyotish|vedic astro|lagna mean|house mean/))
-          { response = ASK_RESPONSES.concept(); chipKey = 'other'; }
-        else if (qLow.match(/where|how do i find|which tab|navigate|app help|not load|didn.t load|how to use/))
-          { response = ASK_RESPONSES.app(); chipKey = 'other'; }
-        else if (qLow.match(/job|career|work|change|resign|quit|promotion|fired|boss|office|role/))
-          { response = ASK_RESPONSES.job(md, ad, lagna); chipKey = 'job'; }
-        else if (qLow.match(/money|invest|wealth|finance|rich|salary|income|earn|business|profit|loan|debt/))
-          { response = ASK_RESPONSES.money(md, ad, lagna); chipKey = 'money'; }
-        else if (qLow.match(/marr|relation|love|partner|girl|boy|wife|husband|divorce|breakup|dating|girlfriend|boyfriend/))
-          { response = ASK_RESPONSES.relationship(md, ad, lagna); chipKey = 'relationship'; }
-        else if (qLow.match(/health|sick|ill|body|pain|disease|hospital|doctor|diet|weight|sleep|stress/))
-          { response = ASK_RESPONSES.health(md, ad, lagna); chipKey = 'health'; }
-        else if (qLow.match(/when|time|year|month|period|best time|right time|good time|timing/))
-          { response = ASK_RESPONSES.timing(md, ad, lagna); chipKey = 'timing'; }
-        else
-          { response = ASK_RESPONSES.default(md, ad, lagna); chipKey = 'default'; }
+        if (qLow.match(/hopeless|can.t go on|no point|end it all|end my life|harm myself|suicidal|what.s the point of living/)) {
+          showTyping();
+          setTimeout(() => { hideTyping(); addAskMessage(ASK_RESPONSES.crisis(), false); addQuickReplies(CHIPS['other']); }, 680);
+          return;
+        }
 
         showTyping();
-        setTimeout(() => {
+
+        // Determine backend URL
+        const _backendBase = (typeof BACKEND_URL !== 'undefined' && BACKEND_URL) ? BACKEND_URL : 'https://vedavision-backend.onrender.com';
+
+        try {
+          const body = {
+            message: q,
+            history: (window._jyotiHistory || []).slice(-10),
+            chart_context: {
+              native: chart.native,
+              lagna: chart.lagna,
+              nakshatra: chart.nakshatra,
+              dasha: chart.dasha,
+              yogas: chart.yoga || chart.yogas || [],
+              houses: chart.houses || [],
+              moonSign: chart.moonSign,
+              sunSign: chart.sunSign
+            }
+          };
+          const res = await fetch(_backendBase + '/api/jyoti', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(15000)
+          });
+          if (!res.ok) throw new Error('API ' + res.status);
+          const data = await res.json();
+          const reply = data.reply || '';
           hideTyping();
+          addAskMessage(reply, false);
+          // Update conversation history
+          if (!window._jyotiHistory) window._jyotiHistory = [];
+          window._jyotiHistory.push({ role: 'user', content: q });
+          window._jyotiHistory.push({ role: 'assistant', content: reply });
+          if (window._jyotiHistory.length > 40) window._jyotiHistory = window._jyotiHistory.slice(-40);
+          // Smart chip selection based on topic
+          const chipKey = qLow.match(/job|career|work/) ? 'job'
+            : qLow.match(/money|wealth|finance/) ? 'money'
+            : qLow.match(/marr|relation|love|partner/) ? 'relationship'
+            : qLow.match(/health|sick|body/) ? 'health'
+            : qLow.match(/when|time|period/) ? 'timing'
+            : 'default';
+          addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
+        } catch (err) {
+          // Graceful fallback to pattern-matched responses
+          hideTyping();
+          let response, chipKey = 'default';
+          if (qLow.match(/real person|are you ai|are you human|who are you|what are you/))
+            { response = ASK_RESPONSES.identity(); chipKey = 'other'; }
+          else if (qLow.match(/gem|stone|ruby|emerald|pearl|coral|sapphire|diamond/))
+            { response = ASK_RESPONSES.gemstone(); chipKey = 'other'; }
+          else if (qLow.match(/predict|will i |when will|what will happen|destiny|fate/))
+            { response = ASK_RESPONSES.prediction(md, ad, lagna); chipKey = 'other'; }
+          else if (qLow.match(/what is |explain |meaning of |define |nakshatra|yoga |dasha|rashi|bhava/))
+            { response = ASK_RESPONSES.concept(); chipKey = 'other'; }
+          else if (qLow.match(/job|career|work|promotion/))
+            { response = ASK_RESPONSES.job(md, ad, lagna); chipKey = 'job'; }
+          else if (qLow.match(/money|invest|wealth|finance/))
+            { response = ASK_RESPONSES.money(md, ad, lagna); chipKey = 'money'; }
+          else if (qLow.match(/marr|relation|love|partner/))
+            { response = ASK_RESPONSES.relationship(md, ad, lagna); chipKey = 'relationship'; }
+          else if (qLow.match(/health|sick|body|pain/))
+            { response = ASK_RESPONSES.health(md, ad, lagna); chipKey = 'health'; }
+          else
+            { response = ASK_RESPONSES.default(md, ad, lagna); }
           addAskMessage(response, false);
-          addQuickReplies(CHIPS[chipKey]);
-        }, 680);
+          addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
+        }
       }
 
       document.getElementById('askBtn').addEventListener('click', () => {
