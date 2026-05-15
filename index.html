@@ -3793,16 +3793,12 @@
 
       function showTyping() {
         const msgs = document.getElementById('askMessages');
-        if (!msgs || document.getElementById('ask-typing')) return;
-        const d = document.createElement('div');
-        d.id = 'ask-typing';
-        d.style.cssText = 'padding:.5rem .75rem;border-radius:12px;border-bottom-left-radius:4px;align-self:flex-start;background:rgba(255,255,255,.06);display:flex;gap:4px;align-items:center;margin-bottom:.1rem';
-        ['0s','.18s','.36s'].forEach(delay => {
-          const dot = document.createElement('span');
-          dot.style.cssText = `width:7px;height:7px;border-radius:50%;background:#7C3AED;display:inline-block;animation:jdot .9s ease-in-out ${delay} infinite`;
-          d.appendChild(dot);
-        });
-        msgs.appendChild(d);
+        if (!msgs || document.getElementById('jyoti-typing')) return;
+        const el = document.createElement('div');
+        el.id = 'jyoti-typing';
+        el.className = 'ask-msg ask-msg-bot';
+        el.innerHTML = '<div class="jyoti-typing-inner"><span class="jdot"></span><span class="jdot"></span><span class="jdot"></span></div>';
+        msgs.appendChild(el);
         msgs.scrollTop = msgs.scrollHeight;
       }
 
