@@ -127,7 +127,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .progress-bar-track{height:4px;background:var(--border);border-radius:99px;margin-top:.5rem;overflow:hidden}
 .progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:width 1s ease}
 .gauge-svg{display:block;margin:0 auto}
-.wealth-card{padding:1.25rem 1.5rem;border-radius:var(--r-lg);border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.04);margin-bottom:1.5rem}
+.wealth-card{padding:1.25rem 1.5rem;border-radius:var(--r-lg);border:1px solid rgba(212,184,112,.28);background:rgba(212,184,112,.04);margin-bottom:1.5rem;box-shadow:0 0 24px rgba(212,184,112,.06)}
 .wealth-title{font-family:var(--font-h);font-size:1rem;font-weight:700;margin-bottom:.5rem}
 .wealth-score-num{font-family:var(--font-h);font-size:2rem;font-weight:800;color:var(--gold)}
 .wealth-bars{margin-top:.75rem;display:flex;flex-direction:column;gap:.5rem}
@@ -136,27 +136,29 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .yoga-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem}
 .yoga-chip{font-size:.72rem;font-weight:600;padding:.3rem .7rem;border-radius:var(--r-full);border:1px solid var(--border);background:var(--bg-card);color:var(--txt2)}
 .yoga-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-bottom:1.5rem}
-.yoga-card{padding:1rem 1.25rem;border-radius:var(--r-md);border-left:3px solid var(--violet)}
+.yoga-card{padding:1rem 1.25rem;border-radius:var(--r-md);border-left:3px solid var(--gold);background:rgba(212,184,112,.03)}
 .yoga-card h4{font-size:.9rem;font-weight:700;margin-bottom:.25rem}
 .yoga-card p{font-size:.78rem;color:var(--txt2);line-height:1.5}
 
 /* NATAL CHART */
 .chart-layout{display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap}
-.chart-svg-wrap{flex-shrink:0}
+.chart-svg-wrap{flex-shrink:0;background:radial-gradient(ellipse 80% 80% at 30% 20%,rgba(139,124,200,.08) 0%,transparent 60%),radial-gradient(ellipse 60% 60% at 70% 80%,rgba(196,164,90,.06) 0%,transparent 60%);border-radius:var(--r-lg);padding:.5rem}
 .chart-svg-wrap svg polygon{cursor:pointer;transition:fill .3s ease,stroke .3s ease}
 .chart-svg-wrap svg polygon:hover{fill:rgba(124,58,237,.18);stroke:rgba(212,184,112,.3);stroke-width:1}
 .chart-table{flex:1;min-width:280px}
 .planet-table{width:100%;border-collapse:collapse;font-size:.8rem}
 .planet-table th{text-align:left;padding:.4rem .6rem;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);border-bottom:1px solid var(--border)}
-.planet-table td{padding:.5rem .6rem;border-bottom:1px solid rgba(255,255,255,0.04)}
+.planet-table td{padding:.5rem .6rem;border-bottom:1px solid rgba(255,255,255,0.05)}
 .planet-table tr:hover td{background:var(--bg-hover)}
-.planet-glyph{font-size:1rem}
+.planet-glyph{font-size:1rem;transition:filter .2s ease}
+.planet-glyph:hover{filter:drop-shadow(0 0 6px currentColor)}
+.lagna-glyph{filter:drop-shadow(0 0 10px rgba(170,204,255,0.4))}
 .dignity-badge{font-size:.65rem;padding:.15rem .45rem;border-radius:var(--r-full);font-weight:600}
 .dignity-own{background:rgba(34,197,94,.15);color:#22C55E}
 .dignity-exalted{background:rgba(6,182,212,.15);color:#06B6D4}
 .dignity-friendly{background:rgba(124,58,237,.15);color:#9D5CF6}
 .dignity-neutral{background:rgba(148,163,184,.1);color:#94A3B8}
-.house-tooltip{position:fixed;z-index:200;padding:.75rem 1rem;border-radius:var(--r-md);font-size:.8rem;max-width:220px;pointer-events:none;opacity:0;transition:opacity .2s ease}
+.house-tooltip{position:fixed;z-index:200;padding:.75rem 1rem;border-radius:var(--r-md);font-size:.8rem;max-width:220px;pointer-events:none;opacity:0;transition:opacity .2s ease;background:rgba(18,12,36,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .house-tooltip.show{opacity:1}
 
 /* FORECAST */
@@ -167,7 +169,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .forecast-year{display:none}.forecast-year.active{display:block}
 .forecast-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .forecast-card{padding:1.25rem;border-radius:var(--r-lg);transition:transform .22s ease,box-shadow .22s ease}
-.forecast-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.forecast-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.45),0 0 0 1px rgba(192,160,96,.1)}
 .fc-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem}
 .fc-icon{font-size:1.1rem}
 .fc-title{font-family:var(--font-h);font-size:1rem;font-weight:700}
@@ -236,12 +238,12 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .h-badge.neutral{background:rgba(148,163,184,.1);color:var(--txt2)}
 .ts-score{font-family:var(--font-h);font-size:2.5rem;font-weight:800;text-align:center;margin:.5rem 0}
 .ts-score.green{color:var(--green)}.ts-score.red{color:var(--red)}.ts-score.neutral{color:var(--txt2)}
-.ts-key-event{font-size:.78rem;padding:.5rem .75rem;border-radius:var(--r-md);background:rgba(245,158,11,.1);border-left:3px solid var(--gold);margin-top:.5rem;color:var(--gold)}
+.ts-key-event{font-size:.78rem;padding:.5rem .75rem;border-radius:var(--r-md);background:rgba(212,184,112,.08);border-left:3px solid var(--gold);margin-top:.5rem;color:var(--gold);box-shadow:inset 0 0 12px rgba(212,184,112,.06)}
 
 /* ALTAR */
 .altar-mandala{text-align:center;margin-bottom:1.5rem;opacity:.35}
 .altar-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.planet-rec-card{padding:1.5rem;border-radius:var(--r-xl);border:1px solid rgba(245,158,11,.3)}
+.planet-rec-card{padding:1.5rem;border-radius:var(--r-xl);border:1px solid rgba(212,184,112,.25);box-shadow:0 4px 20px rgba(0,0,0,.3),0 0 0 1px rgba(212,184,112,.05) inset}
 .planet-big-glyph{font-size:3.5rem;line-height:1;margin-bottom:.5rem}
 .planet-rec-name{font-family:var(--font-h);font-size:1.2rem;font-weight:700;margin-bottom:.25rem}
 .planet-rec-reason{font-size:.78rem;color:var(--txt2);line-height:1.5;margin-bottom.75rem}
@@ -499,7 +501,7 @@ footer p{font-size:.7rem;color:var(--txt3)}
 .year-tab{scroll-snap-align:start;flex-shrink:0}
 
 /* ── FOCUS RING ── */
-*:focus-visible{outline:2px solid rgba(196,164,90,.75);outline-offset:3px;border-radius:4px}
+*:focus-visible{outline:2px solid rgba(212,184,112,.7);outline-offset:3px;border-radius:4px}
 *:focus:not(:focus-visible){outline:none}
 
 /* ── HERO/RESULTS TRANSITIONS ── */
