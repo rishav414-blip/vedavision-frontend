@@ -1125,7 +1125,7 @@
       const tob = document.getElementById('fTob').value;
       const pob = document.getElementById('fPob').value.trim();
       const approx = document.getElementById('approxToggle').checked;
-      if (!name || !dob || !pob) { alert('Please fill in Name, Date of Birth, and Place of Birth.'); return; }
+      if (!name || !dob || !pob) { showToast('⚠ Please fill in Name, Date of Birth, and Place of Birth.'); return; }
 
       const btn = document.getElementById('submitBtn');
       btn.textContent = '⟳ Calculating...'; btn.classList.add('loading'); btn.disabled = true;
