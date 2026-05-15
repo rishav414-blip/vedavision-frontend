@@ -1266,7 +1266,8 @@
         }
         const apiData = await res.json();
         window._apiChartData = apiData;
-        setNotice('✓ Real chart — Swiss Ephemeris · Lahiri Ayanamsa · Whole Sign houses', '#22C55E');
+        setStep(3,'done');
+        setTimeout(() => { if(noticeEl) noticeEl.style.opacity='0'; setTimeout(()=>{ if(noticeEl) noticeEl.style.display='none'; },400); }, 1800);
         initResults(name, dob, pob, apiData);
       } catch (err) {
         const msg = err.name === 'AbortError' ? 'Timeout (>30s) — server may be starting up, try again in 10 seconds' : err.message;
