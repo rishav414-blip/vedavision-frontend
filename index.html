@@ -1334,9 +1334,9 @@
       const moonEl = document.getElementById('sumMoon');
       const sunEl = document.getElementById('sumSun');
       const dashEl = document.getElementById('sumDasha');
-      if (lagnaEl && chart.lagna) lagnaEl.textContent = chart.lagna.signEn || chart.lagna.sign;
-      if (moonEl && chart.moonSign) moonEl.textContent = chart.moonSign.signEn || chart.moonSign.sign;
-      if (sunEl && chart.sunSign) sunEl.textContent = chart.sunSign.signEn || chart.sunSign.sign;
+      if (lagnaEl && chart.lagna) { const _s=chart.lagna.signEn||chart.lagna.sign; lagnaEl.textContent = (SIGN_GLYPHS[_s]||'')+' '+_s; }
+      if (moonEl && chart.moonSign) { const _s=chart.moonSign.signEn||chart.moonSign.sign; moonEl.textContent = (SIGN_GLYPHS[_s]||'')+' '+_s; }
+      if (sunEl && chart.sunSign) { const _s=chart.sunSign.signEn||chart.sunSign.sign; sunEl.textContent = (SIGN_GLYPHS[_s]||'')+' '+_s; }
       if (dashEl && chart.dasha) {
         const mdN = chart.dasha.current ? (chart.dasha.current.planet || chart.dasha.current.lord || '—') : '—';
         const adN = chart.dasha.antardasha ? (chart.dasha.antardasha.planet || chart.dasha.antardasha.lord || '—') : '—';
