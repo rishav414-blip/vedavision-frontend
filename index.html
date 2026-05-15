@@ -1504,6 +1504,22 @@
           svg.appendChild(glyph);
         });
       });
+
+      // Staggered reveal animation
+      let _pi = 0;
+      svg.querySelectorAll('polygon').forEach(poly => {
+        poly.style.opacity = '0';
+        const delay = _pi++ * 28;
+        setTimeout(() => { poly.style.transition = 'opacity .4s ease'; poly.style.opacity = '1'; }, delay + 50);
+      });
+      let _ti = 0;
+      svg.querySelectorAll('text').forEach(t => {
+        t.style.opacity = '0';
+        const delay = 220 + _ti++ * 35;
+        setTimeout(() => {
+          t.style.cssText += ';opacity:1;transition:opacity .3s ease';
+        }, delay);
+      });
     }
 
     function showHouseTooltip(ev, hId, pin) {
