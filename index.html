@@ -1610,7 +1610,7 @@
           glyph.setAttribute('x', cx + offset); glyph.setAttribute('y', cy + 16);
           glyph.setAttribute('text-anchor', 'middle'); glyph.setAttribute('font-size', '12');
           glyph.setAttribute('fill', PLANET_COLOR_MAP[p] || '#fff');
-          glyph.style.filter = `drop-shadow(0 0 3px ${PLANET_COLOR_MAP[p] || '#fff'})`;
+          glyph.style.cursor = 'default';
           glyph.textContent = PLANET_GLYPHS[p] || p;
           svg.appendChild(glyph);
         });
