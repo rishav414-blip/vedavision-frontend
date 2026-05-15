@@ -3392,6 +3392,418 @@ ${APP_URL}
         if (r) _twinObserver.observe(r, { attributes: true, attributeFilter: ['class'] });
       });
   </script>
+
+  <!-- ═══ COSMIC BLUEPRINT — PDF + PAYMENT ═══ -->
+  <script>
+    const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // ← Replace with your Razorpay key
+    const PDF_PRICE_PAISE = 9900; // ₹99
+    const VALID_COUPONS = ['CHARLIE'];
+    const PDF_PURCHASED_KEY = 'vv_pdf_unlocked';
+
+    function isPdfUnlocked() {
+      return localStorage.getItem(PDF_PURCHASED_KEY) === '1';
+    }
+
+    function unlockPdf() {
+      localStorage.setItem(PDF_PURCHASED_KEY, '1');
+    }
+
+    // Show CTA banner once chart loads
+    function showBlueprintCta() {
+      const cta = document.getElementById('blueprintCta');
+      if (cta) {
+        cta.style.display = 'flex';
+        if (isPdfUnlocked()) {
+          cta.querySelector('button').textContent = '⬇ Download PDF';
+          cta.querySelector('button').onclick = () => generateAndDownloadPDF(window._activeChart);
+        }
+      }
+    }
+
+    function openPdfModal() {
+      if (isPdfUnlocked()) { generateAndDownloadPDF(window._activeChart); return; }
+      const m = document.getElementById('pdfModal');
+      if (m) { m.style.display = 'flex'; m.style.alignItems = 'center'; m.style.justifyContent = 'center'; }
+    }
+
+    function closePdfModal() {
+      const m = document.getElementById('pdfModal');
+      if (m) m.style.display = 'none';
+      const msg = document.getElementById('pdfCouponMsg');
+      if (msg) msg.style.display = 'none';
+    }
+
+    function applyCoupon() {
+      const val = (document.getElementById('pdfCouponInput')?.value || '').trim().toUpperCase();
+      const msg = document.getElementById('pdfCouponMsg');
+      if (VALID_COUPONS.includes(val)) {
+        msg.textContent = '✓ Coupon applied — downloading your Blueprint now';
+        msg.style.cssText = 'display:block;font-size:.75rem;margin-top:.45rem;text-align:center;padding:.3rem .6rem;border-radius:8px;color:#22C55E;background:rgba(34,197,94,.1);';
+        unlockPdf();
+        setTimeout(() => { closePdfModal(); generateAndDownloadPDF(window._activeChart); }, 900);
+      } else {
+        msg.textContent = val ? 'Invalid code. Try again.' : 'Please enter a code.';
+        msg.style.cssText = 'display:block;font-size:.75rem;margin-top:.45rem;text-align:center;padding:.3rem .6rem;border-radius:8px;color:#EF4444;background:rgba(239,68,68,.1);';
+      }
+    }
+
+    function initiatePdfPayment() {
+      if (RAZORPAY_KEY === 'rzp_test_YOUR_KEY_HERE') {
+        // Razorpay not configured yet — guide user to CHARLIE
+        const msg = document.getElementById('pdfCouponMsg');
+        if (msg) {
+          msg.textContent = 'Online payment coming soon. Use coupon code below to download free.';
+          msg.style.cssText = 'display:block;font-size:.75rem;margin-top:.45rem;text-align:center;padding:.4rem .7rem;border-radius:8px;color:#F59E0B;background:rgba(245,158,11,.1);';
+        }
+        document.getElementById('couponRow').style.display = 'flex';
+        return;
+      }
+      const options = {
+        key: RAZORPAY_KEY,
+        amount: PDF_PRICE_PAISE,
+        currency: 'INR',
+        name: 'VedaVision',
+        description: 'Cosmic Blueprint PDF',
+        image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="%237C3AED"/><text y="42" x="32" text-anchor="middle" font-size="36" fill="%23C0A860">✦</text></svg>',
+        theme: { color: '#7C3AED' },
+        prefill: { email: (window._currentUser && window._currentUser.email) || '' },
+        handler: function(response) {
+          unlockPdf();
+          closePdfModal();
+          setTimeout(() => generateAndDownloadPDF(window._activeChart), 200);
+        }
+      };
+      try {
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch(e) {
+        console.error('Razorpay error:', e);
+      }
+    }
+
+    // ── PDF GENERATION ──────────────────────────────────────────────────
+    function generateAndDownloadPDF(chart) {
+      if (!window.jspdf) { alert('PDF library loading, please try again in a moment.'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const c = chart || SAMPLE_CHART;
+      const nat = c.native || {};
+
+      // Color palette
+      const BG   = [5,11,26];
+      const DARK2= [13,27,62];
+      const GOLD = [192,168,96];
+      const GOLDB= [212,184,112];
+      const WHT  = [241,245,254];
+      const MUT  = [148,163,184];
+      const DIM  = [75,90,114];
+      const GRNS = [34,197,94];
+      const REDS = [239,68,68];
+      const VIOL = [124,58,237];
+
+      const W = 210, H = 297;
+      const ML = 18, MR = 18; // margins
+      const CW = W - ML - MR; // content width
+
+      function bg(page) {
+        doc.setFillColor(...BG);
+        doc.rect(0,0,W,H,'F');
+        // gradient bar at top
+        doc.setFillColor(...VIOL);
+        doc.rect(0,0,W*.33,3,'F');
+        doc.setFillColor(...GOLD);
+        doc.rect(W*.33,0,W*.34,3,'F');
+        doc.setFillColor(6,182,212);
+        doc.rect(W*.67,0,W*.33,3,'F');
+      }
+
+      function heading(text, y, size=11, color=GOLD) {
+        doc.setFontSize(size); doc.setFont('times','bold'); doc.setTextColor(...color);
+        doc.text(text, ML, y);
+        return y + size*.45 + 2;
+      }
+
+      function label(text, y, x=ML, size=7.5, color=DIM) {
+        doc.setFontSize(size); doc.setFont('helvetica','bold'); doc.setTextColor(...color);
+        doc.text(text.toUpperCase(), x, y);
+      }
+
+      function value(text, y, x=ML, size=9, color=WHT) {
+        doc.setFontSize(size); doc.setFont('times','normal'); doc.setTextColor(...color);
+        doc.text(text || '—', x, y);
+        return y + size*.4 + 1.5;
+      }
+
+      function divider(y, color=DARK2) {
+        doc.setDrawColor(...color); doc.setLineWidth(0.3);
+        doc.line(ML, y, W-MR, y);
+        return y + 4;
+      }
+
+      function chip(text, x, y, bg=VIOL, tc=WHT) {
+        const tw = doc.getTextWidth(text);
+        doc.setFillColor(...bg); doc.setDrawColor(...bg);
+        doc.roundedRect(x, y-3.5, tw+5, 5.5, 1.5, 1.5, 'F');
+        doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(...tc);
+        doc.text(text, x+2.5, y);
+      }
+
+      // ── PAGE 1: Identity ─────────────────────────────────────────────
+      bg(1);
+
+      // Header
+      doc.setFontSize(26); doc.setFont('times','bold'); doc.setTextColor(...GOLD);
+      doc.text('VedaVision', W/2, 20, {align:'center'});
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+      doc.text('COSMIC BLUEPRINT  ·  REFLECTION NOT PREDICTION', W/2, 27, {align:'center'});
+      divider(31, GOLD);
+
+      // Name + birth data
+      const name = nat.name || 'Your Chart';
+      doc.setFontSize(20); doc.setFont('times','italic'); doc.setTextColor(...WHT);
+      doc.text(name, W/2, 42, {align:'center'});
+
+      const birth = [nat.dob, nat.tob, nat.pob].filter(Boolean).join('  ·  ');
+      doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...MUT);
+      doc.text(birth || 'Birth details not provided', W/2, 49, {align:'center'});
+
+      let y = divider(54, [30,45,80]);
+
+      // Two-column identity grid
+      const col1x = ML, col2x = W/2 + 2;
+
+      const lagna    = c.lagna ? (c.lagna.signEn || c.lagna.sign || '—') : '—';
+      const lagnaLrd = c.lagna ? (c.lagna.lord || '—') : '—';
+      const moonSign = c.moonSign ? (c.moonSign.signEn || c.moonSign.sign || '—') : '—';
+      const sunSign  = c.sunSign  ? (c.sunSign.signEn  || c.sunSign.sign  || '—') : '—';
+      const nak      = c.nakshatra ? c.nakshatra.name   : '—';
+      const nakLrd   = c.nakshatra ? (c.nakshatra.lord  || '—') : '—';
+      const pada     = c.nakshatra ? (c.nakshatra.pada  || '—') : '—';
+      const ak       = c.ak       ? (c.ak.planet || c.ak) : '—';
+      const amk      = c.amk      ? (c.amk.planet|| c.amk) : '—';
+      const archetype= c.leadershipType || '—';
+      const mdP      = c.dasha?.current  ? (c.dasha.current.planet  || c.dasha.current.lord  || '—') : '—';
+      const adP      = c.dasha?.antardasha ? (c.dasha.antardasha.planet || c.dasha.antardasha.lord || '—') : '—';
+      const mdEnd    = c.dasha?.current?.end || '—';
+
+      const rows = [
+        [['LAGNA (RISING SIGN)', lagna+' · Lord: '+lagnaLrd],  ['ATMAKARAKA (SOUL)', ak]],
+        [['MOON SIGN',           moonSign],                     ['AMATYAKARAKA (CAREER)', amk]],
+        [['SUN SIGN',            sunSign],                      ['LEADERSHIP ARCHETYPE', archetype]],
+        [['NAKSHATRA',           nak+' · Lord: '+nakLrd],       ['MAHADASHA',   mdP+' (until '+mdEnd+')']],
+        [['NAKSHATRA PADA',      'Pada '+pada],                 ['ANTARDASHA',  adP]],
+      ];
+
+      rows.forEach(([left, right]) => {
+        label(left[0],  y, col1x);
+        label(right[0], y, col2x);
+        y += 4;
+        value(left[1],  y, col1x, 9.5);
+        value(right[1], y, col2x, 9.5);
+        y += 7.5;
+      });
+
+      y = divider(y+1, [30,45,80]);
+
+      // Lagna theme
+      const LAGNA_THEMES = {
+        Aries:'Courageous initiator. Mars-ruled drive shapes every domain — pioneer first, reflect later.',
+        Taurus:'Builder and cultivator. Venus\'s stability and sensory richness are your natural register.',
+        Gemini:'Communicator and connector. Mercury\'s agility makes you fluent across many worlds.',
+        Cancer:'Nurturer and guardian. Lunar sensitivity gives deep relational intelligence.',
+        Leo:'Natural authority. Solar confidence and creative expression are your birthright.',
+        Virgo:'Analyst and craftsperson. Mercury\'s discernment makes you precise and service-oriented.',
+        Libra:'Diplomat and harmoniser. Venus\'s aesthetic sense balances relationships and aesthetics.',
+        Scorpio:'Transformer and investigator. Mars and Ketu bring intensity, depth, and penetrating insight.',
+        Sagittarius:'Seeker and philosopher. Jupiter\'s optimism fuels a lifelong pursuit of meaning.',
+        Capricorn:'Builder and authority. Saturn\'s discipline creates lasting structures over time.',
+        Aquarius:'Innovator and humanitarian. Saturn\'s vision operates through systems and community.',
+        Pisces:'Mystic and empath. Jupiter\'s compassion and intuition guide an inward, creative path.'
+      };
+      const theme = LAGNA_THEMES[lagna] || 'A unique planetary signature shapes your core nature and approach to life.';
+      doc.setFontSize(8.5); doc.setFont('times','italic'); doc.setTextColor(...MUT);
+      const split = doc.splitTextToSize(theme, CW);
+      doc.text(split, ML, y+2);
+      y += split.length * 5 + 5;
+
+      // Active Yogas
+      if (c.yogas && c.yogas.length) {
+        y = divider(y, [30,45,80]);
+        label('ACTIVE YOGAS', y, ML);
+        y += 5;
+        c.yogas.slice(0,4).forEach(yg => {
+          chip(yg.name, ML, y, [30,45,80], GOLDB);
+          doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+          const eff = doc.splitTextToSize(yg.effect || '', CW - 35);
+          doc.text(eff[0] || '', ML + doc.getTextWidth(yg.name) + 9, y);
+          y += 6;
+        });
+      }
+
+      // Footer p1
+      doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+      doc.text('This report is for reflection and self-inquiry. Jyotiṣa is a symbolic tool — not a substitute for personal agency or professional advice.', W/2, H-10, {align:'center'});
+      doc.text('vedavision-frontend.rishav414.workers.dev  ·  Reflection Not Prediction', W/2, H-6, {align:'center'});
+
+      // ── PAGE 2: 5-Year Forecast ──────────────────────────────────────
+      doc.addPage();
+      bg(2);
+
+      doc.setFontSize(18); doc.setFont('times','bold'); doc.setTextColor(...GOLD);
+      doc.text('5-Year Forecast', W/2, 20, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+      doc.text(name+' · '+lagna+' Lagna', W/2, 27, {align:'center'});
+      y = divider(31, GOLD);
+      y += 3;
+
+      const SIGNAL_COLORS = {bullish:GRNS, high:[34,197,94], medium:[245,158,11], low:[239,68,68], critical:[239,68,68]};
+      const SIGNAL_LABELS = {bullish:'BULLISH', high:'HIGH', medium:'MEDIUM', low:'LOW', critical:'CRITICAL'};
+
+      const forecastData = (window._activeChart && typeof generateDynamicForecast !== 'undefined')
+        ? generateDynamicForecast(window._activeChart)
+        : (typeof FIVE_YEAR_FORECAST !== 'undefined' ? FIVE_YEAR_FORECAST : []);
+
+      forecastData.forEach((yr, idx) => {
+        if (y > H - 40) { doc.addPage(); bg(); y = 20; }
+        const sc = SIGNAL_COLORS[yr.signal] || MUT;
+
+        // Year header row
+        doc.setFillColor(...DARK2);
+        doc.rect(ML, y-4, CW, 10, 'F');
+        doc.setFontSize(13); doc.setFont('times','bold'); doc.setTextColor(...WHT);
+        doc.text(String(yr.year), ML+3, y+3);
+        chip(SIGNAL_LABELS[yr.signal]||yr.signal, ML+22, y+3, sc, BG);
+        doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(...MUT);
+        doc.text(yr.dasha, ML+55, y+3);
+        doc.setFontSize(10); doc.setFont('times','bold'); doc.setTextColor(...GOLDB);
+        doc.text(String(yr.score)+'/100', W-MR-16, y+3);
+        y += 11;
+
+        // Dasha theme
+        if (yr.dashaTheme) {
+          doc.setFontSize(7.5); doc.setFont('times','italic'); doc.setTextColor(...MUT);
+          const th = doc.splitTextToSize('"'+yr.dashaTheme+'"', CW);
+          doc.text(th[0], ML, y); y += 5;
+        }
+
+        // Do column
+        if (yr.do && yr.do.length) {
+          doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...GRNS);
+          doc.text('DO', ML, y); y += 4;
+          yr.do.slice(0,3).forEach(d => {
+            doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...MUT);
+            const lines = doc.splitTextToSize('▸ '+d, CW*.48);
+            doc.text(lines[0], ML+2, y); y += 4;
+          });
+        }
+
+        // Avoid column (same y start, right side)
+        if (yr.dont && yr.dont.length) {
+          let ay = y - (Math.min(3, yr.do?.length||0)) * 4 - 4;
+          doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...REDS);
+          doc.text('AVOID', W/2+2, ay); ay += 4;
+          yr.dont.slice(0,3).forEach(d => {
+            doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...MUT);
+            const lines = doc.splitTextToSize('▸ '+d, CW*.48);
+            doc.text(lines[0], W/2+4, ay); ay += 4;
+          });
+          y = Math.max(y, ay);
+        }
+
+        y = divider(y+1, [20,30,55]);
+        y += 3;
+      });
+
+      // Footer p2
+      doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+      doc.text('Daśā windows reflect themes for awareness, not predictions. VedaVision · Reflection Not Prediction', W/2, H-6, {align:'center'});
+
+      // ── PAGE 3: Planetary Digest ─────────────────────────────────────
+      doc.addPage();
+      bg(3);
+
+      doc.setFontSize(18); doc.setFont('times','bold'); doc.setTextColor(...GOLD);
+      doc.text('Planetary Digest', W/2, 20, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+      doc.text(name+' · Generated '+new Date().toLocaleDateString('en-IN'), W/2, 27, {align:'center'});
+      y = divider(31, GOLD);
+      y += 4;
+
+      // Planet table header
+      const cols = {planet:[ML,38], sign:[ML+40,25], house:[ML+70,14], dignity:[ML+90,40], lord:[ML+140,30]};
+      doc.setFillColor(...DARK2);
+      doc.rect(ML, y-4, CW, 7, 'F');
+      ['PLANET','SIGN','HOUSE','DIGNITY','DISPOSITOR'].forEach((h,i) => {
+        const cx = [ML+2, ML+42, ML+72, ML+92, ML+142][i];
+        doc.setFontSize(6.5); doc.setFont('helvetica','bold'); doc.setTextColor(...DIM);
+        doc.text(h, cx, y);
+      });
+      y += 6;
+
+      const PLANET_SYMBOLS = {Sun:'☉',Moon:'☽',Mars:'♂',Mercury:'☿',Jupiter:'♃',Venus:'♀',Saturn:'♄',Rahu:'☊',Ketu:'☋'};
+      const DIGNITY_COLORS = {'Exalted':GRNS,'Own Sign':GRNS,'Moolatrikona':GRNS,'Friendly':[245,158,11],'Enemy':REDS,'Debilitated':REDS};
+
+      if (c.planets && c.planets.length) {
+        c.planets.forEach(p => {
+          const dcol = DIGNITY_COLORS[p.dignity] || MUT;
+          doc.setFontSize(8.5); doc.setFont('times','normal'); doc.setTextColor(...WHT);
+          doc.text((PLANET_SYMBOLS[p.name]||'')+'  '+p.name, ML+2, y);
+          doc.setTextColor(...MUT);
+          doc.text(p.sign||'—', ML+42, y);
+          doc.text(String(p.house||'—'), ML+72, y);
+          doc.setTextColor(...dcol);
+          doc.text(p.dignity||'—', ML+92, y);
+          doc.setTextColor(...MUT);
+          doc.text(p.lord||'—', ML+142, y);
+          y += 6.5;
+          if (y > H-20) { doc.addPage(); bg(); y = 20; }
+        });
+      } else {
+        doc.setFontSize(8); doc.setFont('times','italic'); doc.setTextColor(...DIM);
+        doc.text('Submit a real birth date & time for planetary positions.', ML, y); y += 8;
+      }
+
+      // Wealth score if available
+      if (c.wealthScore) {
+        y = divider(y+3, [30,45,80]);
+        label('WEALTH HEATMAP SCORE', y+5, ML);
+        doc.setFontSize(20); doc.setFont('times','bold'); doc.setTextColor(...GOLDB);
+        doc.text(String(c.wealthScore.total)+'/100', ML, y+16);
+        doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+        doc.text('Parashari '+c.wealthScore.parashari+'/60  ·  BNN '+c.wealthScore.bnn+'/40', ML+30, y+16);
+        y += 22;
+      }
+
+      // Footer p3
+      doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...DIM);
+      doc.text('This report is for reflection and self-inquiry only. Vedic astrology (Jyotiṣa) is a symbolic tool — not a substitute for professional advice.', W/2, H-10, {align:'center'});
+      doc.text('© VedaVision  ·  vedavision-frontend.rishav414.workers.dev  ·  Reflection Not Prediction', W/2, H-6, {align:'center'});
+
+      // Save
+      const fname = 'VedaVision-Blueprint-'+(nat.name||'Chart').replace(/\s+/g,'-')+'.pdf';
+      doc.save(fname);
+
+      // Update CTA button
+      const cta = document.getElementById('blueprintCta');
+      if (cta) {
+        const btn = cta.querySelector('button');
+        if (btn) { btn.textContent = '⬇ Download again'; btn.onclick = () => generateAndDownloadPDF(window._activeChart); }
+      }
+    }
+
+    // Hook into initResults to show the CTA banner
+    const _origInitResults = window.initResults;
+    // Show blueprint CTA when results are visible (observer)
+    const _bpObserver = new MutationObserver(() => {
+      const r = document.getElementById('results');
+      if (r && r.classList.contains('visible')) showBlueprintCta();
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const r = document.getElementById('results');
+      if (r) _bpObserver.observe(r, { attributes:true, attributeFilter:['class'] });
+    });
+  </script>
+
 </body>
 
 </html>
