@@ -73,8 +73,10 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .toggle-switch input:checked + .toggle-track{background:var(--violet)}
 .toggle-thumb{position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:var(--tr)}
 .toggle-switch input:checked ~ .toggle-thumb{transform:translateX(16px)}
-.submit-btn{width:100%;padding:.9rem;background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;border-radius:var(--r-lg);color:#fff;font-family:var(--font-h);font-size:1rem;font-weight:700;cursor:pointer;transition:transform var(--tr),opacity var(--tr);margin-top:.5rem;position:relative;overflow:hidden}
-.submit-btn:hover{transform:translateY(-2px);opacity:.92}
+.submit-btn{width:100%;padding:.9rem;background:linear-gradient(135deg,#6D28D9 0%,#8B7CC8 40%,#C4A45A 100%);background-size:200% 100%;border:none;border-radius:var(--r-lg);color:#fff;font-family:var(--font-h);font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,background-position .4s ease;margin-top:.5rem;position:relative;overflow:hidden}
+.submit-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);animation:btn-shine 3.5s ease-in-out infinite 1.2s}
+@keyframes btn-shine{0%{left:-100%}50%{left:145%}100%{left:145%}}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(196,164,90,.25);background-position:100% 0}
 .submit-btn:active{transform:translateY(0)}
 .submit-btn.loading{opacity:.7;cursor:not-allowed}
 .form-note{text-align:center;font-size:.72rem;color:var(--txt3);margin-top:.75rem}
