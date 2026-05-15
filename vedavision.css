@@ -22,10 +22,10 @@ body{font-family:var(--font-b);background:var(--bg-deep);color:var(--txt);min-he
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse 140% 60% at 15% 5%,rgba(139,124,200,.22) 0%,transparent 55%),radial-gradient(ellipse 90% 70% at 85% 95%,rgba(196,164,90,.15) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 50% 50%,rgba(80,50,140,.10) 0%,transparent 70%)}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:200px}
 ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:var(--bg-deep)} ::-webkit-scrollbar-thumb{background:var(--violet);border-radius:99px}
-.glass{background:rgba(20,14,38,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border)}
-.glass::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,184,112,.2),transparent);pointer-events:none}
+.glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(14px) saturate(110%);-webkit-backdrop-filter:blur(14px) saturate(110%);border:1px solid rgba(255,255,255,0.10);box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,.06)}
+.glass::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,184,112,.35),transparent);pointer-events:none}
 .glass{position:relative}
-.glass-strong{background:rgba(19,15,36,0.85);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(192,160,96,.2)}
+.glass-strong{background:rgba(18,12,36,0.92);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(192,160,96,.25);box-shadow:0 16px 48px rgba(0,0,0,.5)}
 
 /* BADGE */
 .badge-reflect{position:fixed;top:.75rem;right:11.5rem;z-index:997;font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2);background:rgba(5,11,26,.85);backdrop-filter:blur(12px);border:1px solid var(--border);padding:.3rem .7rem;border-radius:var(--r-full)}
