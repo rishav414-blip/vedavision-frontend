@@ -495,6 +495,15 @@ footer p{font-size:.7rem;color:var(--txt3)}
 #yearTabs::-webkit-scrollbar{display:none}
 .year-tab{scroll-snap-align:start;flex-shrink:0}
 
+/* ── FOCUS RING ── */
+*:focus-visible{outline:2px solid rgba(196,164,90,.75);outline-offset:3px;border-radius:4px}
+*:focus:not(:focus-visible){outline:none}
+
+/* ── HERO/RESULTS TRANSITIONS ── */
+#results{transition:opacity .45s ease}
+.hero-exit{animation:heroFade .28s ease forwards}
+@keyframes heroFade{to{opacity:0}}
+
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
 }
