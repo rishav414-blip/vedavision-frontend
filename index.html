@@ -1876,6 +1876,30 @@
     </div>`).join('');
 
       wrap.style.display = 'block';
+
+      // Populate Nakshatra Identity Card
+      const nakCard = document.getElementById('nak-identity-card');
+      if (nakCard && chart.nakshatra) {
+        const nk = chart.nakshatra;
+        const NAK_SYMBOLS = {'Ashwini':'♈','Bharani':'♉','Krittika':'♉','Rohini':'♉','Mrigashira':'♊','Ardra':'♊','Punarvasu':'♊','Pushya':'♋','Ashlesha':'♋','Magha':'♌','Purva Phalguni':'♌','Uttara Phalguni':'♌','Hasta':'♍','Chitra':'♍','Swati':'♎','Vishakha':'♎','Anuradha':'♏','Jyeshtha':'♏','Mula':'♐','Purva Ashadha':'♐','Uttara Ashadha':'♐','Shravana':'♑','Dhanishta':'♑','Shatabhisha':'♒','Purva Bhadrapada':'♒','Uttara Bhadrapada':'♓','Revati':'♓'};
+        const NAK_THEMES = {'Ashwini':'Swift, pioneering, healing. You arrive before others think to move.','Bharani':'Bearer of life and death. Deep creative power with an uncompromising will.','Krittika':'Sharp and purifying. You cut through illusion to reveal essential truth.','Rohini':'Beauty, abundance, magnetic presence. The world is drawn to what you create.','Mrigashira':'Restless seeker. You follow the scent of meaning across many horizons.','Ardra':'Storm-born transformer. Destruction clears the way for your renewal.','Punarvasu':'Return and renewal. You find home in the recurring rhythms of life.','Pushya':'Nourisher and sustainer. Your gift is making others flourish.','Ashlesha':'Penetrating intelligence. You sense what others conceal and transform it.','Magha':'Ancestral throne. You carry the weight and privilege of your lineage.','Purva Phalguni':'Creative fire, pleasure, creative expression. Rest is productive for you.','Uttara Phalguni':'Patronage and partnership. You build through loyal, enduring bonds.','Hasta':'Skilled hands, craft mastery. Excellence lives in the details of your work.','Chitra':'The brilliant jewel, design and craft. You create things of lasting beauty.','Swati':'Independent breeze. You bend without breaking, adapting to every wind.','Vishakha':'Focused purpose, the triumphal arch. Relentless drive toward your goal.','Anuradha':'Devotion and friendship across all conditions. The lotus rising from mud.','Jyeshtha':'Elder power, protection, the chief. You rise to lead through intensity.','Mula':'Root force. You dig to foundations, dismantling to find what truly lasts.','Purva Ashadha':'Invincible conviction. You carry the power of water to carve any path.','Uttara Ashadha':'Universal victory through patient, ethical, structural work.','Shravana':'Deep listening. You hear what others miss and translate cosmos to earth.','Dhanishta':'Rhythm and abundance. Music, wealth, and movement flow through you.','Shatabhisha':'The hundred healers. Solitary insight leads to collective remedy.','Purva Bhadrapada':'Spiritual fire. The heat that transforms both self and the wider world.','Uttara Bhadrapada':'Rain-bringing depth. Patience, compassion, the wisdom that arrives slowly.','Revati':'Safe passage, completion. You guide others across thresholds with grace.'};
+        const NAK_DEITIES = {'Ashwini':'Ashwini Kumars — divine physicians','Bharani':'Yama — lord of dharma','Krittika':'Agni — god of fire','Rohini':'Brahma — the creator','Mrigashira':'Soma — the moon god','Ardra':'Rudra — the storm','Punarvasu':'Aditi — mother of gods','Pushya':'Brihaspati — divine teacher','Ashlesha':'Nagas — serpent wisdom','Magha':'Pitrus — the ancestors','Purva Phalguni':'Bhaga — the enjoyer','Uttara Phalguni':'Aryaman — the companion','Hasta':'Savitar — the sun hand','Chitra':'Vishwakarma — divine architect','Swati':'Vayu — the wind','Vishakha':'Indra-Agni — power & fire','Anuradha':'Mitra — the friend','Jyeshtha':'Indra — the chief','Mula':'Nirriti — dissolution','Purva Ashadha':'Apas — cosmic waters','Uttara Ashadha':'Vishvadevas — universal gods','Shravana':'Vishnu — the preserver','Dhanishta':'Eight Vasus — abundance','Shatabhisha':'Varuna — cosmic law','Purva Bhadrapada':'Aja Ekapada — one-footed god','Uttara Bhadrapada':'Ahir Budhnya — serpent of depths','Revati':'Pushan — the nourisher'};
+        document.getElementById('nak-id-symbol').textContent = NAK_SYMBOLS[nk.name] || '✦';
+        document.getElementById('nak-id-name').textContent = nk.name || '—';
+        document.getElementById('nak-id-lord').textContent = 'Lord: ' + (nk.lord || '—') + (nk.pada ? ' · Pada ' + nk.pada : '');
+        document.getElementById('nak-id-pada').textContent = nk.pada ? 'Pada ' + nk.pada : '';
+        document.getElementById('nak-id-theme').textContent = NAK_THEMES[nk.name] || '';
+        document.getElementById('nak-id-deity').textContent = NAK_DEITIES[nk.name] || '';
+        nakCard.style.display = '';
+      }
+    }
+
+    function shareNakshatraCard() {
+      const name = document.getElementById('nak-id-name') ? document.getElementById('nak-id-name').textContent : '—';
+      const chart = window._activeChart || SAMPLE_CHART;
+      const text = `My birth nakshatra is ${name} — ${chart.nakshatra ? chart.nakshatra.lord + ' lord' : ''} · Explore yours at VedaVision`;
+      if (navigator.share) { navigator.share({ title: 'My Nakshatra', text }); }
+      else { navigator.clipboard.writeText(text).then(() => showToast('✓ Copied to clipboard')); }
     }
 
     // ── FORECAST ──
