@@ -1193,19 +1193,36 @@
       const btn = document.getElementById('submitBtn');
       btn.textContent = '⟳ Calculating...'; btn.classList.add('loading'); btn.disabled = true;
 
-      // Ensure notice banner exists in DOM before results load
+      // Ceremonial chart calculation progress
       let noticeEl = document.getElementById('sampleNotice');
       if (!noticeEl) {
         noticeEl = document.createElement('div');
         noticeEl.id = 'sampleNotice';
-        noticeEl.style.cssText = 'padding:.5rem 1rem;font-size:.72rem;color:#94A3B8;text-align:center;border-bottom:1px solid rgba(255,255,255,.08)';
+        noticeEl.style.cssText = 'padding:1rem 1.5rem;background:rgba(10,8,16,.97);border-bottom:1px solid rgba(192,160,96,.25);text-align:center;font-family:var(--font-b)';
+        noticeEl.innerHTML = `
+          <div style="font-family:var(--font-h);font-size:.72rem;font-weight:700;color:#D4B870;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.7rem">✦ Casting Your Chart</div>
+          <div style="display:flex;flex-direction:column;gap:.3rem;max-width:280px;margin:0 auto;text-align:left">
+            <div id="ns1" style="font-size:.75rem;color:#5A4A7A;display:flex;align-items:center;gap:.5rem"><span id="ns1i">○</span> Resolving location</div>
+            <div id="ns2" style="font-size:.75rem;color:#5A4A7A;display:flex;align-items:center;gap:.5rem"><span id="ns2i">○</span> Waking ephemeris server</div>
+            <div id="ns3" style="font-size:.75rem;color:#5A4A7A;display:flex;align-items:center;gap:.5rem"><span id="ns3i">○</span> Calculating positions</div>
+          </div>
+          <div style="margin:.7rem auto 0;height:2px;background:rgba(192,160,96,.1);border-radius:99px;max-width:280px"><div id="nprog" style="height:100%;width:0%;background:linear-gradient(90deg,#8B7CC8,#C4A45A);border-radius:99px;transition:width .4s ease"></div></div>`;
         document.getElementById('summary-bar').insertAdjacentElement('afterend', noticeEl);
       }
-      const setNotice = (msg, color = '#7C3AED') => {
-        noticeEl.innerHTML = msg;
-        noticeEl.style.borderBottom = `1px solid ${color}33`;
-        noticeEl.style.background = `${color}11`;
-        noticeEl.style.color = '#F1F5FE';
+      const setStep = (n, state, txt) => {
+        const el = document.getElementById('ns'+n), ic = document.getElementById('ns'+n+'i'), pg = document.getElementById('nprog');
+        if (!el) return;
+        if (state==='active') { el.style.color='#D4B870'; if(ic)ic.textContent='◉'; if(pg)pg.style.width=((n-1)/3*100)+'%'; }
+        else if (state==='done') { el.style.color='#4CAF6A'; if(ic)ic.textContent='✓'; if(pg)pg.style.width=(n/3*100)+'%'; }
+        else if (state==='error') { el.style.color='#D95F5F'; if(ic)ic.textContent='✕'; }
+        if (txt) el.innerHTML = (ic?ic.outerHTML:'') + ' ' + txt;
+      };
+      const setNotice = (msg, color) => {
+        // Used for error messages that replace the whole notice
+        if (msg.startsWith('⚠') || msg.startsWith('✓ Real')) {
+          noticeEl.innerHTML = `<div style="font-size:.78rem;color:${color||'#F0EBF4'};padding:.15rem 0">${msg}</div>`;
+          if(color) { noticeEl.style.background=color+'18'; noticeEl.style.borderBottom='1px solid '+color+'44'; }
+        }
       };
 
       // Step 1: geocode place
