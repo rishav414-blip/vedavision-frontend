@@ -3504,7 +3504,7 @@ ${APP_URL}
     function runCompatibility() {
       const c = window._activeChart;
       if (!c || !c.nakshatra) {
-        alert('Please submit your birth details first to use the compatibility tool.');
+        showToast('⚠ Submit your birth details first — then use the compatibility tool.');
         switchTab('overview'); return;
       }
       const nak2   = document.getElementById('compat-nak').value;
