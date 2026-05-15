@@ -61,7 +61,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 select.form-input,select.form-input option{background:#0D1B3E;color:var(--txt)}
 select.form-input option:hover{background:rgba(124,58,237,.3)}
 .form-input:focus{border-color:#C4A45A;box-shadow:inset 0 1px 3px rgba(0,0,0,.45),0 0 0 3px rgba(196,164,90,.15)}
-.form-input::placeholder{color:var(--txt3)}
+.form-input::placeholder{color:#5A4A7A;letter-spacing:.02em}
 .form-input:disabled{opacity:.4;cursor:not-allowed}
 .time-row{display:flex;gap:.5rem}
 .time-row .form-input:first-child{flex:1}
