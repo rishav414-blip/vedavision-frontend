@@ -3521,7 +3521,7 @@ ${APP_URL}
         mangalDosha:document.getElementById('compat-mangal').checked
       };
       if (typeof computeFullCompat === 'undefined') {
-        alert('Compatibility engine loading. Please try again.'); return;
+        showToast('⚠ Compatibility engine loading — please try again in a moment.'); return;
       }
       const report = computeFullCompat(c, input);
       renderCompatResults(report, c.native?.name || 'You', input.name);
