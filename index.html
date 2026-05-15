@@ -3860,6 +3860,8 @@
         const _backendBase = (typeof BACKEND_URL !== 'undefined' && BACKEND_URL) ? BACKEND_URL : 'https://vedavision-backend.onrender.com';
 
         try {
+          const _jStat = document.getElementById('jyoti-status');
+          if (_jStat) _jStat.textContent = '⟳ thinking…';
           const body = {
             message: q,
             history: (window._jyotiHistory || []).slice(-10),
