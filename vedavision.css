@@ -143,8 +143,8 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 /* NATAL CHART */
 .chart-layout{display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap}
 .chart-svg-wrap{flex-shrink:0}
-.chart-svg-wrap svg polygon{cursor:pointer;transition:fill .3s ease}
-.chart-svg-wrap svg polygon:hover{fill:rgba(124,58,237,.15)}
+.chart-svg-wrap svg polygon{cursor:pointer;transition:fill .3s ease,stroke .3s ease}
+.chart-svg-wrap svg polygon:hover{fill:rgba(124,58,237,.18);stroke:rgba(212,184,112,.3);stroke-width:1}
 .chart-table{flex:1;min-width:280px}
 .planet-table{width:100%;border-collapse:collapse;font-size:.8rem}
 .planet-table th{text-align:left;padding:.4rem .6rem;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);border-bottom:1px solid var(--border)}
