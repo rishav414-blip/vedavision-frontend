@@ -615,6 +615,23 @@
           <div id="chart-insights-content"
             style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem"></div>
         </div>
+        <!-- DASā TIMELINE RAIL -->
+        <div id="dasha-timeline-wrap" style="margin-top:1.5rem;display:none">
+          <div class="section-heading" style="font-size:1rem;margin-bottom:.75rem">Vimśottarī Daśā Sequence</div>
+          <div class="dasha-rail-scroll">
+            <div class="dasha-rail" id="dasha-rail"></div>
+          </div>
+          <div class="dasha-legend">
+            <span class="dasha-legend-item"><span class="dasha-legend-dot" style="background:var(--gold)"></span>Active Daśā</span>
+            <span class="dasha-legend-item"><span class="dasha-legend-dot" style="background:var(--violet)"></span>Past</span>
+            <span class="dasha-legend-item"><span class="dasha-legend-dot" style="background:rgba(255,255,255,.15)"></span>Future</span>
+          </div>
+        </div>
+        <!-- HOUSE PROGRESSIVE DISCLOSURE -->
+        <div id="house-disclosure-wrap" style="margin-top:1.25rem;display:none">
+          <div class="section-heading" style="font-size:1rem;margin-bottom:.75rem">Houses — Click to Explore</div>
+          <div class="house-disclosure-grid" id="house-disclosure-grid"></div>
+        </div>
         <div class="house-tooltip glass" id="houseTooltip"></div>
       </div>
 
@@ -1480,6 +1497,8 @@
       renderChart('ts-chart-svg', true);
       renderPlanetTable();
       renderChartInsights(window._activeChart);
+      renderDashaTimeline(window._activeChart);
+      renderHouseDisclosure(window._activeChart);
       renderForecast(window._activeChart);
       renderRemedies(window._activeChart);
       renderInsights(window._activeChart);
@@ -1892,6 +1911,67 @@
         document.getElementById('nak-id-deity').textContent = NAK_DEITIES[nk.name] || '';
         nakCard.style.display = '';
       }
+    }
+
+    function renderDashaTimeline(chart) {
+      const wrap = document.getElementById('dasha-timeline-wrap');
+      const rail = document.getElementById('dasha-rail');
+      if (!wrap || !rail || !chart || !chart.dasha) return;
+      const seq = chart.dasha.sequence || [];
+      if (!seq.length) return;
+      const PLANET_COLORS = {Sun:'#F5C842',Moon:'#D0D8F0',Mars:'#E05050',Mercury:'#7EC8A0',Jupiter:'#F0A830',Venus:'#E48DB0',Saturn:'#A08050',Rahu:'#8855CC',Ketu:'#CC8855'};
+      const now = new Date();
+      const currentPlanet = chart.dasha.current ? (chart.dasha.current.planet || chart.dasha.current.lord) : null;
+      const totalYears = seq.reduce((s,d) => s + (d.years||0), 0) || 120;
+      rail.innerHTML = seq.map(d => {
+        const planet = d.planet || d.lord || '?';
+        const color = PLANET_COLORS[planet] || '#8B7CC8';
+        const widthPct = ((d.years || 0) / totalYears * 100).toFixed(2);
+        const startY = d.start ? new Date(d.start).getFullYear() : '';
+        const endY = d.end ? new Date(d.end).getFullYear() : '';
+        const isActive = planet === currentPlanet;
+        const isPast = d.end && new Date(d.end) < now && !isActive;
+        const stateClass = isActive ? 'dasha-block-active' : isPast ? 'dasha-block-past' : 'dasha-block-future';
+        return `<div class="dasha-block ${stateClass}" style="width:${widthPct}%;--dc:${color}" title="${planet} Daśā ${startY}–${endY} (${d.years}yr)">
+          <div class="db-fill" style="background:${isActive ? color : isPast ? 'rgba(139,124,200,.4)' : 'rgba(255,255,255,.08)'};${isActive ? 'box-shadow:0 0 10px '+color+'55' : ''}"></div>
+          <div class="db-label">
+            <span class="db-planet" style="color:${isActive ? color : 'var(--txt2)'}">${planet}</span>
+            <span class="db-years">${d.years}yr</span>
+          </div>
+          ${isActive ? '<div class="db-active-pip"></div>' : ''}
+        </div>`;
+      }).join('');
+      wrap.style.display = '';
+    }
+
+    function renderHouseDisclosure(chart) {
+      const wrap = document.getElementById('house-disclosure-wrap');
+      const grid = document.getElementById('house-disclosure-grid');
+      if (!wrap || !grid || !chart || !chart.houses) return;
+      const HOUSE_NAMES = ['','Self & Personality','Wealth & Speech','Siblings & Courage','Home & Mother','Intellect & Children','Health & Enemies','Spouse & Business','Longevity & Transformation','Dharma & Father','Career & Status','Gains & Social Circle','Expenses & Liberation'];
+      const HOUSE_ICONS = ['','⬆','💰','⚔','🏡','📚','⚕','🤝','🔄','🙏','💼','🌐','✈'];
+      grid.innerHTML = chart.houses.map(h => {
+        const hName = HOUSE_NAMES[h.id] || 'House ' + h.id;
+        const hIcon = HOUSE_ICONS[h.id] || '◈';
+        const planets = (h.planets || []).join(', ') || 'No planets';
+        const isKeyHouse = [1,2,10,11].includes(h.id);
+        return `<details class="house-detail-item${isKeyHouse ? ' house-key' : ''}">
+          <summary class="house-detail-summary">
+            <span class="hd-num">H${h.id}</span>
+            <span class="hd-icon">${hIcon}</span>
+            <span class="hd-name">${hName}</span>
+            <span class="hd-sign">${h.sign || ''}</span>
+            ${h.planets && h.planets.length ? `<span class="hd-planets">${h.planets.join(' \xb7 ')}</span>` : ''}
+            <span class="hd-arrow">›</span>
+          </summary>
+          <div class="house-detail-body">
+            <p class="hd-planet-list"><strong>Planets:</strong> ${planets}</p>
+            <p class="hd-sign-note">Sign lord: <strong>${h.sign || '—'}</strong> — brings the qualities of ${h.sign || 'this sign'} to ${hName.toLowerCase()} themes.</p>
+            ${isKeyHouse ? `<p class="hd-key-note">✦ Key house for wealth, career &amp; life direction analysis.</p>` : ''}
+          </div>
+        </details>`;
+      }).join('');
+      wrap.style.display = '';
     }
 
     function shareNakshatraCard() {
