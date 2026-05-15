@@ -3024,6 +3024,8 @@
     window.addEventListener('load', () => {
         const saved = localStorage.getItem('vv_lang');
         if (saved && saved !== 'en') applyLanguage(saved);
+        // Pre-warm backend to avoid cold-start delay on form submit
+        if (typeof pingBackend !== 'undefined') pingBackend();
       });
 
       /* ═══ ASK YOUR CHART ═══ */
