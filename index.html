@@ -3792,6 +3792,27 @@
         return div;
       }
 
+      function typewriterMessage(text, onDone) {
+        const msgs = document.getElementById('askMessages');
+        if (!msgs) return;
+        const el = document.createElement('div');
+        el.className = 'ask-msg ask-msg-bot';
+        msgs.appendChild(el);
+        msgs.scrollTop = msgs.scrollHeight;
+        const words = text.split(' ');
+        let i = 0;
+        const speed = Math.max(18, Math.min(40, Math.round(2200 / words.length)));
+        const timer = setInterval(() => {
+          if (i >= words.length) {
+            clearInterval(timer);
+            if (onDone) onDone();
+            return;
+          }
+          el.textContent += (i === 0 ? '' : ' ') + words[i++];
+          msgs.scrollTop = msgs.scrollHeight;
+        }, speed);
+      }
+
       function showTyping() {
         const msgs = document.getElementById('askMessages');
         if (!msgs || document.getElementById('jyoti-typing')) return;
