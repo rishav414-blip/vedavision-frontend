@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap');
 /* VedaVision — Styles */
 :root {
-  --bg-deep:#0A0810; --bg-navy:#130F24; --bg-card:rgba(255,248,240,0.04);
-  --bg-hover:rgba(255,248,240,0.07); --border:rgba(192,160,96,0.14);
+  --bg-deep:#0A0810; --bg-navy:#130F24; --bg-card:rgba(20,14,38,0.75);
+  --bg-hover:rgba(255,248,240,0.06); --border:rgba(192,160,96,0.18);
+  --bg-section:rgba(15,10,28,0.6);
   --border-glow:rgba(139,124,200,0.4); --violet:#8B7CC8; --violet2:#A99BD9;
   --cyan:#C4A45A; --cyan2:#D4B870; --gold:#D4B870; --green:#4CAF6A; --red:#D95F5F;
   --txt:#F0EBF4; --txt2:#B0A0C8; --txt3:#6B7A9A;
