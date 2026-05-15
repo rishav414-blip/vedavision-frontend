@@ -1390,7 +1390,37 @@
       renderAltar();
       animateBars();
       animateGauge();
+      renderDailyCard();
       document.getElementById('mobileTabs').classList.add('show');
+
+      // Large Mahadasha planet name display
+      const _mdName = chart.dasha && chart.dasha.current ? (chart.dasha.current.planet || chart.dasha.current.lord || '') : '';
+      const _mdPlanetEl = document.getElementById('kpi-md-planet');
+      if (_mdPlanetEl && _mdName) {
+        _mdPlanetEl.textContent = _mdName;
+        const _pc = { Sun:'#F5C842',Moon:'#D0D8F0',Mercury:'#7EC8A0',Venus:'#E48DB0',Mars:'#E05050',Jupiter:'#F0A830',Saturn:'#A08050',Rahu:'#8855CC',Ketu:'#CC8855' };
+        _mdPlanetEl.style.color = _pc[_mdName] || 'var(--txt)';
+      }
+
+      // Pulse the active Mahadasha dot
+      const _mdDot = document.querySelector('#kpi-md-val .kpi-dot');
+      if (_mdDot) _mdDot.classList.add('kpi-dot-active');
+
+      // Set Jyoti chatbot orb to Mahadasha planet colour
+      const _jOrb = document.getElementById('jyotiOrb');
+      if (_jOrb && _mdName) {
+        const _pc2 = { Sun:'#F5C842',Moon:'#D0D8F0',Mercury:'#7EC8A0',Venus:'#E48DB0',Mars:'#E05050',Jupiter:'#F0A830',Saturn:'#A08050',Rahu:'#8855CC',Ketu:'#CC8855' };
+        _jOrb.style.background = _pc2[_mdName] || '#7C3AED';
+      }
+
+      // Count-up wealth score
+      const _ws = document.querySelector('.wealth-score-num');
+      if (_ws && chart.wealthScore) {
+        const _wTotal = chart.wealthScore.total || 74;
+        const _wText = _ws.innerHTML;
+        _ws.innerHTML = `<span id="_wsNum">0</span><span style="font-size:1rem;color:var(--txt3)">/100</span>`;
+        countUp(document.getElementById('_wsNum'), _wTotal, 1100);
+      }
 
       // Save birth details for welcome-back flow
       try {
