@@ -4440,6 +4440,92 @@ ${APP_URL}
     }
   </script>
 
+  <!-- ═══ DASHBOARD STARFIELD ═══ -->
+  <script>
+    (function() {
+      var canvas, ctx, stars = [], raf = null, running = false;
+      var W, H, dpr;
+
+      function initStars() {
+        canvas = document.getElementById('dashStars');
+        if (!canvas) return;
+        dpr = window.devicePixelRatio || 1;
+        resize();
+        stars = [];
+        var count = Math.min(160, Math.floor((W * H) / 8000));
+        for (var i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            r: Math.random() * 1.2 + 0.2,
+            speed: Math.random() * 0.012 + 0.004,
+            phase: Math.random() * Math.PI * 2,
+            alpha: Math.random() * 0.5 + 0.15
+          });
+        }
+      }
+
+      function resize() {
+        if (!canvas) return;
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width  = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width  = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+      }
+
+      function drawFrame(ts) {
+        if (!ctx || !running) return;
+        ctx.clearRect(0, 0, W, H);
+        var t = ts * 0.001;
+        for (var i = 0; i < stars.length; i++) {
+          var s = stars[i];
+          var a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 60 + s.phase));
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(200,192,230,' + a.toFixed(3) + ')';
+          ctx.fill();
+        }
+        raf = requestAnimationFrame(drawFrame);
+      }
+
+      function startStarfield() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!canvas) initStars();
+        if (!canvas) return;
+        running = true;
+        canvas.style.opacity = '0.22';
+        if (!raf) raf = requestAnimationFrame(drawFrame);
+      }
+
+      function stopStarfield() {
+        running = false;
+        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        if (canvas) canvas.style.opacity = '0';
+      }
+
+      window.addEventListener('resize', function() {
+        if (running) { resize(); }
+      }, { passive: true });
+
+      // Start when results become visible, stop when hidden
+      document.addEventListener('DOMContentLoaded', function() {
+        var resultsEl = document.getElementById('results');
+        if (!resultsEl) return;
+        new MutationObserver(function() {
+          if (resultsEl.classList.contains('visible')) {
+            if (!running) { if (!canvas) initStars(); startStarfield(); }
+          } else {
+            stopStarfield();
+          }
+        }).observe(resultsEl, { attributes: true, attributeFilter: ['class'] });
+      });
+    })();
+  </script>
+
   <!-- Ripple handler — works on any element with class ripple-btn -->
   <script>
     document.addEventListener('click', function(e) {
