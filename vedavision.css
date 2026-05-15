@@ -474,6 +474,19 @@ footer p{font-size:.7rem;color:var(--txt3)}
 .ripple-btn.rippling::after{animation:ripple-out .5s ease}
 @keyframes ripple-out{to{transform:scale(3);opacity:0}}
 
+/* ── SHIMMER EMPTY STATE ── */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.kpi-shimmer{height:18px;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);background-size:400px 100%;animation:shimmer 1.6s ease-in-out infinite;margin:.2rem 0}
+
+/* ── SCROLL REVEAL ── */
+.reveal-on-scroll{opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+.reveal-on-scroll.revealed{opacity:1;transform:none}
+
+/* ── FORECAST SCROLL SNAP ── */
+#yearTabs{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.5rem;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:.25rem}
+#yearTabs::-webkit-scrollbar{display:none}
+.year-tab{scroll-snap-align:start;flex-shrink:0}
+
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
 }
