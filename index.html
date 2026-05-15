@@ -1249,7 +1249,7 @@
 
       // Step 3: calculate chart
       try {
-        setNotice('⟳ Step 3/3 — Calculating planetary positions...');
+        setStep(3,'active');
         const payload = { name, dob, tob, lat: geo.lat, lon: geo.lon, tz: geo.tz, approxTime: approx, ayanamsa: 'Lahiri' };
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), API_TIMEOUT);
