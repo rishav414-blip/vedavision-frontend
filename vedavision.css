@@ -9,6 +9,7 @@
   --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px; --r-full:9999px;
   --tr:0.25s ease; --tr-slow:0.5s cubic-bezier(.16,1,.3,1);
   --font-h:'Outfit',sans-serif; --font-b:'Inter',sans-serif;
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-16:64px;
 }
 [data-theme="light"] {
   --bg-deep:#F0EFF8; --bg-navy:#E4E2F5; --bg-card:rgba(80,60,180,0.04);
