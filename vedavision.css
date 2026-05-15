@@ -103,6 +103,8 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .sidebar-link .lk-icon{font-size:1rem;width:20px;text-align:center}
 .sidebar-link.dharma{color:var(--gold);border:1px solid rgba(245,158,11,.3);margin-top:.5rem}
 .main-content{flex:1;padding:2rem;min-width:0}
+.tab-panel{--panel-bg:transparent}
+.tab-panel.active{background:var(--panel-bg)}
 
 /* TAB PANELS */
 .tab-panel{display:none;animation:fadeUp .3s ease}
