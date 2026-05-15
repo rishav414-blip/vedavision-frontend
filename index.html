@@ -1222,12 +1222,22 @@
     });
 
     // ── TABS ──
+    const TAB_ORDER = ['overview','chart','forecast','calendar','slider','altar','remedies','insights','compat','dharma'];
+    let _prevTabIdx = 0;
+
     function switchTab(id) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
       document.querySelectorAll('.mob-tab').forEach(l => l.classList.remove('active'));
+      const newIdx = TAB_ORDER.indexOf(id);
+      const dir = (newIdx >= 0 && newIdx > _prevTabIdx) ? 'right' : 'left';
+      if (newIdx >= 0) _prevTabIdx = newIdx;
       const panel = document.getElementById('tab-' + id);
-      if (panel) panel.classList.add('active');
+      if (panel) {
+        panel.classList.add('active');
+        panel.classList.add('slide-from-' + dir);
+        setTimeout(() => panel.classList.remove('slide-from-' + dir), 350);
+      }
       document.querySelectorAll('.sidebar-link').forEach(l => { if (l.dataset.tab === id) l.classList.add('active'); });
       document.querySelectorAll('.mob-tab').forEach(l => { if (l.dataset.tab === id) l.classList.add('active'); });
       if (window.applyAccessState) applyAccessState();
