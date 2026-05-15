@@ -108,7 +108,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .tab-panel.active{background:var(--panel-bg)}
 
 /* TAB PANELS */
-.tab-panel{display:none;animation:fadeUp .3s ease}
+.tab-panel{display:none;animation:fadeUp .3s cubic-bezier(0.4,0,0.2,1)}
 .tab-panel.slide-from-right,.tab-panel.slide-from-left{animation-duration:.3s}
 .tab-panel.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
