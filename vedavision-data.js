@@ -821,3 +821,263 @@ const TAROT_JOURNAL_PROMPTS = {
   'The Fool':          'Where in my life am I being called to take a leap of faith without needing certainty first?',
   'The Hanged Man':    'What situation in my life would look completely different if I viewed it from a new angle?'
 };
+
+/* ═══════════════════════════════════════════════════════════════
+   KUNDALI COMPATIBILITY ENGINE — Ashtakoot Milan + Extended Analysis
+═══════════════════════════════════════════════════════════════ */
+
+// 27 Nakshatra compatibility data: index, gana, nadi, yoni, varna, moonSign
+const COMPAT_NAK = [
+  { i:0,  name:'Ashwini',          gana:'Deva',     nadi:'Vata',  yoni:'Horse',    varna:'Vaishya',  moonSign:'Aries' },
+  { i:1,  name:'Bharani',          gana:'Manushya', nadi:'Pitta', yoni:'Elephant', varna:'Shudra',   moonSign:'Aries' },
+  { i:2,  name:'Krittika',         gana:'Rakshasa', nadi:'Kapha', yoni:'Sheep',    varna:'Brahmin',  moonSign:'Taurus' },
+  { i:3,  name:'Rohini',           gana:'Manushya', nadi:'Kapha', yoni:'Snake',    varna:'Shudra',   moonSign:'Taurus' },
+  { i:4,  name:'Mrigashira',       gana:'Deva',     nadi:'Pitta', yoni:'Snake',    varna:'Vaishya',  moonSign:'Gemini' },
+  { i:5,  name:'Ardra',            gana:'Manushya', nadi:'Vata',  yoni:'Dog',      varna:'Butcher',  moonSign:'Gemini' },
+  { i:6,  name:'Punarvasu',        gana:'Deva',     nadi:'Vata',  yoni:'Cat',      varna:'Vaishya',  moonSign:'Gemini' },
+  { i:7,  name:'Pushya',           gana:'Deva',     nadi:'Pitta', yoni:'Sheep',    varna:'Kshatriya',moonSign:'Cancer' },
+  { i:8,  name:'Ashlesha',         gana:'Rakshasa', nadi:'Kapha', yoni:'Cat',      varna:'Mlecha',   moonSign:'Cancer' },
+  { i:9,  name:'Magha',            gana:'Rakshasa', nadi:'Kapha', yoni:'Rat',      varna:'Shudra',   moonSign:'Leo' },
+  { i:10, name:'Purva Phalguni',   gana:'Manushya', nadi:'Pitta', yoni:'Rat',      varna:'Brahmin',  moonSign:'Leo' },
+  { i:11, name:'Uttara Phalguni',  gana:'Manushya', nadi:'Vata',  yoni:'Cow',      varna:'Kshatriya',moonSign:'Virgo' },
+  { i:12, name:'Hasta',            gana:'Deva',     nadi:'Vata',  yoni:'Buffalo',  varna:'Vaishya',  moonSign:'Virgo' },
+  { i:13, name:'Chitra',           gana:'Rakshasa', nadi:'Pitta', yoni:'Tiger',    varna:'Vaishya',  moonSign:'Libra' },
+  { i:14, name:'Swati',            gana:'Deva',     nadi:'Kapha', yoni:'Buffalo',  varna:'Butcher',  moonSign:'Libra' },
+  { i:15, name:'Vishakha',         gana:'Rakshasa', nadi:'Pitta', yoni:'Tiger',    varna:'Shudra',   moonSign:'Scorpio' },
+  { i:16, name:'Anuradha',         gana:'Deva',     nadi:'Pitta', yoni:'Deer',     varna:'Shudra',   moonSign:'Scorpio' },
+  { i:17, name:'Jyeshtha',         gana:'Rakshasa', nadi:'Vata',  yoni:'Deer',     varna:'Vaishya',  moonSign:'Scorpio' },
+  { i:18, name:'Moola',            gana:'Rakshasa', nadi:'Vata',  yoni:'Dog',      varna:'Butcher',  moonSign:'Sagittarius' },
+  { i:19, name:'Purva Ashadha',    gana:'Manushya', nadi:'Pitta', yoni:'Monkey',   varna:'Brahmin',  moonSign:'Sagittarius' },
+  { i:20, name:'Uttara Ashadha',   gana:'Manushya', nadi:'Kapha', yoni:'Mongoose', varna:'Kshatriya',moonSign:'Capricorn' },
+  { i:21, name:'Shravana',         gana:'Deva',     nadi:'Kapha', yoni:'Monkey',   varna:'Mlecha',   moonSign:'Capricorn' },
+  { i:22, name:'Dhanishta',        gana:'Rakshasa', nadi:'Pitta', yoni:'Lion',     varna:'Vaishya',  moonSign:'Aquarius' },
+  { i:23, name:'Shatabhisha',      gana:'Rakshasa', nadi:'Vata',  yoni:'Horse',    varna:'Butcher',  moonSign:'Aquarius' },
+  { i:24, name:'Purva Bhadrapada', gana:'Manushya', nadi:'Vata',  yoni:'Lion',     varna:'Brahmin',  moonSign:'Pisces' },
+  { i:25, name:'Uttara Bhadrapada',gana:'Manushya', nadi:'Pitta', yoni:'Cow',      varna:'Kshatriya',moonSign:'Pisces' },
+  { i:26, name:'Revati',           gana:'Deva',     nadi:'Kapha', yoni:'Elephant', varna:'Shudra',   moonSign:'Pisces' }
+];
+
+const YONI_FRIENDS = {
+  Horse:['Horse','Deer'], Elephant:['Elephant','Revati'], Sheep:['Sheep'],
+  Snake:['Snake'], Dog:['Dog'], Cat:['Cat','Rat'], Rat:['Rat','Cat'],
+  Cow:['Cow','Elephant'], Buffalo:['Buffalo'], Tiger:['Tiger','Deer'],
+  Deer:['Deer','Tiger','Horse'], Monkey:['Monkey'], Lion:['Lion'],
+  Mongoose:['Mongoose']
+};
+const YONI_ENEMIES = {
+  Dog:['Deer'], Cat:['Rat'], Rat:['Cat'], Tiger:['Cow'],
+  Lion:['Elephant'], Elephant:['Lion','Mongoose'], Mongoose:['Elephant'],
+  Snake:['Mongoose'], Mongoose:['Snake']
+};
+
+const SIGN_LORDS = {
+  Aries:'Mars',Taurus:'Venus',Gemini:'Mercury',Cancer:'Moon',Leo:'Sun',
+  Virgo:'Mercury',Libra:'Venus',Scorpio:'Mars',Sagittarius:'Jupiter',
+  Capricorn:'Saturn',Aquarius:'Saturn',Pisces:'Jupiter'
+};
+const PLANET_FRIENDS = {
+  Sun:['Moon','Mars','Jupiter'], Moon:['Sun','Mercury'],
+  Mars:['Sun','Moon','Jupiter'], Mercury:['Sun','Venus'],
+  Jupiter:['Sun','Moon','Mars'], Venus:['Mercury','Saturn'],
+  Saturn:['Mercury','Venus']
+};
+const PLANET_ENEMIES = {
+  Sun:['Venus','Saturn'], Moon:[], Mars:['Mercury'],
+  Mercury:['Moon'], Jupiter:['Mercury','Venus'],
+  Venus:['Sun','Moon'], Saturn:['Sun','Moon','Mars']
+};
+const VASHYA_GROUP = {
+  Aries:'Chatushpada',Taurus:'Chatushpada',Gemini:'Dwipada',Cancer:'Keeta',
+  Leo:'Vanchar',Virgo:'Dwipada',Libra:'Dwipada',Scorpio:'Keeta',
+  Sagittarius:'Dwipada',Capricorn:'Jalachar',Aquarius:'Dwipada',Pisces:'Jalachar'
+};
+const VARNA_RANK = { Brahmin:4,Kshatriya:3,Vaishya:2,Shudra:1,Butcher:1,Mlecha:1 };
+const RASHI_INDEX = {
+  Aries:1,Taurus:2,Gemini:3,Cancer:4,Leo:5,Virgo:6,
+  Libra:7,Scorpio:8,Sagittarius:9,Capricorn:10,Aquarius:11,Pisces:12
+};
+
+function getNakByName(name) {
+  return COMPAT_NAK.find(n => n.name === name) || COMPAT_NAK[0];
+}
+
+function scoreVarna(n1, n2) {
+  // Boy's Varna should be >= Girl's for max score (simplified: check ranks)
+  const r1 = VARNA_RANK[n1.varna] || 1;
+  const r2 = VARNA_RANK[n2.varna] || 1;
+  return r1 >= r2 ? 1 : 0;
+}
+
+function scoreVashya(moonSign1, moonSign2) {
+  const g1 = VASHYA_GROUP[moonSign1], g2 = VASHYA_GROUP[moonSign2];
+  if (!g1 || !g2) return 1;
+  if (g1 === g2) return 2;
+  // Partial control pairs
+  if ((g1 === 'Dwipada' && g2 === 'Chatushpada') || (g2 === 'Dwipada' && g1 === 'Chatushpada')) return 1;
+  if ((g1 === 'Jalachar' && g2 === 'Keeta') || (g2 === 'Jalachar' && g1 === 'Keeta')) return 1;
+  return 0;
+}
+
+function scoreTara(i1, i2) {
+  // Count from n1 to n2, divide by 9, check remainder
+  const diff = ((i2 - i1) % 27 + 27) % 27;
+  const rem = (diff % 9);
+  // Favorable: Sampat(2), Kshema(4), Sadhana(6), Mitra(8), AtiMitra(0)
+  const favMap = { 0:3, 2:3, 4:3, 6:3, 8:3 };
+  const unfavMap = { 1:0, 3:0, 5:0, 7:0 };
+  if (favMap[rem] !== undefined) return favMap[rem];
+  return 0;
+}
+
+function scoreYoni(n1, n2) {
+  if (n1.yoni === n2.yoni) return 4;
+  const friends = YONI_FRIENDS[n1.yoni] || [];
+  const enemies = YONI_ENEMIES[n1.yoni] || [];
+  if (friends.includes(n2.yoni)) return 3;
+  if (enemies.includes(n2.yoni)) return 0;
+  return 2; // neutral
+}
+
+function scoreGrahaMaitri(moonSign1, moonSign2) {
+  const lord1 = SIGN_LORDS[moonSign1], lord2 = SIGN_LORDS[moonSign2];
+  if (!lord1 || !lord2) return 3;
+  if (lord1 === lord2) return 5;
+  const f1 = (PLANET_FRIENDS[lord1] || []).includes(lord2);
+  const f2 = (PLANET_FRIENDS[lord2] || []).includes(lord1);
+  const e1 = (PLANET_ENEMIES[lord1] || []).includes(lord2);
+  const e2 = (PLANET_ENEMIES[lord2] || []).includes(lord1);
+  if (f1 && f2) return 5;
+  if (f1 && !e2) return 4;
+  if (f2 && !e1) return 4;
+  if (!e1 && !e2) return 3;
+  if ((f1 && e2) || (f2 && e1)) return 1;
+  return 0;
+}
+
+function scoreGana(n1, n2) {
+  const g1 = n1.gana, g2 = n2.gana;
+  if (g1 === g2) return 6;
+  if ((g1 === 'Deva' && g2 === 'Manushya') || (g1 === 'Manushya' && g2 === 'Deva')) return 5;
+  if (g1 === 'Deva' && g2 === 'Rakshasa') return 1;
+  if (g1 === 'Rakshasa' && g2 === 'Deva') return 1;
+  if (g1 === 'Manushya' && g2 === 'Rakshasa') return 0;
+  if (g1 === 'Rakshasa' && g2 === 'Manushya') return 0;
+  return 0;
+}
+
+function scoreBhakoot(moonSign1, moonSign2) {
+  const r1 = RASHI_INDEX[moonSign1] || 1;
+  const r2 = RASHI_INDEX[moonSign2] || 1;
+  const forward  = ((r2 - r1 + 12) % 12) + 1; // 1–12
+  const backward = ((r1 - r2 + 12) % 12) + 1;
+  // Inauspicious combos: 2-12, 6-8 (either direction)
+  const inauspicious = [[2,12],[12,2],[6,8],[8,6]];
+  const pair = [forward, backward];
+  if (inauspicious.some(([a,b]) => pair[0] === a && pair[1] === b)) return 0;
+  return 7;
+}
+
+function scoreNadi(n1, n2) {
+  return n1.nadi !== n2.nadi ? 8 : 0;
+}
+
+function computeAshtakoot(nakName1, nakName2, moonSign1, moonSign2) {
+  const n1 = getNakByName(nakName1);
+  const n2 = getNakByName(nakName2);
+  const ms1 = moonSign1 || n1.moonSign;
+  const ms2 = moonSign2 || n2.moonSign;
+
+  const varna    = scoreVarna(n1, n2);
+  const vashya   = scoreVashya(ms1, ms2);
+  const tara     = scoreTara(n1.i, n2.i);
+  const yoni     = scoreYoni(n1, n2);
+  const maitri   = scoreGrahaMaitri(ms1, ms2);
+  const gana     = scoreGana(n1, n2);
+  const bhakoot  = scoreBhakoot(ms1, ms2);
+  const nadi     = scoreNadi(n1, n2);
+  const total    = varna + vashya + tara + yoni + maitri + gana + bhakoot + nadi;
+
+  // Dosha flags
+  const nadiDosha   = nadi === 0;
+  const bhakootDosha= bhakoot === 0;
+
+  // Koota details for UI
+  const kootas = [
+    { name:'Varna',      got:varna,  max:1,  desc:'Spiritual compatibility & purpose alignment',     dimension:'Ego & values' },
+    { name:'Vashya',     got:vashya, max:2,  desc:'Mutual attraction & natural influence dynamic',   dimension:'Attraction' },
+    { name:'Tara',       got:tara,   max:3,  desc:'Destiny compatibility — birth star harmony',      dimension:'Wellbeing' },
+    { name:'Yoni',       got:yoni,   max:4,  desc:'Sexual & intimate compatibility (animal symbols)',dimension:'Intimacy' },
+    { name:'Graha Maitri',got:maitri,max:5,  desc:'Mental compatibility — Moon sign lord friendship',dimension:'Mind' },
+    { name:'Gana',       got:gana,   max:6,  desc:'Temperament match — divine / human / demonic',    dimension:'Nature' },
+    { name:'Bhakoot',    got:bhakoot,max:7,  desc:'Emotional & material prosperity compatibility',   dimension:'Prosperity' },
+    { name:'Nadi',       got:nadi,   max:8,  desc:'Health, progeny & genetic compatibility',         dimension:'Health' }
+  ];
+
+  let verdict, verdictColor;
+  if (total >= 32)      { verdict = 'Exceptional Match';     verdictColor = '#22C55E'; }
+  else if (total >= 25) { verdict = 'Very Good Match';       verdictColor = '#4ADE80'; }
+  else if (total >= 18) { verdict = 'Good Match';            verdictColor = '#F59E0B'; }
+  else if (total >= 12) { verdict = 'Acceptable with Care';  verdictColor = '#F97316'; }
+  else                  { verdict = 'Needs Deep Analysis';   verdictColor = '#EF4444'; }
+
+  return { total, max:36, kootas, nadiDosha, bhakootDosha, verdict, verdictColor, n1, n2, ms1, ms2 };
+}
+
+// Full compatibility report: Ashtakoot + extended analysis
+function computeFullCompat(chart1, compatInput) {
+  const nak1     = chart1.nakshatra ? chart1.nakshatra.name : 'Ashwini';
+  const ms1      = chart1.moonSign  ? (chart1.moonSign.signEn || chart1.moonSign.sign) : 'Aries';
+  const lagna1   = chart1.lagna     ? (chart1.lagna.signEn || chart1.lagna.sign) : 'Aries';
+  const dasha1   = chart1.dasha?.current?.planet || 'Saturn';
+  const houses1  = chart1.houses || [];
+
+  const nak2  = compatInput.nakshatra;
+  const ms2   = compatInput.moonSign;
+  const lagna2= compatInput.lagna || '';
+  const dasha2= compatInput.dasha || '';
+
+  const ashtakoot = computeAshtakoot(nak1, nak2, ms1, ms2);
+
+  // Mangal Dosha detection for person 1
+  const marsHouses1 = [];
+  houses1.forEach(h => { if (h.planets && h.planets.some(p => /mars|kuja|mangal/i.test(p))) marsHouses1.push(h.id); });
+  const mangalDosha1 = marsHouses1.some(h => [1,2,4,7,8,12].includes(h));
+
+  // Lagna compatibility
+  const LAGNA_ELEM = {
+    Aries:'Fire',Leo:'Fire',Sagittarius:'Fire',
+    Taurus:'Earth',Virgo:'Earth',Capricorn:'Earth',
+    Gemini:'Air',Libra:'Air',Aquarius:'Air',
+    Cancer:'Water',Scorpio:'Water',Pisces:'Water'
+};
+  const elem1 = LAGNA_ELEM[lagna1] || '';
+  const elem2 = LAGNA_ELEM[lagna2] || '';
+  const ELEM_COMPAT = {
+    Fire:  { Fire:'Energising', Earth:'Challenging', Air:'Harmonious', Water:'Intense' },
+    Earth: { Fire:'Challenging', Earth:'Stable',     Air:'Stimulating',Water:'Nurturing' },
+    Air:   { Fire:'Harmonious', Earth:'Stimulating', Air:'Intellectual',Water:'Misty' },
+    Water: { Fire:'Intense',    Earth:'Nurturing',   Air:'Misty',       Water:'Deeply connected' }
+  };
+  const lagnaCompat = (elem1 && elem2 && ELEM_COMPAT[elem1]) ? ELEM_COMPAT[elem1][elem2] : 'Unique combination';
+
+  // Dasha compatibility
+  const DASHA_COMPAT = {
+    Jupiter: { Jupiter:'Peak mutual growth', Saturn:'Grounding the expansion', Mercury:'Strategic building', Venus:'Abundant & harmonious', Mars:'Energetic but manage tension', Moon:'Emotionally rich', Sun:'Leadership alignment', Rahu:'Expansive but watch boundaries', Ketu:'Spiritual deepening' },
+    Saturn:  { Jupiter:'Grounding the expansion', Saturn:'Deep karmic work', Mercury:'Methodical progress', Venus:'Material building', Mars:'Friction if unchecked', Moon:'Emotional depth', Sun:'Authority tests', Rahu:'Disruption — stay grounded', Ketu:'Inward consolidation' },
+    Mercury: { Jupiter:'Strategic building', Saturn:'Methodical progress', Mercury:'Intellectual synergy', Venus:'Creative & communicative', Mars:'Active execution', Moon:'Sensitive exchanges', Sun:'Visibility together', Rahu:'Innovative and fast-moving', Ketu:'Analytical depth' },
+    Venus:   { Jupiter:'Abundant & harmonious', Saturn:'Material building', Mercury:'Creative & communicative', Venus:'Beautiful alignment', Mars:'Passionate', Moon:'Deeply nurturing', Sun:'Radiant together', Rahu:'Unusual attractions', Ketu:'Spiritual love' },
+    Mars:    { Jupiter:'Energetic but manage tension', Saturn:'Friction if unchecked', Mercury:'Active execution', Venus:'Passionate', Mars:'Intense — channel constructively', Moon:'Charged emotions', Sun:'Strong wills', Rahu:'Bold and boundary-pushing', Ketu:'Directed energy' },
+  };
+  const dashaNarrative = (DASHA_COMPAT[dasha1] && dasha2) ? (DASHA_COMPAT[dasha1][dasha2] || 'Complementary currents') : 'Each in their own planetary rhythm';
+
+  return {
+    ashtakoot,
+    mangalDosha1,
+    mangalDoshaPartner: compatInput.mangalDosha,
+    lagnaCompat,
+    elem1, elem2,
+    lagna1, lagna2,
+    dashaNarrative,
+    dasha1, dasha2
+  };
+}
