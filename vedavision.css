@@ -172,6 +172,16 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .planet-glyph{font-size:1rem;transition:filter .2s ease}
 .planet-glyph:hover{filter:drop-shadow(0 0 6px currentColor)}
 .lagna-glyph{filter:drop-shadow(0 0 10px rgba(170,204,255,0.4))}
+/* PLANET COINS */
+.planet-coins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.75rem;padding:.25rem 0}
+.planet-coin{display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.65rem .4rem;border-radius:var(--r-md);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:transform .2s ease,box-shadow .2s ease,background .2s ease;cursor:default}
+.planet-coin:hover{transform:translateY(-3px);background:rgba(255,255,255,.06);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.pc-ring{width:48px;height:48px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;margin-bottom:.15rem;transition:box-shadow .2s ease}
+.pc-glyph{font-size:1.5rem;line-height:1}
+.pc-name{font-size:.62rem;font-weight:700;letter-spacing:.04em;color:var(--txt);text-align:center}
+.pc-sign{font-size:.6rem;color:var(--txt2);text-align:center}
+.pc-house{font-size:.58rem;color:var(--txt3);text-align:center}
+.pc-dig{font-size:.58rem;font-weight:600;text-align:center;text-transform:capitalize}
 .dignity-badge{font-size:.65rem;padding:.15rem .45rem;border-radius:var(--r-full);font-weight:600}
 .dignity-own{background:rgba(34,197,94,.15);color:#22C55E}
 .dignity-exalted{background:rgba(6,182,212,.15);color:#06B6D4}
