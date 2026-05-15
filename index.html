@@ -2493,6 +2493,122 @@
       });
     });
 
+    function generateStoryCard() {
+      const chart = window._activeChart || SAMPLE_CHART;
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080; canvas.height = 1920;
+      const ctx = canvas.getContext('2d');
+
+      // Background gradient
+      const bg = ctx.createLinearGradient(0, 0, 0, 1920);
+      bg.addColorStop(0, '#0D0A1E');
+      bg.addColorStop(0.4, '#160F2E');
+      bg.addColorStop(1, '#0A0716');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1080, 1920);
+
+      // Atmospheric glow top-left
+      const g1 = ctx.createRadialGradient(200, 300, 0, 200, 300, 600);
+      g1.addColorStop(0, 'rgba(139,124,200,0.22)');
+      g1.addColorStop(1, 'transparent');
+      ctx.fillStyle = g1; ctx.fillRect(0, 0, 1080, 1920);
+
+      // Atmospheric glow bottom-right
+      const g2 = ctx.createRadialGradient(900, 1600, 0, 900, 1600, 500);
+      g2.addColorStop(0, 'rgba(196,164,90,0.15)');
+      g2.addColorStop(1, 'transparent');
+      ctx.fillStyle = g2; ctx.fillRect(0, 0, 1080, 1920);
+
+      // Stars
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      for (let i = 0; i < 120; i++) {
+        const x = Math.random() * 1080, y = Math.random() * 1920;
+        const r = Math.random() * 1.5 + 0.3;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // Top wordmark
+      ctx.fillStyle = 'rgba(212,184,112,0.8)';
+      ctx.font = '300 36px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✶ VedaVision', 540, 120);
+
+      // Gold rule
+      const rule = ctx.createLinearGradient(240, 0, 840, 0);
+      rule.addColorStop(0, 'transparent');
+      rule.addColorStop(0.5, 'rgba(212,184,112,0.5)');
+      rule.addColorStop(1, 'transparent');
+      ctx.strokeStyle = rule; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(240, 150); ctx.lineTo(840, 150); ctx.stroke();
+
+      // Native name
+      const name = chart.native ? (chart.native.name || 'Chart') : 'Chart';
+      ctx.fillStyle = '#F0EBF4';
+      ctx.font = 'bold 64px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(name, 540, 280);
+
+      // Lagna line
+      const lagna = chart.lagna ? (chart.lagna.signEn || chart.lagna.sign || '—') : '—';
+      ctx.fillStyle = 'rgba(212,184,112,0.9)';
+      ctx.font = '300 italic 38px Georgia, serif';
+      ctx.fillText(lagna + ' Lagna', 540, 360);
+
+      // Nakshatra block
+      const nak = chart.nakshatra ? chart.nakshatra.name : '—';
+      const nakLord = chart.nakshatra ? (chart.nakshatra.lord || '') : '';
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '24px sans-serif';
+      ctx.fillText('Nakshatra', 540, 450);
+      ctx.fillStyle = '#E8E0F0';
+      ctx.font = 'bold 52px Georgia, serif';
+      ctx.fillText(nak, 540, 520);
+      ctx.fillStyle = 'rgba(212,184,112,0.7)';
+      ctx.font = '28px sans-serif';
+      ctx.fillText(nakLord + ' lord', 540, 570);
+
+      // Divider
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(120, 620); ctx.lineTo(960, 620); ctx.stroke();
+
+      // Dasha block
+      const md = chart.dasha && chart.dasha.current ? (chart.dasha.current.planet || chart.dasha.current.lord || '—') : '—';
+      const ad = chart.dasha && chart.dasha.antardasha ? (chart.dasha.antardasha.planet || chart.dasha.antardasha.lord || '—') : '—';
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '24px sans-serif';
+      ctx.fillText('Active Daśā Period', 540, 690);
+      ctx.fillStyle = '#F0EBF4';
+      ctx.font = 'bold 48px Georgia, serif';
+      ctx.fillText(md + ' / ' + ad, 540, 760);
+
+      // Yogas
+      if (chart.yogas && chart.yogas.length) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(120, 820); ctx.lineTo(960, 820); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.font = '24px sans-serif';
+        ctx.fillText('Active Yogas', 540, 890);
+        const yogaText = chart.yogas.slice(0,3).map(function(y) { return y.name || y; }).join('  ·  ');
+        ctx.fillStyle = 'rgba(139,124,200,0.9)';
+        ctx.font = '32px Georgia, serif';
+        ctx.fillText(yogaText, 540, 950);
+      }
+
+      // Bottom disclaimer
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(120, 1820); ctx.lineTo(960, 1820); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.font = '22px sans-serif';
+      ctx.fillText('Reflection · Not Prediction  ·  vedavision.app', 540, 1870);
+
+      // Download
+      const link = document.createElement('a');
+      link.download = 'vedavision-story-' + (name.replace(/\s+/g,'_').toLowerCase() || 'chart') + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      if (typeof showToast === 'function') showToast('✓ Story card downloaded');
+    }
+
     /* ═══ TUTORIAL SYSTEM ═══ */
     const TUT_STEPS = [
       {
