@@ -61,6 +61,7 @@
         <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:.88rem;color:#C0A860">✦ Jyoti</span>
         <span style="font-size:.65rem;color:#4B5A72">your cosmic guide</span>
       </div>
+      <button onclick="window._jyotiHistory=[];const m=document.getElementById('askMessages');if(m){m.innerHTML='';const chart=window._activeChart||SAMPLE_CHART;const md=chart.dasha&&chart.dasha.current?(chart.dasha.current.planet||'Saturn'):'Saturn';const lagna=chart.lagna?(chart.lagna.signEn||'Scorpio'):'Scorpio';addAskMessage(lagna+' Lagna · '+md+' Mahādaśā. I\'m Jyoti — what\'s on your mind?',false);addQuickReplies(['Career outlook?','Wealth this period?','Relationship outlook?','Health check?']);}" style="background:none;border:none;color:var(--txt3);font-size:.7rem;cursor:pointer;padding:.2rem .5rem;border-radius:4px;transition:color .2s" onmouseover="this.style.color='var(--txt)'" onmouseout="this.style.color=''">↺ Clear</button>
       <button onclick="document.getElementById('askModal').style.display='none'"
         style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:26px;height:26px;color:#fff;cursor:pointer;font-size:.9rem">×</button>
     </div>
