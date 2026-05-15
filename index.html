@@ -3510,7 +3510,7 @@ ${APP_URL}
       const nak2   = document.getElementById('compat-nak').value;
       const moon2  = document.getElementById('compat-moon').value;
       if (!nak2 || !moon2) {
-        alert('Please select your partner\'s Nakshatra and Moon sign.'); return;
+        showToast('⚠ Select your partner\'s Nakshatra and Moon sign first.'); return;
       }
       const input = {
         name:       document.getElementById('compat-name').value || 'Partner',
