@@ -4270,6 +4270,21 @@ ${APP_URL}
     }
   </script>
 
+  <!-- Ripple handler — works on any element with class ripple-btn -->
+  <script>
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.ripple-btn');
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      btn.style.setProperty('--rx', (e.clientX - r.left) + 'px');
+      btn.style.setProperty('--ry', (e.clientY - r.top) + 'px');
+      btn.classList.remove('rippling');
+      void btn.offsetWidth;
+      btn.classList.add('rippling');
+      setTimeout(function() { btn.classList.remove('rippling'); }, 520);
+    });
+  </script>
+
 </body>
 
 </html>
