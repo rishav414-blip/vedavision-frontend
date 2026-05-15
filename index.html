@@ -28,6 +28,11 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <link rel="stylesheet" href="vedavision.css">
+  <style>
+    #chart-svg text:not([font-size="8"]):not([font-size="9"]) { transition:transform .18s ease,filter .18s ease; cursor:pointer; }
+    #chart-svg text:not([font-size="8"]):not([font-size="9"]):hover { transform:scale(1.12); filter:drop-shadow(0 0 4px currentColor); }
+    #ts-chart-svg text { transition:none; }
+  </style>
 </head>
 
 <body>
