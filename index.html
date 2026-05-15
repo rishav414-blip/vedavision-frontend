@@ -3738,7 +3738,7 @@ ${APP_URL}
 
     // ── PDF GENERATION ──────────────────────────────────────────────────
     function generateAndDownloadPDF(chart) {
-      if (!window.jspdf) { alert('PDF library loading, please try again in a moment.'); return; }
+      if (!window.jspdf) { showToast('⚠ PDF library loading — please try again in a moment.'); return; }
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const c = chart || SAMPLE_CHART;
