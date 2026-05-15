@@ -3905,6 +3905,8 @@
         } catch (err) {
           // Graceful fallback to pattern-matched responses
           hideTyping();
+          const _jStatF = document.getElementById('jyoti-status');
+          if (_jStatF) _jStatF.textContent = 'offline';
           let response, chipKey = 'default';
           if (qLow.match(/real person|are you ai|are you human|who are you|what are you/))
             { response = ASK_RESPONSES.identity(); chipKey = 'other'; }
