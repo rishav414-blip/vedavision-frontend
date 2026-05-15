@@ -3480,6 +3480,174 @@ ${APP_URL}
       });
   </script>
 
+  <!-- ═══ COMPATIBILITY RENDERING ═══ -->
+  <script>
+    function autoFillMoonSign() {
+      const nak = document.getElementById('compat-nak').value;
+      if (!nak || typeof COMPAT_NAK === 'undefined') return;
+      const nd = COMPAT_NAK.find(n => n.name === nak);
+      if (nd) document.getElementById('compat-moon').value = nd.moonSign;
+    }
+
+    function updateCompatP1() {
+      const c = window._activeChart;
+      if (!c) return;
+      const el = document.getElementById('compat-p1-info');
+      if (!el) return;
+      const name = c.native?.name || 'You';
+      const nak  = c.nakshatra?.name || '—';
+      const ms   = c.moonSign ? (c.moonSign.signEn || c.moonSign.sign) : '—';
+      const lg   = c.lagna   ? (c.lagna.signEn || c.lagna.sign) : '—';
+      el.innerHTML = `<strong>${name}</strong> &nbsp;·&nbsp; Nakshatra: <strong>${nak}</strong> &nbsp;·&nbsp; Moon: <strong>${ms}</strong> &nbsp;·&nbsp; Lagna: <strong>${lg}</strong>`;
+    }
+
+    function runCompatibility() {
+      const c = window._activeChart;
+      if (!c || !c.nakshatra) {
+        alert('Please submit your birth details first to use the compatibility tool.');
+        switchTab('overview'); return;
+      }
+      const nak2   = document.getElementById('compat-nak').value;
+      const moon2  = document.getElementById('compat-moon').value;
+      if (!nak2 || !moon2) {
+        alert('Please select your partner\'s Nakshatra and Moon sign.'); return;
+      }
+      const input = {
+        name:       document.getElementById('compat-name').value || 'Partner',
+        nakshatra:  nak2,
+        moonSign:   moon2,
+        lagna:      document.getElementById('compat-lagna').value,
+        dasha:      document.getElementById('compat-dasha').value,
+        mangalDosha:document.getElementById('compat-mangal').checked
+      };
+      if (typeof computeFullCompat === 'undefined') {
+        alert('Compatibility engine loading. Please try again.'); return;
+      }
+      const report = computeFullCompat(c, input);
+      renderCompatResults(report, c.native?.name || 'You', input.name);
+    }
+
+    function renderCompatResults(r, name1, name2) {
+      const el = document.getElementById('compat-results');
+      if (!el) return;
+      const a = r.ashtakoot;
+      const pct = Math.round((a.total / 36) * 100);
+
+      const GUNA_COLORS = {
+        Varna:'#94A3B8', Vashya:'#06B6D4', Tara:'#8B5CF6',
+        Yoni:'#EC4899', 'Graha Maitri':'#F59E0B', Gana:'#10B981',
+        Bhakoot:'#F97316', Nadi:'#22C55E'
+      };
+
+      const kootaRows = a.kootas.map(k => {
+        const pct = Math.round((k.got / k.max) * 100);
+        const col = GUNA_COLORS[k.name] || '#7C3AED';
+        const perfect = k.got === k.max;
+        return `
+        <div style="padding:.75rem .9rem;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${col}">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
+            <div style="font-size:.8rem;font-weight:700;color:var(--txt)">${k.name}</div>
+            <div style="font-size:.75rem;font-weight:700;color:${perfect?'#22C55E':k.got===0?'#EF4444':'#F59E0B'}">${k.got}/${k.max}</div>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,.07);border-radius:99px;margin-bottom:.35rem">
+            <div style="height:100%;width:${pct}%;background:${col};border-radius:99px;transition:width .6s ease"></div>
+          </div>
+          <div style="font-size:.68rem;color:var(--txt3)">${k.desc}</div>
+        </div>`;
+      }).join('');
+
+      // Dosha section
+      const doshaItems = [];
+      if (a.nadiDosha) doshaItems.push({ name:'Nadi Dosha', desc:'Both partners share the same Nadi — this is the most significant incompatibility marker in Ashtakoot. Consider consulting a Jyotiṣī for detailed assessment.', severity:'high' });
+      if (a.bhakootDosha) doshaItems.push({ name:'Bhakoot Dosha', desc:'Moon sign distance falls in a challenging configuration. Material and emotional prosperity themes may need conscious attention.', severity:'medium' });
+      if (r.mangalDosha1 && !r.mangalDoshaPartner) doshaItems.push({ name:'Mangal Dosha (Person 1)', desc:'Mars occupies a sensitive house in Person 1\'s chart but not in the partner\'s. Some traditions consider this a point of asymmetry worth evaluating.', severity:'medium' });
+      if (!r.mangalDosha1 && r.mangalDoshaPartner) doshaItems.push({ name:'Mangal Dosha (Partner)', desc:'Mars occupies a sensitive house in the partner\'s chart but not in Person 1\'s.', severity:'medium' });
+      if (r.mangalDosha1 && r.mangalDoshaPartner) doshaItems.push({ name:'Mutual Mangal Dosha', desc:'Both partners have Mangal Dosha — in classical tradition this is considered a cancellation. The intensity is mutually balanced.', severity:'good' });
+      if (!doshaItems.length) doshaItems.push({ name:'No Major Doshas Detected', desc:'The chart combination does not show the most common classical dosha patterns.', severity:'good' });
+
+      const doshaSec = doshaItems.map(d => `
+        <div style="display:flex;gap:.65rem;padding:.65rem .85rem;border-radius:10px;background:${d.severity==='good'?'rgba(34,197,94,.06)':d.severity==='high'?'rgba(239,68,68,.06)':'rgba(245,158,11,.06)'};border:1px solid ${d.severity==='good'?'rgba(34,197,94,.2)':d.severity==='high'?'rgba(239,68,68,.25)':'rgba(245,158,11,.2)'}">
+          <div style="font-size:1rem;flex-shrink:0">${d.severity==='good'?'✓':'⚠'}</div>
+          <div><div style="font-size:.8rem;font-weight:700;color:${d.severity==='good'?'#22C55E':d.severity==='high'?'#EF4444':'#F59E0B'};margin-bottom:.2rem">${d.name}</div><div style="font-size:.75rem;color:var(--txt2);line-height:1.5">${d.desc}</div></div>
+        </div>`).join('');
+
+      // Lagna / Dasha section
+      const extSec = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div style="padding:.85rem 1rem;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)">
+            <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);margin-bottom:.4rem">Lagna Compatibility</div>
+            <div style="font-size:.9rem;font-weight:700;color:var(--txt);margin-bottom:.2rem">${r.lagnaCompat || 'Unique combination'}</div>
+            <div style="font-size:.72rem;color:var(--txt2)">${r.elem1 ? r.elem1+' × '+r.elem2 : 'Provide both Lagnas for element analysis'}</div>
+          </div>
+          <div style="padding:.85rem 1rem;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)">
+            <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);margin-bottom:.4rem">Dasha Alignment</div>
+            <div style="font-size:.9rem;font-weight:700;color:var(--txt);margin-bottom:.2rem">${r.dashaNarrative}</div>
+            <div style="font-size:.72rem;color:var(--txt2)">${r.dasha1}${r.dasha2?' × '+r.dasha2:' period active'}</div>
+          </div>
+        </div>`;
+
+      el.innerHTML = `
+        <!-- SCORE HEADER -->
+        <div style="text-align:center;padding:1.5rem;border-radius:16px;background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(6,182,212,.06));border:1px solid rgba(124,58,237,.2);margin-bottom:1.25rem">
+          <div style="font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:.5rem">Ashtakoot Milan Score</div>
+          <div style="font-family:var(--font-h);font-size:3.5rem;font-weight:900;color:${a.verdictColor};line-height:1">${a.total}<span style="font-size:1.4rem;color:var(--txt3);font-weight:400"> /36</span></div>
+          <div style="height:8px;background:rgba(255,255,255,.08);border-radius:99px;margin:.75rem auto;max-width:240px">
+            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,${a.verdictColor},${a.verdictColor}aa);border-radius:99px;transition:width .8s ease"></div>
+          </div>
+          <div style="font-family:var(--font-h);font-size:1.1rem;font-weight:700;color:${a.verdictColor}">${a.verdict}</div>
+          <div style="font-size:.75rem;color:var(--txt3);margin-top:.3rem">${name1} × ${name2} &nbsp;·&nbsp; ${a.n1.nakshatra||a.n1.name} × ${a.n2.name}</div>
+        </div>
+
+        <!-- 8 KOOTAS -->
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.65rem">8-Koota Breakdown</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.25rem">
+          ${kootaRows}
+        </div>
+
+        <!-- DOSHAS -->
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.65rem">Dosha Analysis</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem">
+          ${doshaSec}
+        </div>
+
+        <!-- EXTENDED ANALYSIS -->
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.65rem">Extended Analysis</div>
+        <div style="margin-bottom:1.25rem">${extSec}</div>
+
+        <!-- SHARE -->
+        <button onclick="shareCompat(${a.total}, '${name2}', '${a.verdict}')"
+          style="width:100%;padding:.7rem;border-radius:10px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.07);color:#25D366;font-family:var(--font-b);font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">
+          📱 Share on WhatsApp
+        </button>
+        <button onclick="document.getElementById('compat-results').style.display='none';document.getElementById('compat-form').scrollIntoView({behavior:'smooth'})"
+          style="width:100%;padding:.55rem;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--txt3);font-family:var(--font-b);font-size:.75rem;cursor:pointer;margin-top:.5rem">
+          ← Analyse another
+        </button>
+      `;
+
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior:'smooth', block:'start' });
+      updateCompatP1();
+    }
+
+    function shareCompat(score, partnerName, verdict) {
+      const c = window._activeChart || SAMPLE_CHART;
+      const name = c.native?.name || 'My';
+      const nak  = c.nakshatra?.name || '—';
+      const msg  = `✦ Cosmic Compatibility Result\n\n${name} × ${partnerName}\nAshtakoot Score: ${score}/36 — ${verdict}\n\nDiscover your own cosmic compatibility:\n${window.APP_URL || location.origin}\n\n#VedaVision #KundaliMatch #AshtakootMilan`;
+      window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+    }
+
+    // Auto-update P1 display when chart changes
+    const _compatObserver = new MutationObserver(() => {
+      if (document.getElementById('results')?.classList.contains('visible')) updateCompatP1();
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const r = document.getElementById('results');
+      if (r) _compatObserver.observe(r, { attributes:true, attributeFilter:['class'] });
+    });
+  </script>
+
   <!-- ═══ COSMIC BLUEPRINT — PDF + PAYMENT ═══ -->
   <script>
     const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // ← Replace with your Razorpay key
