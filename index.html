@@ -41,8 +41,12 @@
   <div id="askModal"
     style="display:none;position:fixed;bottom:6rem;right:1.5rem;z-index:450;width:340px;max-height:480px;border-radius:20px;overflow:hidden;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.6)">
     <div
-      style="padding:.75rem 1rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);display:flex;align-items:center;justify-content:space-between">
-      <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:.95rem;color:#fff">💬 Ask Your Chart</div>
+      style="padding:.65rem 1rem;background:linear-gradient(135deg,#0D1B3E,#050B1A);border-bottom:1px solid rgba(192,168,96,.2);display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:.55rem">
+        <span id="jyotiOrb" style="width:8px;height:8px;border-radius:50%;background:#7C3AED;display:inline-block;flex-shrink:0;animation:pulse-glow 1.8s ease-in-out infinite"></span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:.88rem;color:#C0A860">✦ Jyoti</span>
+        <span style="font-size:.65rem;color:#4B5A72">your cosmic guide</span>
+      </div>
       <button onclick="document.getElementById('askModal').style.display='none'"
         style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:26px;height:26px;color:#fff;cursor:pointer;font-size:.9rem">×</button>
     </div>
