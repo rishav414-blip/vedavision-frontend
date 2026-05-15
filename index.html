@@ -1448,6 +1448,37 @@
       renderDailyCard();
       document.getElementById('mobileTabs').classList.add('show');
 
+      // Daśā period progress bar
+      try {
+        const _cur = chart.dasha && chart.dasha.current;
+        if (_cur && _cur.start && _cur.end) {
+          const _ds = new Date(_cur.start).getTime();
+          const _de = new Date(_cur.end).getTime();
+          const _dn = Date.now();
+          const _pct = Math.min(100, Math.max(0, Math.round((_dn - _ds) / (_de - _ds) * 100)));
+          const _mdBar = document.getElementById('md-bar');
+          if (_mdBar) { _mdBar.dataset.target = _pct; }
+          // Add progress text to kpi-md-sub
+          const _mdSub = document.getElementById('kpi-md-sub');
+          if (_mdSub) {
+            _mdSub.style.display = '';
+            document.getElementById('kpi-md-shimmer') && (document.getElementById('kpi-md-shimmer').style.display = 'none');
+          }
+        }
+        // Show AD sub, hide shimmer
+        const _adSub = document.getElementById('kpi-ad-sub');
+        if (_adSub) {
+          _adSub.style.display = '';
+          document.getElementById('kpi-ad-shimmer') && (document.getElementById('kpi-ad-shimmer').style.display = 'none');
+        }
+        // Show yoga val, hide shimmer
+        const _yogaVal = document.getElementById('kpi-yoga-val');
+        if (_yogaVal) {
+          _yogaVal.style.display = '';
+          document.getElementById('kpi-yoga-shimmer') && (document.getElementById('kpi-yoga-shimmer').style.display = 'none');
+        }
+      } catch(e) {}
+
       // Planet colour palette, glyphs
       const _pc = { Sun:'#F5C842',Moon:'#D0D8F0',Mercury:'#7EC8A0',Venus:'#E48DB0',Mars:'#E05050',Jupiter:'#F0A830',Saturn:'#A08050',Rahu:'#8855CC',Ketu:'#CC8855' };
       const _pg = { Sun:'☉',Moon:'☽',Mercury:'☿',Venus:'♀',Mars:'♂',Jupiter:'♃',Saturn:'♄',Rahu:'☊',Ketu:'☋' };
