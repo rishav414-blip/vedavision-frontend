@@ -1434,10 +1434,15 @@
         _fwEl.remove();
       }
 
-      document.getElementById('hero').style.display = 'none';
-      document.getElementById('summary-bar').classList.add('visible');
+      // Cinematic reveal
       const results = document.getElementById('results');
+      const _heroEl = document.getElementById('hero');
+      _heroEl.classList.add('hero-exit');
+      setTimeout(() => { _heroEl.style.display = 'none'; _heroEl.classList.remove('hero-exit'); }, 280);
+      document.getElementById('summary-bar').classList.add('visible');
+      results.style.opacity = '0';
       results.classList.add('visible');
+      setTimeout(() => { results.style.opacity = '1'; }, 320);
 
       // ── Device-aware initialisation ──
       switchTab('overview');
