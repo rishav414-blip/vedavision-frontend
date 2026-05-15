@@ -96,7 +96,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 /* RESULTS LAYOUT */
 #results{display:none;min-height:100vh}
 #results.visible{display:flex}
-.sidebar{width:220px;min-height:100vh;padding:1.5rem .75rem;border-right:1px solid var(--border);flex-shrink:0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto;background:rgba(10,7,22,0.7);}
+.sidebar{width:220px;min-height:100vh;padding:1.5rem .75rem;border-right:1px solid rgba(192,160,96,0.18);flex-shrink:0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto;background:rgba(10,7,20,0.88);}
 .sidebar-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);padding:.5rem .75rem;margin-bottom:.25rem}
 .sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:var(--r-md);color:var(--txt2);font-size:.85rem;cursor:pointer;transition:background var(--tr),color var(--tr);margin-bottom:.1rem;user-select:none}
 .sidebar-link:hover{background:var(--bg-hover);color:var(--txt)}
