@@ -2305,7 +2305,7 @@
       const _posterChart = window._activeChart || SAMPLE_CHART;
       ctx.fillStyle = '#F1F5FE'; ctx.font = 'bold 22px Outfit,sans-serif'; ctx.fillText(_posterChart.native.name, 20, 82);
       ctx.fillStyle = '#94A3B8'; ctx.font = '12px Inter,sans-serif';
-      ctx.fillText(`Lagna: ${SAMPLE_CHART.lagna.signEn}  ·  Moon: ${SAMPLE_CHART.moonSign.signEn}  ·  Nakshatra: ${SAMPLE_CHART.nakshatra.name}`, 20, 102);
+      ctx.fillText(`Lagna: ${_posterChart.lagna ? (_posterChart.lagna.signEn||_posterChart.lagna.sign||'—') : '—'}  ·  Moon: ${_posterChart.moonSign ? (_posterChart.moonSign.signEn||_posterChart.moonSign.sign||'—') : '—'}  ·  Nakshatra: ${_posterChart.nakshatra ? _posterChart.nakshatra.name : '—'}`, 20, 102);
       ctx.fillText(`Dasha: ${SAMPLE_CHART.dasha.current.planet} / ${SAMPLE_CHART.dasha.antardasha.planet}`, 20, 122);
       ctx.fillStyle = '#F59E0B'; ctx.font = 'bold 12px Inter,sans-serif'; ctx.fillText('Active Yogas:', 20, 148);
       ctx.fillStyle = '#F1F5FE'; ctx.font = '11px Inter,sans-serif';
