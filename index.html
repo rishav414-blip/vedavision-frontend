@@ -3067,7 +3067,61 @@
         if (saved && saved !== 'en') applyLanguage(saved);
         // Pre-warm backend to avoid cold-start delay on form submit
         if (typeof pingBackend !== 'undefined') pingBackend();
+
+        // Deep link: auto-fill + submit if URL has chart params
+        const _urlp = new URLSearchParams(window.location.search);
+        if (_urlp.get('name') && _urlp.get('dob')) {
+          const _fn = document.getElementById('fName');
+          const _fd = document.getElementById('fDob');
+          const _fp = document.getElementById('fPob');
+          if (_fn) _fn.value = _urlp.get('name');
+          if (_fd) _fd.value = _urlp.get('dob');
+          if (_fp && _urlp.get('pob')) _fp.value = _urlp.get('pob');
+          setTimeout(() => {
+            const form = document.getElementById('birthForm');
+            if (form) form.dispatchEvent(new Event('submit', { bubbles:true }));
+          }, 400);
+        }
+        // Welcome back: show banner if previous chart saved and no URL params
+        else {
+          try {
+            const _sc = JSON.parse(localStorage.getItem('vv_saved_chart') || 'null');
+            if (_sc && _sc.name) {
+              const _formCard = document.querySelector('.form-card');
+              if (_formCard) {
+                const _wb = document.createElement('div');
+                _wb.id = 'welcomeBack';
+                _wb.style.cssText = 'padding:.75rem 1rem;border-radius:12px;background:rgba(192,168,96,.08);border:1px solid rgba(192,168,96,.25);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap';
+                _wb.innerHTML = `
+                  <div style="font-size:.82rem;color:#D4B870;font-weight:600">Welcome back, ${_sc.name}</div>
+                  <div style="display:flex;gap:.5rem">
+                    <button onclick="restoreChart()" style="padding:.35rem .85rem;border-radius:99px;border:none;background:linear-gradient(135deg,#C0A860,#D4B870);color:#050B1A;font-size:.75rem;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif">Continue →</button>
+                    <button onclick="document.getElementById('welcomeBack').remove()" style="padding:.35rem .75rem;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#4B5A72;font-size:.72rem;cursor:pointer">New chart</button>
+                  </div>`;
+                _formCard.prepend(_wb);
+              }
+            }
+          } catch(e) {}
+        }
       });
+
+      function restoreChart() {
+        try {
+          const _sc = JSON.parse(localStorage.getItem('vv_saved_chart') || 'null');
+          if (!_sc) return;
+          const _fn = document.getElementById('fName');
+          const _fd = document.getElementById('fDob');
+          const _ft = document.getElementById('fTob');
+          const _fp = document.getElementById('fPob');
+          if (_fn) _fn.value = _sc.name || '';
+          if (_fd) _fd.value = _sc.dob  || '';
+          if (_ft) _ft.value = _sc.tob  || '';
+          if (_fp) _fp.value = _sc.pob  || '';
+          document.getElementById('welcomeBack')?.remove();
+          const form = document.getElementById('birthForm');
+          if (form) form.dispatchEvent(new Event('submit', { bubbles:true }));
+        } catch(e) {}
+      }
 
       /* ═══ ASK YOUR CHART ═══ */
       // CHIPS per category — shown as quick-reply buttons after each response
