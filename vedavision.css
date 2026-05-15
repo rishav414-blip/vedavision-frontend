@@ -457,7 +457,7 @@ footer p{font-size:.7rem;color:var(--txt3)}
 .mob-tab{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.3rem .5rem;border-radius:8px;cursor:pointer;transition:all .2s ease;min-width:48px;position:relative}
 .mob-tab .mob-icon{font-size:1.2rem;line-height:1}
 .mob-tab .mob-label{font-size:.55rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--txt3);transition:color .2s}
-.mob-tab.active .mob-label{color:var(--violet2)}
+.mob-tab.active .mob-label{color:#D4B870}
 .mob-tab.active .mob-icon{filter:drop-shadow(0 0 5px rgba(196,164,90,.6))}
 .mob-tab.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:2px;background:linear-gradient(90deg,#C4A45A,#D4B870);border-radius:0 0 2px 2px}
 .mob-tab .mob-lock{position:absolute;top:2px;right:6px;font-size:.55rem}
