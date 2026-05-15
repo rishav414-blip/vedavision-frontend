@@ -2302,7 +2302,8 @@
       ctx.fillStyle = 'rgba(6,182,212,0.2)'; ctx.beginPath(); ctx.arc(350, 180, 100, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#F59E0B'; ctx.font = 'bold 13px Inter,sans-serif'; ctx.fillText('VEDAVISION', 20, 28);
       ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '10px Inter,sans-serif'; ctx.fillText('REFLECTION · NOT PREDICTION', 20, 45);
-      ctx.fillStyle = '#F1F5FE'; ctx.font = 'bold 22px Outfit,sans-serif'; ctx.fillText(SAMPLE_CHART.native.name, 20, 82);
+      const _posterChart = window._activeChart || SAMPLE_CHART;
+      ctx.fillStyle = '#F1F5FE'; ctx.font = 'bold 22px Outfit,sans-serif'; ctx.fillText(_posterChart.native.name, 20, 82);
       ctx.fillStyle = '#94A3B8'; ctx.font = '12px Inter,sans-serif';
       ctx.fillText(`Lagna: ${SAMPLE_CHART.lagna.signEn}  ·  Moon: ${SAMPLE_CHART.moonSign.signEn}  ·  Nakshatra: ${SAMPLE_CHART.nakshatra.name}`, 20, 102);
       ctx.fillText(`Dasha: ${SAMPLE_CHART.dasha.current.planet} / ${SAMPLE_CHART.dasha.antardasha.planet}`, 20, 122);
