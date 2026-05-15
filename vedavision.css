@@ -153,7 +153,8 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .year-tab.active{background:rgba(245,158,11,.15);border-color:var(--gold);color:var(--gold)}
 .forecast-year{display:none}.forecast-year.active{display:block}
 .forecast-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-.forecast-card{padding:1.25rem;border-radius:var(--r-lg)}
+.forecast-card{padding:1.25rem;border-radius:var(--r-lg);transition:transform .22s ease,box-shadow .22s ease}
+.forecast-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.35)}
 .fc-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem}
 .fc-icon{font-size:1.1rem}
 .fc-title{font-family:var(--font-h);font-size:1rem;font-weight:700}
