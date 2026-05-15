@@ -1,0 +1,28 @@
+{
+  "name": "VedaVision",
+  "short_name": "VedaVision",
+  "description": "Your Vedic birth chart, deeply read. Reflection · Not Prediction.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050B1A",
+  "theme_color": "#7C3AED",
+  "orientation": "portrait-primary",
+  "categories": ["lifestyle", "health"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23050B1A' rx='80'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%237C3AED' stroke-width='8' opacity='.3'/%3E%3Ccircle cx='256' cy='256' r='140' fill='none' stroke='%23C0A860' stroke-width='4' opacity='.5'/%3E%3Ctext x='256' y='300' text-anchor='middle' font-size='160' fill='%23C0A860' font-family='serif'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "My Chart",
+      "short_name": "Chart",
+      "description": "Open your birth chart",
+      "url": "/"
+    }
+  ]
+}
