@@ -306,6 +306,88 @@
 
     <main class="main-content">
 
+      <!-- COMPATIBILITY -->
+      <div class="tab-panel" id="tab-compat">
+        <div class="section-heading">Cosmic Compatibility</div>
+        <div class="section-sub">Ashtakoot Milan — 36-point Guna analysis, Dosha check, and Dasha alignment.</div>
+
+        <!-- INPUT FORM -->
+        <div id="compat-form" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.85rem">Partner Details</div>
+          <!-- Person 1 (auto) -->
+          <div style="padding:.65rem .85rem;border-radius:10px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);margin-bottom:.85rem;font-size:.8rem;color:var(--txt2)" id="compat-p1-display">
+            <span style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--violet2)">Person 1 (You)</span><br>
+            <span id="compat-p1-info" style="color:var(--txt)">Submit your birth details first</span>
+          </div>
+          <!-- Person 2 inputs -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem">
+            <div>
+              <label style="display:block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Partner Name</label>
+              <input id="compat-name" type="text" placeholder="Their name"
+                style="width:100%;padding:.55rem .75rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--txt);font-family:var(--font-b);font-size:.85rem;outline:none"
+                onfocus="this.style.borderColor='#7C3AED'" onblur="this.style.borderColor='rgba(255,255,255,.08)'">
+            </div>
+            <div>
+              <label style="display:block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Date of Birth</label>
+              <input id="compat-dob" type="date"
+                style="width:100%;padding:.55rem .75rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--txt);font-family:var(--font-b);font-size:.85rem;outline:none"
+                onfocus="this.style.borderColor='#7C3AED'" onblur="this.style.borderColor='rgba(255,255,255,.08)'">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem">
+            <div>
+              <label style="display:block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Nakshatra (Birth Star)</label>
+              <select id="compat-nak" onchange="autoFillMoonSign()"
+                style="width:100%;padding:.55rem .75rem;background:rgba(5,11,26,.95);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--txt);font-family:var(--font-b);font-size:.85rem;outline:none;cursor:pointer"
+                onfocus="this.style.borderColor='#7C3AED'" onblur="this.style.borderColor='rgba(255,255,255,.08)'">
+                <option value="">— Select Nakshatra —</option>
+                ${['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Moola','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'].map(n=>`<option value="${n}">${n}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Moon Sign (Rashi)</label>
+              <select id="compat-moon"
+                style="width:100%;padding:.55rem .75rem;background:rgba(5,11,26,.95);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--txt);font-family:var(--font-b);font-size:.85rem;outline:none;cursor:pointer"
+                onfocus="this.style.borderColor='#7C3AED'" onblur="this.style.borderColor='rgba(255,255,255,.08)'">
+                <option value="">— Select Moon Sign —</option>
+                ${['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'].map(s=>`<option value="${s}">${s}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.85rem">
+            <div>
+              <label style="display:block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Lagna / Rising Sign <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+              <select id="compat-lagna"
+                style="width:100%;padding:.55rem .75rem;background:rgba(5,11,26,.95);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--txt);font-family:var(--font-b);font-size:.85rem;outline:none;cursor:pointer">
+                <option value="">— Select Lagna —</option>
+                ${['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'].map(s=>`<option value="${s}">${s}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:.3rem">Current Mahadasha <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+              <select id="compat-dasha"
+                style="width:100%;padding:.55rem .75rem;background:rgba(5,11,26,.95);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--txt);font-family:var(--font-b);font-size:.85rem;outline:none;cursor:pointer">
+                <option value="">— Select Mahadasha —</option>
+                ${['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'].map(p=>`<option value="${p}">${p}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem">
+            <input type="checkbox" id="compat-mangal" style="accent-color:#7C3AED;width:14px;height:14px;cursor:pointer">
+            <label for="compat-mangal" style="font-size:.78rem;color:var(--txt2);cursor:pointer">Partner has Mangal Dosha</label>
+          </div>
+          <button onclick="runCompatibility()"
+            style="width:100%;padding:.8rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);border:none;border-radius:10px;color:#fff;font-family:var(--font-h);font-size:.92rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-top:.25rem"
+            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Analyse Compatibility ✦</button>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="compat-results" style="display:none"></div>
+        <div style="margin-top:1rem;font-size:.68rem;color:var(--txt3);text-align:center;line-height:1.6">
+          This analysis is for reflection and self-inquiry. Compatibility is multidimensional — these patterns are symbolic, not deterministic. Consult a qualified Jyotiṣī for life decisions of consequence.
+        </div>
+      </div>
+
       <!-- OVERVIEW -->
       <div class="tab-panel active" id="tab-overview">
         <div class="section-heading">Cosmic Destiny Dashboard</div>
