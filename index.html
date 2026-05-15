@@ -970,17 +970,35 @@
             <div class="pricing-tier">Monthly</div>
             <div class="pricing-amount">₹499</div>
             <div class="pricing-period">per month</div>
-            <button class="pricing-cta secondary">Start Monthly</button>
+            <button class="pricing-cta secondary ripple-btn" onclick="initiateDharmaPayment('monthly',49900)">Join Waitlist →</button>
           </div>
           <div class="pricing-card glass featured">
             <div class="pricing-tier">Annual</div>
             <div class="save-badge">Save 33%</div>
             <div class="pricing-amount">₹3,999</div>
             <div class="pricing-period">per year · ₹333/mo</div>
-            <button class="pricing-cta primary">Start Annual →</button>
+            <button class="pricing-cta primary ripple-btn" onclick="initiateDharmaPayment('annual',399900)">Join Waitlist →</button>
           </div>
         </div>
-        <p class="pricing-note">Cancel anytime. No questions asked. Secure payment via Razorpay &amp; Stripe.</p>
+
+        <!-- Waitlist capture form (shown when Razorpay not configured) -->
+        <div id="dharmaWaitlist" style="display:none;padding:1.25rem;border-radius:14px;background:rgba(192,168,96,.06);border:1px solid rgba(192,168,96,.2);margin-bottom:1.5rem">
+          <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;color:#D4B870;margin-bottom:.3rem">Join the Dharma Pass waitlist</div>
+          <div style="font-size:.78rem;color:#94A3B8;margin-bottom:.85rem">Payment launches soon. Leave your email and be first to know — plus get 7 days free at launch.</div>
+          <div id="dharmaWlPlan" style="font-size:.72rem;font-weight:700;color:#C0A860;margin-bottom:.65rem;padding:.2rem .6rem;background:rgba(192,168,96,.1);border-radius:99px;display:inline-block"></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <input id="dharmaWlEmail" type="email" placeholder="your@email.com"
+              style="flex:1;min-width:180px;padding:.6rem .9rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#F1F5FE;font-family:'Inter',sans-serif;font-size:.88rem;outline:none"
+              onfocus="this.style.borderColor='#C0A860'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
+              onkeydown="if(event.key==='Enter')submitDharmaWaitlist()">
+            <button onclick="submitDharmaWaitlist()" class="ripple-btn"
+              style="padding:.6rem 1.1rem;border-radius:10px;border:none;background:linear-gradient(135deg,#C0A860,#D4B870);color:#050B1A;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer;white-space:nowrap">Notify me →</button>
+          </div>
+          <div id="dharmaWlMsg" style="display:none;margin-top:.5rem;font-size:.75rem;border-radius:8px;padding:.3rem .65rem"></div>
+          <div style="margin-top:.75rem;font-size:.7rem;color:#4B5A72">Already have an access code? <span onclick="openPasscodeModal()" style="color:var(--violet2);cursor:pointer;text-decoration:underline">Enter it here →</span></div>
+        </div>
+
+        <p class="pricing-note">Cancel anytime. No questions asked. Secure payment via Razorpay.</p>
         <div class="testimonials">
           <div class="testimonial glass">
             <p>"The Hard Truths section told me exactly what I didn't want to hear — and it was exactly right. Changed
@@ -995,6 +1013,7 @@
               is rigorous."</p><cite>— Ananya R., Delhi</cite>
           </div>
         </div>
+        <p style="text-align:center;font-size:.65rem;color:#4B5A72;margin-top:.5rem">Experiences shared by early users.</p>
       </div>
 
     </main>
