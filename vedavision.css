@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap');
 /* VedaVision — Styles */
 :root {
-  --bg-deep:#050B1A; --bg-navy:#0D1B3E; --bg-card:rgba(255,255,255,0.04);
-  --bg-hover:rgba(255,255,255,0.07); --border:rgba(255,255,255,0.08);
-  --border-glow:rgba(124,58,237,0.5); --violet:#7C3AED; --violet2:#9D5CF6;
-  --cyan:#06B6D4; --cyan2:#22D3EE; --gold:#F59E0B; --green:#22C55E; --red:#EF4444;
-  --txt:#F1F5FE; --txt2:#94A3B8; --txt3:#6B7A9A;
+  --bg-deep:#0A0810; --bg-navy:#130F24; --bg-card:rgba(255,248,240,0.04);
+  --bg-hover:rgba(255,248,240,0.07); --border:rgba(192,160,96,0.14);
+  --border-glow:rgba(139,124,200,0.4); --violet:#8B7CC8; --violet2:#A99BD9;
+  --cyan:#C4A45A; --cyan2:#D4B870; --gold:#D4B870; --green:#4CAF6A; --red:#D95F5F;
+  --txt:#F0EBF4; --txt2:#B0A0C8; --txt3:#6B7A9A;
   --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px; --r-full:9999px;
   --tr:0.25s ease; --tr-slow:0.5s cubic-bezier(.16,1,.3,1);
   --font-h:'Outfit',sans-serif; --font-b:'Inter',sans-serif;
