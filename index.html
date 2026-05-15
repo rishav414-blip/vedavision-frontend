@@ -2813,6 +2813,61 @@
     </div>
   </div>
 
+  <!-- ═══ PRIVACY POLICY MODAL ═══ -->
+  <div id="privacyModal" style="display:none;position:fixed;inset:0;z-index:1900;background:rgba(5,11,26,.92);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;overflow-y:auto;padding:2rem 1rem">
+    <div style="background:rgba(13,27,62,.97);border:1px solid rgba(255,255,255,.12);border-radius:24px;width:100%;max-width:600px;margin:0 auto;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7)">
+      <div style="height:3px;background:linear-gradient(90deg,#7C3AED,#C0A860,#06B6D4)"></div>
+      <div style="padding:2rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+          <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:#F1F5FE">Privacy Policy</div>
+          <button onclick="document.getElementById('privacyModal').style.display='none'" style="background:rgba(255,255,255,.08);border:none;border-radius:50%;width:30px;height:30px;color:#94A3B8;cursor:pointer;font-size:1rem">×</button>
+        </div>
+        <div style="font-size:.72rem;color:#4B5A72;margin-bottom:1.5rem">Last updated: May 2026 · Compliant with India's DPDP Act 2023</div>
+
+        <div style="display:flex;flex-direction:column;gap:1.25rem;font-size:.82rem;color:#94A3B8;line-height:1.7">
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">What We Collect</div>
+            <p>When you use VedaVision, you may provide: your name, date of birth, approximate time of birth, and place of birth. If you create an account, we also store your email address and a hashed password. This data is used solely to calculate and display your Vedic birth chart.</p>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">Where It's Stored</div>
+            <p>Your birth details and session information are stored in your browser's <strong style="color:#F1F5FE">localStorage</strong> — on your device, not on our servers. Chart calculations are sent to our ephemeris backend (Render.com) for processing and are not retained after the response is returned. We do not maintain a database of user birth charts.</p>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">What We Don't Do</div>
+            <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:.3rem">
+              <li>✓ We do not sell, share, or transfer your personal data to any third party</li>
+              <li>✓ We do not use your birth data for advertising or profiling</li>
+              <li>✓ We do not store birth charts on external servers after calculation</li>
+              <li>✓ We do not send unsolicited marketing without your explicit consent</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">Analytics</div>
+            <p>We use Google Analytics to understand aggregate usage patterns (which features are used, general geography, session duration). This does not include your birth data or personal astrological information.</p>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">Your Rights (DPDP Act 2023)</div>
+            <p>Under India's Digital Personal Data Protection Act 2023, you have the right to: access what data we hold about you, correct inaccurate data, and erase your data. Since data is stored in your browser, you can clear it at any time via your browser settings or by clearing site data for this domain. To request deletion of any server-side records, contact us.</p>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">Cookies</div>
+            <p>We use localStorage (not cookies) for session management and preference storage. No tracking cookies are set by VedaVision directly.</p>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.4rem">Contact</div>
+            <p>For any privacy concerns or data requests, reach us at <a href="mailto:privacy@vedavision.app" style="color:#7C3AED">privacy@vedavision.app</a>. We respond within 72 hours.</p>
+          </div>
+          <div style="padding:.75rem 1rem;background:rgba(124,58,237,.08);border-radius:10px;border:1px solid rgba(124,58,237,.2)">
+            <p style="color:#B8B0C8"><strong style="color:#F1F5FE">Important:</strong> VedaVision is a reflection tool, not a prediction service. Birth chart data is used for self-inquiry only. We do not offer medical, legal, or financial advice.</p>
+          </div>
+        </div>
+
+        <button onclick="document.getElementById('privacyModal').style.display='none'" style="width:100%;margin-top:1.5rem;padding:.7rem;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#4B5A72;font-size:.82rem;cursor:pointer">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ TUTORIAL MODAL ═══ -->
   <div id="tutorialModal"
     style="display:none;position:fixed;inset:0;z-index:1500;background:rgba(5,11,26,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center">
