@@ -99,7 +99,8 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .tab-panel.slide-from-right,.tab-panel.slide-from-left{animation-duration:.3s}
 .tab-panel.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.section-heading{font-family:var(--font-h);font-size:1.5rem;font-weight:700;margin-bottom:.25rem}
+.section-heading{font-family:var(--font-h);font-size:1.5rem;font-weight:700;margin-bottom:.25rem;position:relative;padding-bottom:.45rem}
+.section-heading::after{content:'';display:block;width:36px;height:2px;background:linear-gradient(90deg,#C0A860,transparent);border-radius:99px;margin-top:.35rem}
 .section-sub{color:var(--txt2);font-size:.85rem;margin-bottom:1.5rem}
 
 /* KPI GRID */
