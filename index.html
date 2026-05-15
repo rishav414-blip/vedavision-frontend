@@ -3887,6 +3887,8 @@
           const reply = data.reply || '';
           hideTyping();
           addAskMessage(reply, false);
+          const _jStatOk = document.getElementById('jyoti-status');
+          if (_jStatOk) _jStatOk.textContent = 'AI';
           // Update conversation history
           if (!window._jyotiHistory) window._jyotiHistory = [];
           window._jyotiHistory.push({ role: 'user', content: q });
