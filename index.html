@@ -3949,8 +3949,9 @@
             { response = ASK_RESPONSES.health(md, ad, lagna); chipKey = 'health'; }
           else
             { response = ASK_RESPONSES.default(md, ad, lagna); }
-          addAskMessage(response, false);
-          addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
+          typewriterMessage(response, () => {
+            addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
+          });
         }
       }
 
