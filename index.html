@@ -401,9 +401,14 @@
             <input type="checkbox" id="compat-mangal" style="accent-color:#7C3AED;width:14px;height:14px;cursor:pointer">
             <label for="compat-mangal" style="font-size:.78rem;color:var(--txt2);cursor:pointer">Partner has Mangal Dosha</label>
           </div>
-          <button onclick="runCompatibility()"
-            style="width:100%;padding:.8rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);border:none;border-radius:10px;color:#fff;font-family:var(--font-h);font-size:.92rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-top:.25rem"
-            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Analyse Compatibility ✦</button>
+          <div style="display:flex;gap:.5rem;margin-top:.25rem">
+            <button onclick="resetCompatForm()"
+              style="flex:0 0 auto;padding:.8rem 1.1rem;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--txt3);font-family:var(--font-b);font-size:.82rem;cursor:pointer;transition:all .2s"
+              onmouseover="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='var(--txt2)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)';this.style.color='var(--txt3)'">↺ Reset</button>
+            <button onclick="runCompatibility()"
+              style="flex:1;padding:.8rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);border:none;border-radius:10px;color:#fff;font-family:var(--font-h);font-size:.92rem;font-weight:700;cursor:pointer;transition:opacity .2s"
+              onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Analyse Compatibility ✦</button>
+          </div>
         </div>
 
         <!-- RESULTS -->
