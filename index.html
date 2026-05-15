@@ -1271,7 +1271,7 @@
         initResults(name, dob, pob, apiData);
       } catch (err) {
         const msg = err.name === 'AbortError' ? 'Timeout (>30s) — server may be starting up, try again in 10 seconds' : err.message;
-        setNotice(`⚠ Step 3 failed: ${msg} — showing sample chart`, '#F59E0B');
+        setStep(3,'error'); setNotice(`⚠ ${msg} — showing sample chart`,'#F59E0B');
         console.error('Chart API error:', err);
         initResults(name, dob, pob, null);
       }
