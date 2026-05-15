@@ -1241,10 +1241,10 @@
 
       // Step 2: wake backend
       try {
-        setNotice('⟳ Step 2/3 — Waking ephemeris server...');
+        setStep(2,'active');
         await pingBackend();
-        setNotice('✓ Step 2/3 — Server ready', '#22C55E');
-        await new Promise(r => setTimeout(r, 300));
+        setStep(2,'done');
+        await new Promise(r => setTimeout(r, 250));
       } catch (e) { }
 
       // Step 3: calculate chart
