@@ -1378,6 +1378,26 @@
       animateBars();
       animateGauge();
       document.getElementById('mobileTabs').classList.add('show');
+
+      // Save birth details for welcome-back flow
+      try {
+        const _nat = window._activeChart && window._activeChart.native;
+        if (_nat && _nat.name) {
+          localStorage.setItem('vv_saved_chart', JSON.stringify({
+            name: _nat.name, dob: _nat.dob || '', tob: _nat.tob || '', pob: _nat.pob || ''
+          }));
+        }
+      } catch(e) {}
+
+      // Update URL so the chart is bookmarkable / shareable
+      try {
+        const _nat2 = window._activeChart && window._activeChart.native;
+        if (_nat2 && _nat2.name && _nat2.dob) {
+          const _p = new URLSearchParams({ name: _nat2.name, dob: _nat2.dob });
+          if (_nat2.pob) _p.set('pob', _nat2.pob);
+          history.replaceState({}, '', '?' + _p.toString());
+        }
+      } catch(e) {}
     }
 
     // ── CHART SVG ──
