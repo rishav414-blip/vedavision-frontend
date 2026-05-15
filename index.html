@@ -1758,15 +1758,23 @@
 
     // ── PLANET TABLE ──
     function renderPlanetTable() {
-      const tbody = document.getElementById('planet-tbody');
-      if (!tbody) return;
-      tbody.innerHTML = (window._activeChart || SAMPLE_CHART).planetTable.map(p => `
-    <tr>
-      <td><span class="planet-glyph" style="color:${p.color}">${p.glyph}</span> ${p.planet}</td>
-      <td style="color:var(--txt2)">${p.sign}</td>
-      <td style="color:var(--txt2)">${p.house}th</td>
-      <td><span class="dignity-badge dignity-${p.dignity.toLowerCase().replace(' ', '-')}">${p.dignity}</span></td>
-    </tr>`).join('');
+      const grid = document.getElementById('planet-coins-grid');
+      if (!grid) return;
+      const chart = window._activeChart || SAMPLE_CHART;
+      grid.innerHTML = (chart.planetTable || []).map(p => {
+        const dig = (p.dignity||'').toLowerCase().replace(/[\s/]+/g,'-');
+        const digColors = {exalted:'#06B6D4',own:'#22C55E','own-sign':'#22C55E',moolatrikona:'#22C55E',friendly:'#9D5CF6',neutral:'#94A3B8',enemy:'#F97316',debilitated:'#EF4444'};
+        const digC = digColors[dig] || '#94A3B8';
+        return `<div class="planet-coin" title="${p.planet} in ${p.sign} — ${p.dignity}">
+          <div class="pc-ring" style="border-color:${p.color}22;box-shadow:0 0 12px ${p.color}22">
+            <div class="pc-glyph" style="color:${p.color};filter:drop-shadow(0 0 6px ${p.color}66)">${p.glyph}</div>
+          </div>
+          <div class="pc-name">${p.planet}</div>
+          <div class="pc-sign">${(p.sign||'').substring(0,3)}</div>
+          <div class="pc-house">H${p.house}</div>
+          <div class="pc-dig" style="color:${digC}">${p.dignity}</div>
+        </div>`;
+      }).join('');
     }
     document.addEventListener('DOMContentLoaded', renderPlanetTable);
 
