@@ -4306,6 +4306,61 @@ ${APP_URL}
     }
   </script>
 
+  <!-- ═══ DHARMA PASS PAYMENT ═══ -->
+  <script>
+    function initiateDharmaPayment(plan, amountPaise) {
+      // If Razorpay configured, use it; otherwise show waitlist
+      if (typeof RAZORPAY_KEY !== 'undefined' && RAZORPAY_KEY && RAZORPAY_KEY !== 'rzp_test_YOUR_KEY_HERE') {
+        const options = {
+          key: RAZORPAY_KEY,
+          amount: amountPaise,
+          currency: 'INR',
+          name: 'VedaVision',
+          description: 'Dharma Pass — ' + (plan === 'annual' ? 'Annual' : 'Monthly'),
+          theme: { color: '#7C3AED' },
+          handler: function(response) {
+            localStorage.setItem('vv_full_access', JSON.stringify({ expires: Date.now() + 30*24*60*60*1000 }));
+            if (window.applyAccessState) applyAccessState();
+            showToast('✦ Dharma Pass activated — all features unlocked.');
+            switchTab('overview');
+          }
+        };
+        try { new Razorpay(options).open(); } catch(e) { showDharmaWaitlist(plan); }
+      } else {
+        showDharmaWaitlist(plan);
+      }
+    }
+
+    function showDharmaWaitlist(plan) {
+      const wl = document.getElementById('dharmaWaitlist');
+      const pl = document.getElementById('dharmaWlPlan');
+      if (wl) wl.style.display = 'block';
+      if (pl) pl.textContent = plan === 'annual' ? 'Annual Plan — ₹3,999/year' : 'Monthly Plan — ₹499/month';
+      wl && wl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function submitDharmaWaitlist() {
+      const email = (document.getElementById('dharmaWlEmail')?.value || '').trim();
+      const msg = document.getElementById('dharmaWlMsg');
+      const plan = document.getElementById('dharmaWlPlan')?.textContent || '';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (msg) { msg.style.cssText = 'display:block;color:#EF4444;background:rgba(239,68,68,.1);padding:.3rem .65rem;border-radius:8px;font-size:.75rem;margin-top:.5rem'; msg.textContent = 'Please enter a valid email address.'; }
+        return;
+      }
+      // Store in localStorage (replace with backend call when ready)
+      try {
+        const waitlist = JSON.parse(localStorage.getItem('vv_dharma_waitlist') || '[]');
+        if (!waitlist.find(e => e.email === email)) {
+          waitlist.push({ email, plan, date: new Date().toISOString() });
+          localStorage.setItem('vv_dharma_waitlist', JSON.stringify(waitlist));
+        }
+      } catch(e) {}
+      if (msg) { msg.style.cssText = 'display:block;color:#22C55E;background:rgba(34,197,94,.1);padding:.3rem .65rem;border-radius:8px;font-size:.75rem;margin-top:.5rem'; msg.textContent = "✓ You're on the list — we'll email you at launch with 7 days free."; }
+      document.getElementById('dharmaWlEmail').value = '';
+      showToast('✦ You\'re on the Dharma Pass waitlist — we\'ll be in touch.');
+    }
+  </script>
+
   <!-- Ripple handler — works on any element with class ripple-btn -->
   <script>
     document.addEventListener('click', function(e) {
