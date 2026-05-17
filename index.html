@@ -4845,6 +4845,18 @@ ${APP_URL}
     });
   </script>
 
+  <!-- Referral tracking — reads ?ref=USER_ID on page load -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const refValue = new URLSearchParams(location.search).get('ref');
+      if (refValue) {
+        localStorage.setItem('vv_ref', refValue);
+        sessionStorage.setItem('vv_ref', refValue);
+        if (typeof gtag === 'function') gtag('event', 'referral_visit', { ref_id: refValue });
+      }
+    });
+  </script>
+
   <!-- PWA Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
