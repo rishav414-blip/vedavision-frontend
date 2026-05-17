@@ -16,23 +16,17 @@ Celestial Noir is a Vedic astrology (Jyotiṣa) birth-chart **reflection** web a
 
 | File | Role |
 |---|---|
-| `index.html` | Standalone runner. Loads React 18 + Babel standalone from CDN (no build step). Fetches `KundaliApp.jsx` at runtime via `fetch()` + Babel transpile when served over HTTP. Falls back to paste-in for `file://` URLs. |
-| `KundaliApp.jsx` | Entire application: constants, helpers, all React components, CSS-in-JS styles. Single-file by design for portability. |
-| `DESIGN_SPEC.md` | Visual and UX specification. **This is the design source of truth.** Colour tokens, typography rules, motion parameters, component rules, and deliberate omissions all live here. |
-| `skill.md` | Vedic astrology methodology. Canonical source for interpretation logic (when created). |
+| `index.html` | The entire application — 4,200+ lines of vanilla HTML/CSS/JS. All tab panels, modals, render functions, auth, chatbot, PDF export, and compatibility engine live here. No build step. Deployed via Cloudflare Workers. |
+| `vedavision.css` | Design system — all CSS custom properties, component styles, animations, responsive breakpoints, dark/light themes. Always read before any UI change. |
+| `vedavision-data.js` | Data layer — `SAMPLE_CHART`, `CHART_VARIANTS`, `FIVE_YEAR_FORECAST`, `DASHA_THEMES`, `COMPAT_NAK`, all computation functions (`computeAshtakoot`, `generateDynamicForecast`, `generateCalendar`, etc.). Always read before adding data logic. |
+| `manifest.json` | PWA manifest for home screen install. |
+| `sw.js` | Service worker — caches core assets for offline use. |
+| `skill.md` | Vedic astrology methodology. Canonical source for all interpretation logic. |
+| `chatbot_skill.md` | Jyoti chatbot persona, response architecture, scope rules, hard limits, and mental health protocol. Read before editing any chatbot response. |
 
-### How index.html loads KundaliApp.jsx
+### How the app loads
 
-```
-index.html
-  └─ <script type="text/babel" data-type="module">
-       fetch("./KundaliApp.jsx")          // works over HTTP (Live Server, npx serve)
-         → Babel.transform(source, {presets:["react","env"]})
-         → eval(code)
-         → ReactDOM.createRoot(#root).render(<KundaliApp />)
-```
-
-For `file://` URLs, the JSX source must be pasted inline (noted in the HTML comment).
+`index.html` is a self-contained app — open it in a browser or serve it from any static host. No build step, no node_modules, no framework. External scripts (jsPDF, Razorpay checkout) load from CDN via `<script src>` tags.
 
 ### Data contract
 
@@ -129,13 +123,13 @@ These are product policy, not preferences. Never violate them regardless of user
 Follow these to avoid wasted work:
 
 1. **Before any UI change:** read `DESIGN_SPEC.md` in full. Do not guess at tokens or component rules.
-2. **Before adding any component or utility:** read `KundaliApp.jsx` top-to-bottom to understand existing structure, helpers, and styles. Never duplicate what's already there.
+2. **Before adding any component or utility:** grep `index.html` for existing functions and `vedavision-data.js` for existing data structures. Never duplicate what's already there.
 3. **Before generating any astrological interpretation text:** consult `skill.md` for the canonical Vedic methodology. Do not invent interpretive frameworks.
 4. **Batch related changes.** If a feature touches styles, a component, and data handling, do all three in a single edit session — not across multiple passes.
 5. **Never regenerate file content you haven't read.** Always read the target file first, then make the minimum-diff edit.
-6. **Use parallel tool calls** when gathering context (e.g., read `DESIGN_SPEC.md` and `KundaliApp.jsx` simultaneously).
+6. **Use parallel tool calls** when gathering context (e.g., read `vedavision.css` and the relevant section of `index.html` simultaneously).
 7. **Summarize findings before acting.** After reading files, state what already exists before writing any new code. This surfaces overlap and prevents duplication.
-8. **Do not add CSS custom properties that already exist** as inline style strings in `KundaliApp.jsx`. Audit the constants block first.
+8. **Do not add CSS custom properties that already exist** in `vedavision.css`. Audit the `:root` block first.
 
 ---
 
@@ -160,12 +154,14 @@ Always use `skill.md` as the source for any interpretation logic. Do not substit
 
 ## 7. Next Engineering Steps
 
-In priority order (from `DESIGN_SPEC.md` and codebase notes):
+In priority order:
 
-1. **swisseph-wasm integration** — Replace `SAMPLE_CHART` with live ephemeris calculation using `swisseph-wasm` with Lahiri ayanamsa. Input: birth date, time, place (lat/lon). Output must match the data contract shape exactly.
-2. **Birth data intake form** — UI to collect `name`, `dob`, `tob`, `pob` (with geocoding for lat/lon). Validate before triggering calculation.
-3. **Vite scaffold** — Migrate from Babel-standalone to a proper Vite + React project. `index.html` becomes the Vite entry point; `KundaliApp.jsx` becomes a normal ES module with `import` statements.
-4. **i18n** — Add Hindi UI strings at minimum. Sanskrit terms already render as Unicode in Cormorant Garamond; no separate Devanagari font unless full multilingual support is added.
+1. **Claude API for Jyoti** — Replace pattern-matched chatbot with real LLM using `chatbot_skill.md` as system prompt. Inject `lagna`, `nakshatra`, `dasha` context per conversation. Use Claude Haiku tier.
+2. **swisseph-wasm integration** — Replace `SAMPLE_CHART` / Render backend with local wasm ephemeris. Eliminates cold-start problem. Output must match the existing chart data contract in `vedavision-data.js`.
+3. **Vite migration** — Split `index.html` into ES modules. `index.html` → entry point; separate JS files per feature area. Reduces initial load from ~250KB.
+4. **Hindi i18n** — `LANG_STRINGS.hi` object is wired in `index.html`; needs translation content for Overview tab, KPI labels, chatbot opener.
+5. **Razorpay live key** — Replace `rzp_test_YOUR_KEY_HERE` at line ~3963 in `index.html` with real key from dashboard.razorpay.com.
+6. **GA4 Measurement ID** — Replace `G-XXXXXXXXXX` at lines 21+26 in `index.html` with real ID from analytics.google.com.
 
 ---
 
@@ -178,6 +174,6 @@ Before writing anything:
 - **Minimum viable diff.** Edit only what needs changing. Avoid rewriting stable sections.
 - **No speculative additions.** Do not add features, props, or styles "in case they're useful later."
 - **Parallel reads.** When context requires multiple files, fetch them simultaneously.
-- **No boilerplate regeneration.** If a component, hook, or utility already exists in `KundaliApp.jsx`, use it. Do not create a second version.
+- **No boilerplate regeneration.** If a render function, helper, or utility already exists in `index.html` or `vedavision-data.js`, use it. Do not create a second version.
 
 The goal: every token Claude spends should either change something or confirm something. Reading to understand counts. Writing what already exists does not.
