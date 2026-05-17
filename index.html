@@ -2822,14 +2822,10 @@
       }
     }
 
-    // Auto-show tutorial once for new users
-    window.addEventListener('load', () => {
+    // Auto-show tutorial once for new users — fires on first page load, not post-chart
+    document.addEventListener('DOMContentLoaded', () => {
       if (!localStorage.getItem('vv_tour_done')) {
-        // Show after a short delay (after auth check)
-        setTimeout(() => {
-          const results = document.getElementById('results');
-          if (results && results.classList.contains('visible')) openTutorial();
-        }, 2000);
+        setTimeout(openTutorial, 800);
       }
     });
 
