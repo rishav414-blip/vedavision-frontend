@@ -1520,11 +1520,11 @@
           }
           setStep(1, 'done');
 
-          setStep(2, 'active', '<span id="ns2i">◉</span> Computing positions');
+          setStep(2, 'active', 'Computing positions');
           const browserChart = await computeChartInBrowser({ name, dob, tob, pob, lat: geo.lat, lon: geo.lon });
           setStep(2, 'done');
 
-          setStep(3, 'active', '<span id="ns3i">◉</span> Rendering chart');
+          setStep(3, 'active', 'Rendering chart');
           window._apiChartData = browserChart;
           setStep(3, 'done');
           setTimeout(() => { if (noticeEl) { noticeEl.style.opacity = '0'; setTimeout(() => { if (noticeEl) noticeEl.style.display = 'none'; }, 400); } }, 800);
