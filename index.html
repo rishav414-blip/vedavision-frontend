@@ -1758,6 +1758,69 @@
       });
     }
 
+    function renderDivisionalChart(svgId, houses) {
+      const svg = document.getElementById(svgId);
+      if (!svg || !houses || !houses.length) return;
+      svg.innerHTML = '';
+
+      // House polygons
+      houses.forEach(h => {
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        poly.setAttribute('points', HOUSE_COORDS[h.id]);
+        poly.setAttribute('fill', 'rgba(255,255,255,0.02)');
+        poly.setAttribute('stroke', 'rgba(255,255,255,0.08)');
+        poly.setAttribute('stroke-width', '0.8');
+        svg.appendChild(poly);
+      });
+
+      // Center diamond
+      const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      diamond.setAttribute('points', '210,105 315,210 210,315 105,210');
+      diamond.setAttribute('fill', 'rgba(124,58,237,0.06)');
+      diamond.setAttribute('stroke', 'rgba(124,58,237,0.2)');
+      diamond.setAttribute('stroke-width', '0.8');
+      svg.appendChild(diamond);
+
+      // Sign labels + planets
+      houses.forEach(h => {
+        const [cx, cy] = HOUSE_CENTROIDS[h.id];
+        const hnum = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        hnum.setAttribute('x', cx); hnum.setAttribute('y', cy - 10);
+        hnum.setAttribute('text-anchor', 'middle'); hnum.setAttribute('font-size', '8');
+        hnum.setAttribute('fill', 'rgba(148,163,184,0.5)'); hnum.textContent = h.id;
+        svg.appendChild(hnum);
+        const stxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        stxt.setAttribute('x', cx); stxt.setAttribute('y', cy + 2);
+        stxt.setAttribute('text-anchor', 'middle'); stxt.setAttribute('font-size', '9');
+        stxt.setAttribute('fill', 'rgba(192,168,96,0.7)'); stxt.textContent = h.short;
+        svg.appendChild(stxt);
+        (h.planets || []).forEach((p, i) => {
+          const glyph = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          const offset = (i - (h.planets.length - 1) / 2) * 14;
+          glyph.setAttribute('x', cx + offset); glyph.setAttribute('y', cy + 16);
+          glyph.setAttribute('text-anchor', 'middle'); glyph.setAttribute('font-size', '12');
+          glyph.setAttribute('fill', PLANET_COLOR_MAP[p] || '#fff');
+          glyph.style.cursor = 'default';
+          glyph.textContent = PLANET_GLYPHS[p] || p;
+          svg.appendChild(glyph);
+        });
+      });
+
+      // Staggered reveal
+      let _pi = 0;
+      svg.querySelectorAll('polygon').forEach(poly => {
+        poly.style.opacity = '0';
+        const delay = _pi++ * 28;
+        setTimeout(() => { poly.style.transition = 'opacity .4s ease'; poly.style.opacity = '1'; }, delay + 50);
+      });
+      let _ti = 0;
+      svg.querySelectorAll('text').forEach(t => {
+        t.style.opacity = '0';
+        const delay = 220 + _ti++ * 35;
+        setTimeout(() => { t.style.cssText += ';opacity:1;transition:opacity .3s ease'; }, delay);
+      });
+    }
+
     function showHouseTooltip(ev, hId, pin) {
       const tt = document.getElementById('houseTooltip');
       if (!tt) return;
