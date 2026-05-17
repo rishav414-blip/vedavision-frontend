@@ -3216,7 +3216,27 @@
           </div>
         </div>
 
-        <button onclick="document.getElementById('privacyModal').style.display='none'" style="width:100%;margin-top:1.5rem;padding:.7rem;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#4B5A72;font-size:.82rem;cursor:pointer">Close</button>
+        <!-- ── GDPR / Data Controls ── -->
+        <div style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);padding-top:1.25rem">
+          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#C0A860;margin-bottom:.75rem">Your Data Controls</div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+            <button
+              onclick="(function(){var data={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.startsWith('vv_'))data[k]=localStorage.getItem(k);}if(window._activeChart)data['_activeChart']=window._activeChart;var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='vedavision-data-export.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);})()"
+              style="flex:1;min-width:140px;padding:.6rem 1rem;border-radius:10px;border:1px solid rgba(192,160,96,.35);background:rgba(192,160,96,.07);color:#C0A860;font-size:.78rem;cursor:pointer;transition:background .2s"
+              onmouseover="this.style.background='rgba(192,160,96,.14)'"
+              onmouseout="this.style.background='rgba(192,160,96,.07)'"
+            >↓ Export my data</button>
+            <button
+              onclick="(function(){if(!confirm('This will permanently delete all VedaVision data stored in this browser and reload the page. Continue?'))return;var toDelete=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.startsWith('vv_'))toDelete.push(k);}toDelete.forEach(function(k){localStorage.removeItem(k);});location.reload();})()"
+              style="flex:1;min-width:140px;padding:.6rem 1rem;border-radius:10px;border:1px solid rgba(217,95,95,.35);background:rgba(217,95,95,.07);color:#D95F5F;font-size:.78rem;cursor:pointer;transition:background .2s"
+              onmouseover="this.style.background='rgba(217,95,95,.14)'"
+              onmouseout="this.style.background='rgba(217,95,95,.07)'"
+            >✕ Delete my data</button>
+          </div>
+          <p style="font-size:.7rem;color:#4B5A72;margin-top:.6rem">Export saves a JSON file of all browser-stored data. Delete clears it permanently and reloads.</p>
+        </div>
+
+        <button onclick="document.getElementById('privacyModal').style.display='none'" style="width:100%;margin-top:1.25rem;padding:.7rem;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#4B5A72;font-size:.82rem;cursor:pointer">Close</button>
       </div>
     </div>
   </div>
