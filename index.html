@@ -1507,6 +1507,70 @@
         }
       };
 
+      // ── FAST PATH: browser-side ephemeris (instant, no cold start) ──
+      if (typeof Astronomy !== 'undefined') {
+        try {
+          setStep(1, 'active');
+          // _geocodePlace uses Nominatim; geocodePlace uses Open-Meteo — both fine, use existing
+          let geo;
+          try {
+            geo = await geocodePlace(pob); // Open-Meteo (already exists, fast)
+          } catch (_) {
+            geo = await _geocodePlace(pob); // Nominatim fallback
+          }
+          setStep(1, 'done');
+
+          setStep(2, 'active', '<span id="ns2i">◉</span> Computing positions');
+          const browserChart = await computeChartInBrowser({ name, dob, tob, pob, lat: geo.lat, lon: geo.lon });
+          setStep(2, 'done');
+
+          setStep(3, 'active', '<span id="ns3i">◉</span> Rendering chart');
+          window._apiChartData = browserChart;
+          setStep(3, 'done');
+          setTimeout(() => { if (noticeEl) { noticeEl.style.opacity = '0'; setTimeout(() => { if (noticeEl) noticeEl.style.display = 'none'; }, 400); } }, 800);
+          initResults(name, dob, pob, browserChart);
+          btn.textContent = 'Reveal My Chart →'; btn.classList.remove('loading'); btn.disabled = false;
+
+          // Show "Dasha loading…" note while background enrich runs
+          setTimeout(() => {
+            if (window._activeChart && window._activeChart._browserComputed) {
+              const note = document.createElement('div');
+              note.id = 'browser-computed-note';
+              note.style.cssText = 'padding:.35rem 1rem;font-size:.7rem;color:#7A6A9A;text-align:center;font-family:var(--font-b);letter-spacing:.04em';
+              note.textContent = '⟳ Enriching dasha & yoga data from server…';
+              const bar = document.getElementById('summary-bar');
+              if (bar) bar.insertAdjacentElement('afterend', note);
+            }
+          }, 600);
+
+          // Background: enrich from backend (dasha, yogas, BNN, wealth score, planet dignities)
+          fetch(`${API_BASE}/chart`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, dob, tob, lat: geo.lat, lon: geo.lon, tz: geo.tz || 'Asia/Kolkata', approxTime: approx, ayanamsa: 'Lahiri' })
+          })
+            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+            .then(serverChart => { window._apiChartData = serverChart; mergeServerData(serverChart); })
+            .catch(e => {
+              console.warn('Background server enrich failed:', e);
+              const loadingNote = document.getElementById('browser-computed-note');
+              if (loadingNote) loadingNote.remove();
+            });
+          return; // don't fall through to the backend-first path below
+        } catch (browserErr) {
+          console.warn('Browser ephemeris failed, falling back to server:', browserErr);
+          // Reset progress steps and fall through to the original server path
+          ['1','2','3'].forEach(n => {
+            const el = document.getElementById('ns'+n), ic = document.getElementById('ns'+n+'i');
+            if (el) { el.style.color = '#5A4A7A'; if (ic) ic.textContent = '○'; }
+          });
+          const pg = document.getElementById('nprog');
+          if (pg) pg.style.width = '0%';
+        }
+      }
+
+      // ── ORIGINAL PATH: backend-only (fallback when Astronomy not loaded or browser compute failed) ──
+
       // Step 1: geocode place
       let geo;
       try {
