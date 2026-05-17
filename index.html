@@ -4866,6 +4866,7 @@ ${APP_URL}
           name: 'VedaVision',
           description: 'Dharma Pass — ' + (plan === 'annual' ? 'Annual' : 'Monthly'),
           theme: { color: '#7C3AED' },
+          notes: { ref: localStorage.getItem('vv_ref') || '' },
           handler: function(response) {
             localStorage.setItem('vv_full_access', JSON.stringify({ expires: Date.now() + 30*24*60*60*1000 }));
             if (window.applyAccessState) applyAccessState();
