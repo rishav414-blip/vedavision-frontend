@@ -1520,6 +1520,14 @@
         renderChart('chart-svg');
       }
       renderChart('ts-chart-svg', true);
+      // Divisional charts (D9 Navamsa, D10 Dashamsha)
+      const _divChart = window._activeChart;
+      if (_divChart && (_divChart.d9Houses || _divChart.d10Houses)) {
+        const _divWrap = document.getElementById('divisional-charts-wrap');
+        if (_divWrap) _divWrap.style.display = '';
+        if (_divChart.d9Houses) renderDivisionalChart('d9-chart-svg', _divChart.d9Houses);
+        if (_divChart.d10Houses) renderDivisionalChart('d10-chart-svg', _divChart.d10Houses);
+      }
       renderPlanetTable();
       renderChartInsights(window._activeChart);
       renderDashaTimeline(window._activeChart);
