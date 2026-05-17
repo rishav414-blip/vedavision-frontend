@@ -115,12 +115,17 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 /* RESULTS LAYOUT */
 #results{display:none;min-height:100vh}
 #results.visible{display:flex}
-.sidebar{width:220px;min-height:100vh;padding:1.5rem .75rem;border-right:1px solid rgba(192,160,96,0.18);flex-shrink:0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto;background:rgba(10,7,20,0.88);}
-.sidebar-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);padding:.5rem .75rem;margin-bottom:.25rem}
-.sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:var(--r-md);color:var(--txt2);font-size:.85rem;cursor:pointer;transition:background var(--tr),color var(--tr);margin-bottom:.1rem;user-select:none}
+.sidebar{width:48px;min-height:100vh;padding:1.5rem .25rem;border-right:1px solid rgba(192,160,96,0.18);flex-shrink:0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto;overflow-x:hidden;background:rgba(10,7,20,0.88);transition:width .22s cubic-bezier(.4,0,.2,1),padding .22s cubic-bezier(.4,0,.2,1);}
+.sidebar:hover{width:220px;padding:1.5rem .75rem}
+.sidebar-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);padding:.5rem .75rem;margin-bottom:.25rem;white-space:nowrap;opacity:0;transition:opacity .15s .05s}
+.sidebar:hover .sidebar-title{opacity:1}
+.sidebar-link{display:flex;align-items:center;gap:.6rem;padding:.55rem .5rem;border-radius:var(--r-md);color:var(--txt2);font-size:.85rem;cursor:pointer;transition:background var(--tr),color var(--tr);margin-bottom:.1rem;user-select:none;white-space:nowrap;overflow:hidden}
+.sidebar:hover .sidebar-link{padding:.55rem .75rem}
 .sidebar-link:hover{background:var(--bg-hover);color:var(--txt)}
 .sidebar-link.active{background:rgba(212,184,112,.08);color:#F0EBF4;border-left:2px solid var(--gold)}
-.sidebar-link .lk-icon{font-size:1rem;width:20px;text-align:center}
+.sidebar-link .lk-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.sidebar-link .lk-label{opacity:0;transition:opacity .15s .06s;pointer-events:none}
+.sidebar:hover .sidebar-link .lk-label{opacity:1;pointer-events:auto}
 .sidebar-link.dharma{color:var(--gold);border:1px solid rgba(245,158,11,.3);margin-top:.5rem}
 .main-content{flex:1;padding:2rem;min-width:0}
 .tab-panel{--panel-bg:transparent}
