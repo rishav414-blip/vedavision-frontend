@@ -26,6 +26,224 @@
     gtag('config','G-XXXXXXXXXX');
   </script>
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2/astronomy.browser.js"></script>
+  <!-- Browser-side ephemeris: instant chart computation, eliminates Render cold-start -->
+  <script>
+    /* ── Lahiri ayanamsa (Chitrapaksha, linear approximation) ── */
+    function _lahiriAyanamsa(year) {
+      return 23.85 + 0.0137 * (year - 2000);
+    }
+
+    /* ── Rāśi names ── */
+    const _RASI = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+
+    /* ── Tropical → sidereal sign placement ── */
+    function _toSidereal(tropLon, ayanamsa) {
+      let sid = ((tropLon - ayanamsa) % 360 + 360) % 360;
+      return { longitude: sid, sign: _RASI[Math.floor(sid / 30)], degreeInSign: sid % 30 };
+    }
+
+    /* ── Mean lunar node (Rahu) — Meeus Ch.47 ── */
+    function _rahuLongitude(tt) {
+      const T = tt / 36525.0;
+      let omega = 125.0445479 - 1934.1362608 * T + 0.0020754 * T * T + T * T * T / 467441.0 - T * T * T * T / 60616000.0;
+      return ((omega % 360) + 360) % 360;
+    }
+
+    /* ── Degree formatter ── */
+    function _fmtDeg(deg) {
+      const d = Math.floor(deg), m = Math.floor((deg - d) * 60), s = Math.floor(((deg - d) * 60 - m) * 60);
+      return `${d}°${String(m).padStart(2, '0')}'${String(s).padStart(2, '0')}"`;
+    }
+
+    /* ── Ascendant (Lagna) from sidereal time + latitude ── */
+    function _computeLagna(astroTime, lat, lon, ayanamsa) {
+      const gastDeg = Astronomy.SiderealTime(astroTime) * 15;
+      const lst = ((gastDeg + lon) % 360 + 360) % 360;
+      const ramc = lst * Math.PI / 180;
+      const eps = 23.4393 * Math.PI / 180;
+      const phi = lat * Math.PI / 180;
+      let asc = Math.atan2(Math.cos(ramc), -(Math.sin(ramc) * Math.cos(eps) + Math.tan(phi) * Math.sin(eps)));
+      asc = asc * 180 / Math.PI;
+      if (asc < 0) asc += 180;
+      if (Math.cos(ramc) < 0) asc += 180;
+      asc = ((asc - ayanamsa) % 360 + 360) % 360;
+      return { longitude: asc, sign: _RASI[Math.floor(asc / 30)], degreeInSign: asc % 30, degree: _fmtDeg(asc % 30) };
+    }
+
+    /* ── Geocode via Nominatim (free, no key) ── */
+    async function _geocodePlace(place) {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const data = await res.json();
+      if (!data.length) throw new Error(`Could not locate: ${place}`);
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+    }
+
+    /* ── Timezone offset via timeapi.io (free, no key) ── */
+    async function _getTzOffset(lat, lon) {
+      try {
+        const url = `https://timeapi.io/api/TimeZone/coordinate?latitude=${lat}&longitude=${lon}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        return (data.currentUtcOffset?.seconds ?? 0) / 3600;
+      } catch {
+        return 5.5; // fallback: IST
+      }
+    }
+
+    /* ── Build Whole Sign D1 houses ── */
+    function _buildD1Houses(lagnaSign, planetPositions) {
+      const lagnaIdx = _RASI.indexOf(lagnaSign);
+      const ABBR = { Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me', Jupiter: 'Ju', Venus: 'Ve', Saturn: 'Sa', Rahu: 'Ra', Ketu: 'Ke' };
+      return Array.from({ length: 12 }, (_, i) => {
+        const sign = _RASI[(lagnaIdx + i) % 12];
+        const planets = Object.entries(planetPositions)
+          .filter(([, p]) => p.sign === sign)
+          .map(([name]) => ABBR[name] || name);
+        return { id: i + 1, sign, short: sign.slice(0, 3), planets };
+      });
+    }
+
+    /* ── Main browser chart computation ── */
+    async function computeChartInBrowser(formData) {
+      const [year, month, day] = formData.dob.split('-').map(Number);
+      const [hh, mm] = (formData.tob || '12:00').split(':').map(Number);
+
+      let lat = formData.lat, lon = formData.lon;
+      if (!lat || !lon) {
+        const geo = await _geocodePlace(formData.pob);
+        lat = geo.lat; lon = geo.lon;
+      }
+
+      const tzOffset = await _getTzOffset(lat, lon);
+      const hourUT = hh + mm / 60 - tzOffset;
+      const utcDate = new Date(Date.UTC(year, month - 1, day, Math.floor(hourUT), Math.round((hourUT % 1) * 60)));
+      const astroTime = Astronomy.MakeTime(utcDate);
+      const ayanamsa = _lahiriAyanamsa(year);
+
+      const BODIES = { Sun: 'Sun', Moon: 'Moon', Mars: 'Mars', Mercury: 'Mercury', Jupiter: 'Jupiter', Venus: 'Venus', Saturn: 'Saturn' };
+      const planets = {};
+      for (const [key, body] of Object.entries(BODIES)) {
+        const eq = Astronomy.GeoVector(body, astroTime, true);
+        const ecl = Astronomy.Ecliptic(eq);
+        planets[key] = _toSidereal(ecl.elon, ayanamsa);
+        planets[key].degree = _fmtDeg(planets[key].degreeInSign);
+      }
+      // Rahu & Ketu (mean nodes)
+      const rahuTrop = _rahuLongitude(astroTime.tt);
+      planets.Rahu = _toSidereal(rahuTrop, ayanamsa);
+      planets.Rahu.degree = _fmtDeg(planets.Rahu.degreeInSign);
+      const ketuTrop = (rahuTrop + 180) % 360;
+      planets.Ketu = _toSidereal(ketuTrop, ayanamsa);
+      planets.Ketu.degree = _fmtDeg(planets.Ketu.degreeInSign);
+
+      const lagna = _computeLagna(astroTime, lat, lon, ayanamsa);
+      const d1Houses = _buildD1Houses(lagna.sign, planets);
+
+      const SIGN_LORDS = { Aries: 'Mars', Taurus: 'Venus', Gemini: 'Mercury', Cancer: 'Moon', Leo: 'Sun', Virgo: 'Mercury', Libra: 'Venus', Scorpio: 'Mars', Sagittarius: 'Jupiter', Capricorn: 'Saturn', Aquarius: 'Saturn', Pisces: 'Jupiter' };
+      const PLANET_SKT = { Sun: 'Surya', Moon: 'Chandra', Mars: 'Mangal', Mercury: 'Budha', Jupiter: 'Guru', Venus: 'Shukra', Saturn: 'Shani', Rahu: 'Rahu', Ketu: 'Ketu' };
+      const PLANET_COLORS = { Sun: '#F59E0B', Moon: '#94A3B8', Mars: '#EF4444', Mercury: '#10B981', Jupiter: '#F97316', Venus: '#EC4899', Saturn: '#6366F1', Rahu: '#8B5CF6', Ketu: '#78716C' };
+      const PLANET_GLYPHS = { Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿', Jupiter: '♃', Venus: '♀', Saturn: '♄', Rahu: '☊', Ketu: '☋' };
+      const signToHouseNum = Object.fromEntries(d1Houses.map(h => [h.sign, h.id]));
+
+      const planetTable = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'].map(name => ({
+        planet: name, skt: PLANET_SKT[name], glyph: PLANET_GLYPHS[name],
+        sign: planets[name].sign, house: signToHouseNum[planets[name].sign] || 0,
+        dignity: '—', color: PLANET_COLORS[name], notes: planets[name].degree
+      }));
+
+      const moonLon = planets.Moon.longitude;
+      const NAK_NAMES = ['Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'];
+      const NAK_LORDS = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury', 'Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury', 'Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+      const nakIdx = Math.floor(moonLon / (360 / 27));
+      const nakDeg = moonLon - nakIdx * (360 / 27);
+      const nakPada = Math.floor(nakDeg / (360 / 27 / 4)) + 1;
+
+      return {
+        native: { name: formData.name, dob: formData.dob, tob: formData.tob || '—', pob: formData.pob || `${lat.toFixed(4)},${lon.toFixed(4)}` },
+        lagna: { sign: lagna.sign, signEn: lagna.sign, lord: SIGN_LORDS[lagna.sign], degree: lagna.degree },
+        moonSign: { sign: planets.Moon.sign, signEn: planets.Moon.sign },
+        sunSign: { sign: planets.Sun.sign, signEn: planets.Sun.sign },
+        nakshatra: { name: NAK_NAMES[nakIdx], pada: nakPada, lord: NAK_LORDS[nakIdx], deity: '—', symbol: '—', theme: '—' },
+        houses: d1Houses,
+        dasha: { current: { planet: '—', skt: '—', start: '—', end: '—' }, antardasha: { planet: '—', skt: '—', start: '—', end: '—' } },
+        planetTable,
+        wealthScore: { total: 50, parashari: 50, bnn: 0 },
+        chartStrength: 0,
+        yogas: [],
+        bnnTransits: [],
+        ak: '', amk: '', leadershipType: 'Founder',
+        _browserComputed: true
+      };
+    }
+
+    /* ── Merge server-enriched fields into the already-rendered browser chart ── */
+    function mergeServerData(serverChart) {
+      if (!window._activeChart || !serverChart || !serverChart.lagna) return;
+      const ENRICH_KEYS = ['dasha', 'yogas', 'bnnTransits', 'wealthScore', 'chartStrength', 'ak', 'amk', 'leadershipType', 'planetTable', 'nakshatra'];
+      ENRICH_KEYS.forEach(k => { if (serverChart[k] !== undefined) window._activeChart[k] = serverChart[k]; });
+      window._activeChart._browserComputed = false;
+      // Re-render enriched sections only — do not re-render the chart grid
+      if (typeof renderPlanetTable === 'function') renderPlanetTable();
+      if (typeof renderDashaTimeline === 'function') renderDashaTimeline(window._activeChart);
+      if (typeof renderChartInsights === 'function') renderChartInsights(window._activeChart);
+      if (typeof renderForecast === 'function') renderForecast(window._activeChart);
+      if (typeof renderRemedies === 'function') renderRemedies(window._activeChart);
+      if (typeof renderInsights === 'function') renderInsights(window._activeChart);
+      if (typeof animateBars === 'function') animateBars();
+      // Update KPI dasha chips
+      const c = window._activeChart;
+      if (c.dasha) {
+        const md = c.dasha.current, ad = c.dasha.antardasha;
+        const PCOL = { Sun: '#F59E0B', Moon: '#94A3B8', Mars: '#EF4444', Mercury: '#10B981', Jupiter: '#F97316', Venus: '#EC4899', Saturn: '#6366F1', Rahu: '#8B5CF6', Ketu: '#78716C' };
+        if (md) {
+          const mdName = md.planet || md.lord || '—';
+          const mdValEl = document.getElementById('kpi-md-val');
+          const mdSubEl = document.getElementById('kpi-md-sub');
+          if (mdValEl) mdValEl.innerHTML = `<span class="kpi-dot" style="background:${PCOL[mdName]||'#6366F1'}"></span>${mdName}`;
+          if (mdSubEl) mdSubEl.textContent = `${md.skt || mdName} · ${md.end ? 'until ' + md.end : ''}`;
+        }
+        if (ad) {
+          const adName = ad.planet || ad.lord || '—';
+          const adValEl = document.getElementById('kpi-ad-val');
+          const adSubEl = document.getElementById('kpi-ad-sub');
+          if (adValEl) adValEl.innerHTML = `<span class="kpi-dot" style="background:${PCOL[adName]||'#F97316'}"></span>${adName}`;
+          if (adSubEl) adSubEl.textContent = `${ad.skt || adName} · ${ad.start || ''} – ${ad.end || ''}`;
+        }
+        const dashEl = document.getElementById('sumDasha');
+        if (dashEl) dashEl.textContent = `${md ? (md.planet || md.lord || '—') : '—'} / ${ad ? (ad.planet || ad.lord || '—') : '—'} AD`;
+      }
+      if (c.yogas) {
+        const yogaValEl = document.getElementById('kpi-yoga-val');
+        const yogaChipsEl = document.getElementById('kpi-yoga-chips');
+        const yogaCardsEl = document.getElementById('yoga-cards-container');
+        if (yogaValEl) yogaValEl.textContent = `${c.yogas.length} Yoga${c.yogas.length !== 1 ? 's' : ''}`;
+        if (yogaChipsEl) yogaChipsEl.innerHTML = c.yogas.map(y => `<span class="yoga-chip">${y.name}</span>`).join('');
+        if (yogaCardsEl) yogaCardsEl.innerHTML = c.yogas.length
+          ? c.yogas.map(y => `<div class="yoga-card glass"><h4>${y.name}</h4><p>${y.formation} — ${y.effect}${y.activation ? ` <em>Activated: ${y.activation}</em>` : ''}</p></div>`).join('')
+          : '<div class="yoga-card glass" style="opacity:.5"><h4>No major Yogas detected</h4><p>Your chart\'s strengths lie in individual planetary dignities rather than classical combinations.</p></div>';
+      }
+      if (c.wealthScore) {
+        const ws = document.querySelector('.wealth-score-num');
+        if (ws) ws.innerHTML = `${c.wealthScore.total}<span style="font-size:1rem;color:var(--txt3)">/100</span>`;
+        const pb = document.getElementById('par-bar');
+        const bb = document.getElementById('bnn-bar');
+        if (pb) pb.dataset.target = Math.round(c.wealthScore.parashari / 60 * 100);
+        if (bb) bb.dataset.target = Math.round(c.wealthScore.bnn / 40 * 100);
+        if (typeof animateBars === 'function') animateBars();
+      }
+      // Remove the "Dasha loading" notice if present
+      const loadingNote = document.getElementById('browser-computed-note');
+      if (loadingNote) loadingNote.remove();
+      // Show enrichment confirmation in summary area
+      const sub = document.getElementById('overview-sub');
+      if (sub && c.lagna) {
+        const akName = c.ak ? (c.ak.planet || c.ak) : '—';
+        const amkName = c.amk ? (c.amk.planet || c.amk) : '—';
+        sub.innerHTML = `${c.native.name} &nbsp;·&nbsp; ${c.lagna.signEn || c.lagna.sign} Lagna &nbsp;·&nbsp; ${c.nakshatra ? c.nakshatra.name : '—'} Nakshatra &nbsp;·&nbsp; AK: ${akName} &nbsp;·&nbsp; AmK: ${amkName} &nbsp;·&nbsp; <strong>${c.leadershipType || '—'}</strong> archetype`;
+      }
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <link rel="stylesheet" href="vedavision.css">
