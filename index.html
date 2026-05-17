@@ -5030,6 +5030,35 @@ ${APP_URL}
     })();
   </script>
 
+  <!-- OFFLINE STATE INDICATOR -->
+  <script>
+    (function(){
+      var banner = document.getElementById('offlineBanner');
+      var msg    = document.getElementById('offlineBannerMsg');
+      var _onlineTimer = null;
+
+      function showOffline() {
+        if (_onlineTimer) { clearTimeout(_onlineTimer); _onlineTimer = null; }
+        banner.classList.remove('is-online');
+        msg.textContent = 'You are offline — some features may be unavailable';
+        banner.hidden = false;
+      }
+
+      function showOnline() {
+        banner.classList.add('is-online');
+        msg.textContent = 'Back online';
+        banner.hidden = false;
+        _onlineTimer = setTimeout(function(){ banner.hidden = true; banner.classList.remove('is-online'); }, 2000);
+      }
+
+      window.addEventListener('offline', showOffline);
+      window.addEventListener('online',  showOnline);
+
+      // Set initial state if page loaded while already offline
+      if (!navigator.onLine) { showOffline(); }
+    })();
+  </script>
+
 </body>
 
 </html>
