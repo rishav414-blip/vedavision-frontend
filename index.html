@@ -4308,7 +4308,7 @@
 
         // Crisis check — always client-side regardless of API
         const qLow = q.toLowerCase();
-        if (qLow.match(/hopeless|can.t go on|no point|end it all|end my life|harm myself|suicidal|what.s the point of living/)) {
+        if (qLow.match(/hopeless|can.?t go on|no point|end it all|end my life|harm myself|suicidal|what.?s the point of living|don.?t want to live|kill myself|not worth living|give up on life|nothing to live for|want to die|feeling like dying/)) {
           showTyping();
           setTimeout(() => { hideTyping(); addAskMessage(ASK_RESPONSES.crisis(), false); addQuickReplies(CHIPS['other']); }, 680);
           return;
@@ -4332,8 +4332,17 @@
               dasha: chart.dasha,
               yogas: chart.yoga || chart.yogas || [],
               houses: chart.houses || [],
+              d9Houses: chart.d9Houses || [],
+              d10Houses: chart.d10Houses || [],
               moonSign: chart.moonSign,
-              sunSign: chart.sunSign
+              sunSign: chart.sunSign,
+              planetTable: chart.planetTable || [],
+              karakas: chart.karakas || {},
+              ak: chart.ak || '',
+              amk: chart.amk || '',
+              leadershipType: chart.leadershipType || '',
+              wealthScore: chart.wealthScore || null,
+              bnnTransits: chart.bnnTransits || []
             }
           };
           const res = await fetch(_backendBase + '/api/jyoti', {
