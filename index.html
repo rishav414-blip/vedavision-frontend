@@ -3628,6 +3628,28 @@
       const brandSub = document.querySelector('.brand-sub');
       if (brandSub) brandSub.textContent = strings['brand-sub'];
 
+      // KPI card labels
+      const kpiLabels = document.querySelectorAll('.kpi-label');
+      kpiLabels.forEach(el => {
+        const txt = el.textContent.trim();
+        if (txt === 'Mahadasha' || txt === 'महादशा') el.textContent = strings['kpi-mahadasha'];
+        else if (txt === 'Antardasha' || txt === 'अन्तर्दशा') el.textContent = strings['kpi-antardasha'];
+        else if (txt === 'Chart Strength' || txt === 'कुंडली बल') el.textContent = strings['kpi-chart-strength'];
+        else if (txt === 'Active Yogas' || txt === 'सक्रिय योग') el.textContent = strings['kpi-active-yogas'];
+      });
+
+      // Wealth card title
+      const wealthTitle = document.querySelector('.wealth-title');
+      if (wealthTitle) wealthTitle.textContent = strings['kpi-wealth-title'];
+
+      // Nakshatra identity card label
+      const nakLabel = document.querySelector('.nak-id-label');
+      if (nakLabel) nakLabel.textContent = strings['kpi-birth-nakshatra'];
+
+      // Reset chatbot if already open so opener reflects new language on next open
+      const askMsgs = document.getElementById('askMessages');
+      if (askMsgs) askMsgs.innerHTML = '';
+
       // Toggle button label
       if (btn) btn.textContent = lang === 'en' ? 'हिं' : 'EN';
       if (btn) btn.title = lang === 'en' ? 'Switch to Hindi' : 'Switch to English';
