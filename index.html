@@ -4009,8 +4009,16 @@
           const chart = window._activeChart || SAMPLE_CHART;
           const md = chart.dasha && chart.dasha.current ? (chart.dasha.current.planet || 'Saturn') : 'Saturn';
           const lagna = chart.lagna ? (chart.lagna.signEn || 'Scorpio') : 'Scorpio';
-          addAskMessage(`${lagna} Lagna · ${md} Mahādaśā. I'm Jyoti — what's on your mind?`, false);
-          addQuickReplies(['Career outlook?', 'Wealth this period?', 'Relationship outlook?', 'Health check?']);
+          const _ls = LANG_STRINGS[currentLang] || LANG_STRINGS['en'];
+          const _opener = (_ls['chatbot-opener'] || LANG_STRINGS['en']['chatbot-opener'])
+            .replace('{lagna}', lagna).replace('{md}', md);
+          addAskMessage(_opener, false);
+          addQuickReplies([
+            _ls['chatbot-chip-career'] || 'Career outlook?',
+            _ls['chatbot-chip-wealth'] || 'Wealth this period?',
+            _ls['chatbot-chip-relationship'] || 'Relationship outlook?',
+            _ls['chatbot-chip-health'] || 'Health check?',
+          ]);
         }
       });
 
