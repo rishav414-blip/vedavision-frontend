@@ -1606,9 +1606,8 @@
         setStep(1,'done');
         await new Promise(r => setTimeout(r, 300));
       } catch (geoErr) {
-        setNotice(`⚠ Location lookup failed: ${geoErr.message} — showing sample chart`, '#F59E0B');
-        initResults(name, dob, pob, null);
-        btn.textContent = 'Reveal My Chart →'; btn.classList.remove('loading'); btn.disabled = false;
+        overlayStep(1, 'error');
+        overlayError(`Location lookup failed: "${pob}" — check spelling and try again. (${geoErr.message})`);
         return;
       }
 
