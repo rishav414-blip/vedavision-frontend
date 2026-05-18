@@ -4382,10 +4382,10 @@
             addQuickReplies(CHIPS[chipKey] || CHIPS['default']);
           });
         } catch (err) {
-          // Graceful fallback to pattern-matched responses
+          // Both providers unavailable — graceful pattern-matched fallback
           hideTyping();
           const _jStatF = document.getElementById('jyoti-status');
-          if (_jStatF) _jStatF.textContent = 'offline';
+          if (_jStatF) _jStatF.textContent = 'local';
           let response, chipKey = 'default';
           if (qLow.match(/real person|are you ai|are you human|who are you|what are you/))
             { response = ASK_RESPONSES.identity(); chipKey = 'other'; }
