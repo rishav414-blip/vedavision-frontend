@@ -1,9 +1,9 @@
 name = "vedavision-frontend"
 compatibility_date = "2025-01-01"
 
-# Serve the root directory as static assets — no build step required.
-# This bypasses Cloudflare's automatic Vite Workers integration
-# (which requires Vite 6+) since this is a plain static HTML site.
+# Pure static site — no Worker script, no build step.
+# Assets served directly from repo root.
 [assets]
-directory = "."
+directory = "./"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
