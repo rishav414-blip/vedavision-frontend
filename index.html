@@ -4372,7 +4372,7 @@
           const reply = data.reply || '';
           hideTyping();
           const _jStatOk = document.getElementById('jyoti-status');
-          if (_jStatOk) _jStatOk.textContent = data.model === 'gemini' ? 'Gemini' : 'Groq';
+          if (_jStatOk) _jStatOk.textContent = data.model === 'gemini-2.5-flash' ? 'Gemini 2.5' : data.model === 'gemini-2.0-flash' ? 'Gemini 2.0' : 'Groq';
           // Update conversation history
           if (!window._jyotiHistory) window._jyotiHistory = [];
           window._jyotiHistory.push({ role: 'user', content: q });
