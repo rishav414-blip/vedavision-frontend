@@ -4185,21 +4185,30 @@
             (ad !== md && themes[ad] ? `\n${ad} Antardasha adds: ${themes[ad].split('—')[1]?.trim() || ''}` : '');
         },
 
-        timing: (md, ad, lagna) => `This app reflects on timing, not predicts it — so here's the honest frame: ${md} Mahādaśā, ${ad} Antardaśā.\nThe ${ad} energy is ${ad === 'Jupiter' || ad === 'Venus' || ad === 'Mercury' ? 'supportive — good for considered moves' : ad === 'Saturn' || ad === 'Ketu' ? 'cautious — build, don\'t leap' : 'active — momentum is available if direction is clear'}. What decision are you trying to time?`,
+        timing: (md, ad, lagna) => {
+          const tone = (ad === 'Jupiter' || ad === 'Venus' || ad === 'Mercury')
+            ? 'supportive — considered moves are well-timed'
+            : (ad === 'Saturn' || ad === 'Ketu')
+            ? 'cautious — build the foundation rather than leap'
+            : 'active — momentum is available if direction is clear';
+          return `Celestial Noir reflects on timing rather than predicts it — that's a deliberate distinction.\n\nYour ${md} Mahādaśā / ${ad} Antardaśā sets the current quality of time: ${tone}.\n\nWhat decision are you trying to locate in this window?`;
+        },
 
-        gemstone: () => `Gemstone recommendations aren't something this app offers — constitutional assessment genuinely needs an in-person Jyotiṣī, not an app.\nA practitioner can read your full chart and constitution before suggesting anything.`,
+        gemstone: () => `Gemstone recommendations aren't something Celestial Noir offers — not because the tradition is without merit, but because constitutional assessment genuinely requires an in-person evaluation with a qualified Jyotiṣī.\n\nA practitioner can read your full chart and constitution before suggesting anything that directly influences your energetic field.`,
 
-        prediction: (md, ad, lagna) => `This app reflects, not predicts — that's a deliberate choice.\nYour ${md} Mahādaśā / ${ad} Antardaśā is a window where certain themes are more present. Want me to unpack what ${ad} energy tends to bring up?`,
+        prediction: (md, ad, lagna) => `Celestial Noir is designed for reflection, not prediction — that distinction shapes everything about how this app works.\n\nYour ${md} Mahādaśā / ${ad} Antardaśā is a window where certain themes tend to be more present in awareness. Whether it brings expansion, restructuring, or something else depends on how you engage with what arises.\n\nWhat period are you most curious about — or is there something specific you're hoping to understand?`,
 
-        concept: () => `Happy to explain. Which term — a planet, a house, a yoga, the Daśā system, or something specific in your chart?\nThat'll help me give you something useful rather than a textbook overview.`,
+        concept: (md, ad, lagna) => `Worth exploring. Which aspect — a specific planet, house, yoga, the daśā system, or something you've noticed in your chart?\n\nA focused question gives you something you can actually use, rather than a textbook overview.`,
 
-        app: () => `The main tabs: Overview, Chart, Forecast, Green Days, Time-Slider, Digital Altar, Insights, Dharma Pass.\nWhat specifically are you trying to find?`,
+        badchart: () => `There is no "bad chart" in Jyotiṣa — that's worth saying plainly.\n\nEvery chart contains a full spectrum: dignified planets and challenged ones, yogas that support and dusthanas that test. What varies is where the tests show up and what they're calling forth.\n\nThe symbolism in your chart is a map of potentials and themes — not a verdict. Would you like to look at a specific placement that's giving you concern?`,
 
-        identity: () => `I'm Jyoti — an AI built into this app to help you read your chart.\nNot a human Jyotiṣī, but here to make the chart accessible. What do you want to explore?`,
+        app: () => `The main tabs: Overview, Chart, Forecast, Green Days, Time-Slider, Digital Altar, Insights, Dharma Pass.\n\nWhat specifically are you trying to find?`,
 
-        crisis: () => `Let me step away from the chart for a moment — what you've shared sounds like it's carrying real weight.\nIf you're struggling, iCall (India) is at 9152987821. A trusted person in your life is always a good first step. I'm here when you're ready to come back.`,
+        identity: () => `Jyoti here — an AI companion built into Celestial Noir to help you navigate your birth chart and explore Vedic symbolism.\n\nNot a human Jyotiṣī; for the kind of nuanced, personalised reading a full consultation offers, a qualified practitioner is irreplaceable. Within the scope of this app, the aim is to make the chart more accessible and the reflection more meaningful.\n\nWhat would you like to explore?`,
 
-        default: (md, ad, lagna) => `${lagna} Lagna, ${md} Mahādaśā, ${ad} Antardaśā — you're in an interesting window.\nAsk me about career, wealth, relationships, health, timing, or any Vedic concept. What's on your mind?`
+        crisis: () => `Let me pause the chart discussion for a moment — what you've shared sounds like it's carrying real weight, and I don't want to gloss over that with astrology.\n\nIf you're going through something difficult, speaking with someone who can genuinely support you matters far more than anything a birth chart can offer right now.\n\nIn India, iCall offers confidential support: 9152987821. The Crisis Text Line (text HOME to 741741) and iamOkay (iamokay.in) are available. A trusted person in your life is always a good place to start.`,
+
+        default: (md, ad, lagna) => `Your chart is ready — ${lagna} Lagna, moving through ${md} Mahādaśā / ${ad} Antardaśā.\n\nIs there a particular house, planet, or period you'd like to explore first — or would a brief orientation to the chart layout be useful?`
       };
 
       // Inject typing-dot keyframe once
