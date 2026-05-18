@@ -4221,18 +4221,28 @@
         }
       })();
 
+      function _fmtJyoti(raw) {
+        // Shared formatter for all Jyoti bot messages
+        return raw
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          // bold before italic — order matters
+          .replace(/\*\*(.*?)\*\*/g,'<strong style="color:#D4B870;font-weight:600">$1</strong>')
+          .replace(/\*(.*?)\*/g,'<span style="color:#D4B870;font-style:italic">$1</span>')
+          // paragraph breaks
+          .split(/\n\n+/)
+          .map(p => '<p style="margin:0 0 .55rem">' + p.replace(/\n/g,'<br>') + '</p>')
+          .join('');
+      }
+
       function addAskMessage(text, isUser) {
         const msgs = document.getElementById('askMessages');
         if (!msgs) return;
         const div = document.createElement('div');
-        div.style.cssText = `padding:.5rem .7rem;border-radius:12px;font-size:.76rem;line-height:1.65;max-width:90%;word-break:break-word;${isUser ? 'align-self:flex-end;background:rgba(124,58,237,.22);color:#F1F5FE;border-bottom-right-radius:3px;' : 'align-self:flex-start;background:rgba(255,255,255,.05);color:#C8C0D8;border-bottom-left-radius:3px;'}`;
+        div.style.cssText = `padding:.45rem .65rem;border-radius:10px;font-size:.72rem;line-height:1.6;max-width:88%;word-break:break-word;${isUser ? 'align-self:flex-end;background:rgba(124,58,237,.22);color:#F1F5FE;border-bottom-right-radius:3px;' : 'align-self:flex-start;background:rgba(255,255,255,.05);color:#C8C0D8;border-bottom-left-radius:3px;'}`;
         if (isUser) {
           div.textContent = text;
         } else {
-          div.innerHTML = text
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-            .replace(/\*(.*?)\*/g,'<em style="color:#D4B870">$1</em>')
-            .replace(/\n/g,'<br>');
+          div.innerHTML = _fmtJyoti(text);
         }
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
@@ -4243,23 +4253,16 @@
         const msgs = document.getElementById('askMessages');
         if (!msgs) return;
         const el = document.createElement('div');
-        el.style.cssText = 'padding:.5rem .7rem;border-radius:12px;border-bottom-left-radius:3px;font-size:.76rem;line-height:1.65;max-width:90%;align-self:flex-start;background:rgba(255,255,255,.05);color:#C8C0D8;font-family:inherit;word-break:break-word';
+        el.style.cssText = 'padding:.45rem .65rem;border-radius:10px;border-bottom-left-radius:3px;font-size:.72rem;line-height:1.6;max-width:88%;align-self:flex-start;background:rgba(255,255,255,.05);color:#C8C0D8;font-family:inherit;word-break:break-word';
         msgs.appendChild(el);
         msgs.scrollTop = msgs.scrollHeight;
         const words = text.split(' ');
         let i = 0;
-        const speed = Math.max(16, Math.min(36, Math.round(2000 / words.length)));
+        const speed = Math.max(14, Math.min(30, Math.round(1800 / words.length)));
         const timer = setInterval(() => {
           if (i >= words.length) {
             clearInterval(timer);
-            // Convert plain text to formatted HTML once typing is done
-            el.innerHTML = el.textContent
-              .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-              .replace(/\*\*(.*?)\*\*/g,'<strong style="color:#D4B870;font-weight:600">$1</strong>')
-              .replace(/\*(.*?)\*/g,'<em style="color:#D4B870;font-style:normal">$1</em>')
-              .replace(/\n\n/g,'</p><p style="margin:.45rem 0 0">')
-              .replace(/\n/g,'<br>');
-            el.innerHTML = '<p style="margin:0">' + el.innerHTML + '</p>';
+            el.innerHTML = _fmtJyoti(el.textContent);
             if (onDone) onDone();
             return;
           }
