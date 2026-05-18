@@ -1475,37 +1475,64 @@
       const btn = document.getElementById('submitBtn');
       btn.textContent = '⟳ Calculating...'; btn.classList.add('loading'); btn.disabled = true;
 
-      // Ceremonial chart calculation progress
-      let noticeEl = document.getElementById('sampleNotice');
-      if (!noticeEl) {
-        noticeEl = document.createElement('div');
-        noticeEl.id = 'sampleNotice';
-        noticeEl.style.cssText = 'padding:1rem 1.5rem;background:rgba(10,8,16,.97);border-bottom:1px solid rgba(192,160,96,.25);text-align:center;font-family:var(--font-b)';
-        noticeEl.innerHTML = `
-          <div style="font-family:var(--font-h);font-size:.72rem;font-weight:700;color:#D4B870;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.7rem">✦ Casting Your Chart</div>
-          <div style="display:flex;flex-direction:column;gap:.3rem;max-width:280px;margin:0 auto;text-align:left">
-            <div id="ns1" style="font-size:.75rem;color:#5A4A7A;display:flex;align-items:center;gap:.5rem"><span id="ns1i">○</span> Resolving location</div>
-            <div id="ns2" style="font-size:.75rem;color:#5A4A7A;display:flex;align-items:center;gap:.5rem"><span id="ns2i">○</span> Waking ephemeris server</div>
-            <div id="ns3" style="font-size:.75rem;color:#5A4A7A;display:flex;align-items:center;gap:.5rem"><span id="ns3i">○</span> Calculating positions</div>
-          </div>
-          <div style="margin:.7rem auto 0;height:2px;background:rgba(192,160,96,.1);border-radius:99px;max-width:280px"><div id="nprog" style="height:100%;width:0%;background:linear-gradient(90deg,#8B7CC8,#C4A45A);border-radius:99px;transition:width .4s ease"></div></div>`;
-        document.getElementById('summary-bar').insertAdjacentElement('afterend', noticeEl);
+      // ── Overlay helpers ──────────────────────────────────────────────────
+      function showCalcOverlay() {
+        const ov = document.getElementById('calc-overlay');
+        if (!ov) return;
+        // reset state
+        ['1','2','3'].forEach(n => {
+          const s = document.getElementById('co-s'+n), i = document.getElementById('co-i'+n);
+          if (s) s.style.color = '#5A4A7A';
+          if (i) i.textContent = n;
+        });
+        const pg = document.getElementById('co-prog');
+        if (pg) pg.style.width = '0%';
+        const err = document.getElementById('co-error'), hint = document.getElementById('co-hint');
+        if (err) err.style.display = 'none';
+        if (hint) hint.style.display = '';
+        ov.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
       }
-      const setStep = (n, state, txt) => {
-        const el = document.getElementById('ns'+n), ic = document.getElementById('ns'+n+'i'), pg = document.getElementById('nprog');
-        if (!el) return;
-        if (state==='active') { el.style.color='#D4B870'; if(ic)ic.textContent='◉'; if(pg)pg.style.width=((n-1)/3*100)+'%'; }
-        else if (state==='done') { el.style.color='#4CAF6A'; if(ic)ic.textContent='✓'; if(pg)pg.style.width=(n/3*100)+'%'; }
-        else if (state==='error') { el.style.color='#D95F5F'; if(ic)ic.textContent='✕'; }
-        if (txt) el.innerHTML = (ic?ic.outerHTML:'') + ' ' + txt;
+      window.hideCalcOverlay = function() {
+        const ov = document.getElementById('calc-overlay');
+        if (ov) ov.style.display = 'none';
+        document.body.style.overflow = '';
+        // re-enable button
+        const b = document.getElementById('submitBtn');
+        if (b) { b.textContent = 'Reveal My Chart →'; b.classList.remove('loading'); b.disabled = false; }
       };
-      const setNotice = (msg, color) => {
-        // Used for error messages that replace the whole notice
-        if (msg.startsWith('⚠') || msg.startsWith('✓ Real')) {
-          noticeEl.innerHTML = `<div style="font-size:.78rem;color:${color||'#F0EBF4'};padding:.15rem 0">${msg}</div>`;
-          if(color) { noticeEl.style.background=color+'18'; noticeEl.style.borderBottom='1px solid '+color+'44'; }
+      function overlayStep(n, state, label) {
+        const s = document.getElementById('co-s'+n), i = document.getElementById('co-i'+n);
+        const l = n === 2 ? document.getElementById('co-l2') : null;
+        const pg = document.getElementById('co-prog');
+        if (state === 'active') {
+          if (s) s.style.color = '#D4B870';
+          if (i) i.textContent = '◉';
+          if (pg) pg.style.width = ((n - 1) / 3 * 100) + '%';
+          if (l && label) l.textContent = label;
+        } else if (state === 'done') {
+          if (s) s.style.color = '#4CAF6A';
+          if (i) i.innerHTML = '✓';
+          if (pg) pg.style.width = (n / 3 * 100) + '%';
+        } else if (state === 'error') {
+          if (s) s.style.color = '#E05050';
+          if (i) i.textContent = '✕';
         }
-      };
+      }
+      function overlayError(msg) {
+        const err = document.getElementById('co-error');
+        const errmsg = document.getElementById('co-errmsg');
+        const hint = document.getElementById('co-hint');
+        if (errmsg) errmsg.textContent = msg;
+        if (err) err.style.display = '';
+        if (hint) hint.style.display = 'none';
+        // clear any stale chart data from storage so retry starts clean
+        ['vv_saved_chart','vv_api_chart'].forEach(k => localStorage.removeItem(k));
+      }
+
+      // Alias old names used below
+      const setStep = (n, state, txt) => overlayStep(n, state, txt);
+      showCalcOverlay();
 
       // ── FAST PATH: browser-side ephemeris (instant, no cold start) ──
       if (typeof Astronomy !== 'undefined') {
