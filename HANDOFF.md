@@ -1,5 +1,5 @@
 # HANDOFF.md — VedaVision / Celestial Noir
-_Last updated: 2026-05-16 ~14:30 IST_
+_Last updated: 2026-05-18 IST_
 
 ---
 
@@ -7,7 +7,7 @@ _Last updated: 2026-05-16 ~14:30 IST_
 
 Ship VedaVision as a production-ready Vedic astrology reflection web app:
 - Real ephemeris (Swiss Ephemeris backend on Render.com)
-- AI-powered Jyoti chatbot (Groq / Llama 3.1 70B — free tier)
+- AI-powered Jyoti chatbot (Groq primary + Gemini Flash fallback — both free)
 - Premium dark-academia UI (Midnight Indigo + Vedic Gold design system)
 - Monetisation via Razorpay (₹99 PDF export, Dharma Pass plans)
 - PWA installable, mobile-first, WCAG AA compliant
@@ -43,17 +43,23 @@ Ship VedaVision as a production-ready Vedic astrology reflection web app:
 - [x] Instagram story card 1080×1920 PNG generator
 
 ### Phase 3 — Jyoti AI Chatbot ✅ Complete
-- [x] Groq `/api/jyoti` endpoint (Llama 3.1 70B, free 14,400 req/day)
-- [x] Full `chatbot_skill.md` persona as system prompt
-- [x] Chart context injected per request (lagna, nakshatra, dasha, yogas, houses)
-- [x] Multi-turn conversation history (last 10 turns)
-- [x] 15s timeout + graceful fallback to `ASK_RESPONSES`
-- [x] Upgraded system prompt: 7 human-chat techniques (emotional mirroring, opener variety, short-first, follow-up questions, memory callbacks, self-disclosure, natural flow)
-- [x] Typewriter effect (word-by-word, adaptive speed ~35ms/word)
-- [x] Status badge: AI / ⟳ thinking… / offline
-- [x] ↺ Clear conversation button (resets `_jyotiHistory`)
-- [x] Crisis keywords always handled client-side (never API-dependent)
-- [ ] **GROQ_API_KEY not set on Render yet** — Jyoti falls back to pattern-matched until done
+- [x] `/api/jyoti` endpoint with **Groq primary + Gemini 2.0 Flash fallback** (both free)
+- [x] Full `chatbot_skill.md` system prompt — §11.1 structure: hard limits first, 8 canonical FAQ few-shot examples, reflection prompt library, crisis protocol, anti-patterns
+- [x] Rich chart context injected per request: all 12 houses, full planet table with dignities, AK/AmK karakas, nakshatra classical theme, yoga effects, wealth score, leadership archetype, D9/D10 houses
+- [x] Multi-turn conversation history (last 10 turns, shared across providers)
+- [x] 25s total timeout (10s Groq → 8s Gemini → pattern-matched fallback)
+- [x] Status badge: `⟳ thinking…` / `Groq` / `Gemini` / `local`
+- [x] Crisis detection: 14+ keyword patterns, always client-side
+- [x] Canonical fallback `ASK_RESPONSES` matching `chatbot_skill.md` §4 FAQ responses
+- [x] `badchart` + `timing` fallback handlers added
+- [x] Typewriter effect (word-by-word, adaptive speed)
+- [x] ↺ Clear conversation button
+- [ ] **`GROQ_API_KEY` not yet set on Render** — set this first
+- [ ] **`GEMINI_API_KEY` not yet set on Render** — set after Groq
+
+### Standards ✅ Added
+- [x] `.standards/` folder with CLAUDE.md, WORKFLOW.md, EVALUATION.md, ARCHITECTURE-PRINCIPLES.md, SKILLS.md
+- [x] SKILLS.md has 5 patterns including Groq/Gemini API patterns and chatbot system prompt architecture
 
 ---
 
@@ -61,10 +67,12 @@ Ship VedaVision as a production-ready Vedic astrology reflection web app:
 
 | File | Last change | Notes |
 |---|---|---|
-| `index.html` | Phase 3 | async submitAsk, typewriter, _jyotiHistory, status badge, clear btn |
+| `index.html` | Phase 3 | submitAsk, typewriter, crisis detection, richer context payload, model status |
 | `vedavision.css` | Phase 2+3 | Dasha rail, house disclosure, planet coins, nakshatra card, jdot animation |
-| `backend/main.py` | Phase 3 | /api/jyoti Groq endpoint + upgraded 7-technique system prompt |
-| `backend/requirements.txt` | Phase 3 | `groq>=0.9.0` added, `anthropic` removed |
+| `backend/main.py` | Phase 3 | `/api/jyoti` Groq→Gemini cascade, full chatbot_skill.md system prompt |
+| `backend/requirements.txt` | Phase 3 | `groq>=0.9.0` + `google-generativeai>=0.7.0` |
+| `backend/render.yaml` | Phase 3 | `GROQ_API_KEY` + `GEMINI_API_KEY` env var stubs (sync: false) |
+| `.standards/SKILLS.md` | Phase 3 | 5 reusable patterns documented |
 | `HANDOFF.md` | This session | This file |
 
 ---
@@ -79,15 +87,15 @@ Ship VedaVision as a production-ready Vedic astrology reflection web app:
 | Template literals in static HTML | Fixed | Was causing `${n}` to render literally in compatibility dropdowns |
 | `applyLanguage()` missing `}` | Fixed | Was trapping all chatbot/auth functions inside it |
 | SAMPLE_CHART shown as user chart | Fixed | `_isRealChart` flag + amber `.fallback-banner` component |
-| Anthropic API — too costly | Replaced | Switched to Groq (free tier, llama-3.1-70b-versatile) |
+| Anthropic API — paid, not free | Removed | Replaced with Groq (primary) + Gemini Flash (fallback), both free |
 | Scheduled routine for HANDOFF | Cancelled | User prefers manual updates — say "update handoff" before closing |
 
 ---
 
 ## Pending User Actions (Required)
 
-1. **Set `GROQ_API_KEY` on Render** → dashboard.render.com → vedavision-backend → Environment → `GROQ_API_KEY` = `gsk_...` from console.groq.com
-2. **Connect GitHub App** → [claude.ai/code/onboarding?magic=github-app-setup](https://claude.ai/code/onboarding?magic=github-app-setup) for `rishav414-blip/vedavision-frontend`
+1. **Set `GROQ_API_KEY` on Render** → dashboard.render.com → vedavision-backend → Environment → value from console.groq.com (free)
+2. **Set `GEMINI_API_KEY` on Render** → same page → value from aistudio.google.com → Get API Key (free, 1500 req/day)
 3. **Razorpay live key** → replace `rzp_test_YOUR_KEY_HERE` at line ~3963 in `index.html`
 4. **GA4 Measurement ID** → replace `G-XXXXXXXXXX` at lines 21+26 in `index.html`
 
@@ -96,7 +104,8 @@ Ship VedaVision as a production-ready Vedic astrology reflection web app:
 ## Next Steps (Priority Order)
 
 ### Start Here Next Session
-1. Verify Jyoti live on Groq after GROQ_API_KEY is set
+1. Verify Jyoti live — confirm `Groq` status badge appears after setting env vars
+2. Test Gemini fallback — temporarily remove GROQ_API_KEY on Render, confirm `Gemini` badge appears
 
 ### Phase 4 — This Week
 3. **Hindi i18n** — `LANG_STRINGS.hi` wired in index.html, needs translation content for Overview tab + KPI labels + chatbot opener
@@ -109,8 +118,27 @@ Ship VedaVision as a production-ready Vedic astrology reflection web app:
 8. **Vite migration** — split index.html into ES modules
 9. **Referral mechanism** — `?ref=USER_ID` tracking
 10. **Account deletion / data export** — GDPR hygiene
-11. **D9 Navamsa chart** — second divisional chart
-12. **Email digest** — weekly astrological weather
+11. **Email digest** — weekly astrological weather (endpoint already built in backend)
+
+---
+
+## Chatbot Architecture (current)
+
+```
+User message
+    │
+    ▼
+Groq llama-3.3-70b  (free, ~0.5s, 10s timeout)   ← primary
+    │ fails / rate limited / key missing
+    ▼
+Gemini 2.0 Flash    (free, 1500/day, ~1-2s)       ← fallback
+    │ fails
+    ▼
+ASK_RESPONSES       (pattern-matched, instant)     ← last resort
+```
+
+Response JSON: `{ "reply": "...", "model": "groq" | "gemini" }`
+Frontend status badge reflects model used.
 
 ---
 
