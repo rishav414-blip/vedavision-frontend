@@ -5,5 +5,4 @@ compatibility_date = "2025-01-01"
 # Assets served directly from repo root.
 [assets]
 directory = "./"
-binding = "ASSETS"
 not_found_handling = "single-page-application"
