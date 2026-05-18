@@ -152,12 +152,37 @@ Always use `skill.md` as the source for any interpretation logic. Do not substit
 
 ---
 
-## 7. Next Engineering Steps
+## 7. Jyoti Chatbot — LLM Provider Options
+
+### 7.1 Free Providers (current implementation — use these first)
+
+The backend in `backend/main.py` tries providers in this priority order:
+
+| Priority | Provider | Model | Free Limit | Get Key |
+|---|---|---|---|---|
+| 1 (primary) | **Google Gemini 2.5 Flash** | `gemini-2.5-flash` | 15 RPM, 1M tokens/day | [aistudio.google.com](https://aistudio.google.com) → Get API Key |
+| 2 (fast fallback) | **Groq** | `llama-3.3-70b-versatile` | Rate-limited free tier | [console.groq.com](https://console.groq.com) → API Keys |
+| 3 (safety net) | **Gemini 2.0 Flash** | `gemini-2.0-flash` | 1,500 req/day | Same key as above |
+
+**Why Gemini 2.5 Flash first:** Significantly better instruction-following and persona adherence than llama-3.3-70b. Critical for maintaining Jyoti's scholarly tone and hard limits (no predictions, no gemstone recs). Both providers are free — this ordering optimises quality, not cost.
+
+**Other free options to consider later:**
+- **Cerebras** (`llama-3.3-70b`) — fastest available (~30 tok/s), free tier at [inference.cerebras.ai](https://inference.cerebras.ai)
+- **OpenRouter** — aggregator; many models available free with `:free` suffix at [openrouter.ai](https://openrouter.ai)
+- **Mistral AI** — free tier with `mistral-small-latest` at [console.mistral.ai](https://console.mistral.ai)
+
+### 7.2 Paid Upgrade (when scale requires)
+
+**Claude Haiku 4.5** (`claude-haiku-4-5-20251001`) — best persona fidelity, ~$0.25/M tokens. Use only when free tier limits are hit in production. Requires Anthropic API key.
+
+---
+
+## 8. Next Engineering Steps
 
 In priority order:
 
-1. **Claude API for Jyoti** — Replace pattern-matched chatbot with real LLM using `chatbot_skill.md` as system prompt. Inject `lagna`, `nakshatra`, `dasha` context per conversation. Use Claude Haiku tier.
-2. **swisseph-wasm integration** — Replace `SAMPLE_CHART` / Render backend with local wasm ephemeris. Eliminates cold-start problem. Output must match the existing chart data contract in `vedavision-data.js`.
+1. **swisseph-wasm integration** — Replace `SAMPLE_CHART` / Render backend with local wasm ephemeris. Eliminates cold-start problem. Output must match the existing chart data contract in `vedavision-data.js`.
+2. **Streaming SSE for Jyoti** — Implement server-sent events on `/api/jyoti`. Groq and Gemini both support streaming. Halves perceived latency without changing wall-clock time.
 3. **Vite migration** — Split `index.html` into ES modules. `index.html` → entry point; separate JS files per feature area. Reduces initial load from ~250KB.
 4. **Hindi i18n** — `LANG_STRINGS.hi` object is wired in `index.html`; needs translation content for Overview tab, KPI labels, chatbot opener.
 5. **Razorpay live key** — Replace `rzp_test_YOUR_KEY_HERE` at line ~3963 in `index.html` with real key from dashboard.razorpay.com.
