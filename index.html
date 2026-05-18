@@ -4243,15 +4243,22 @@
         const msgs = document.getElementById('askMessages');
         if (!msgs) return;
         const el = document.createElement('div');
-        el.className = 'ask-msg ask-msg-bot';
+        el.style.cssText = 'padding:.5rem .7rem;border-radius:12px;border-bottom-left-radius:3px;font-size:.76rem;line-height:1.65;max-width:90%;align-self:flex-start;background:rgba(255,255,255,.05);color:#C8C0D8;font-family:inherit;word-break:break-word';
         msgs.appendChild(el);
         msgs.scrollTop = msgs.scrollHeight;
         const words = text.split(' ');
         let i = 0;
-        const speed = Math.max(18, Math.min(40, Math.round(2200 / words.length)));
+        const speed = Math.max(16, Math.min(36, Math.round(2000 / words.length)));
         const timer = setInterval(() => {
           if (i >= words.length) {
             clearInterval(timer);
+            // Convert plain text to formatted HTML once typing is done
+            el.innerHTML = el.textContent
+              .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/\*(.*?)\*/g,'<em style="color:#D4B870;font-style:normal">$1</em>')
+              .replace(/\n\n/g,'</p><p style="margin:.45rem 0 0">')
+              .replace(/\n/g,'<br>');
+            el.innerHTML = '<p style="margin:0">' + el.innerHTML + '</p>';
             if (onDone) onDone();
             return;
           }
