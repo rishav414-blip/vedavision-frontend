@@ -4389,19 +4389,23 @@
           let response, chipKey = 'default';
           if (qLow.match(/real person|are you ai|are you human|who are you|what are you/))
             { response = ASK_RESPONSES.identity(); chipKey = 'other'; }
-          else if (qLow.match(/gem|stone|ruby|emerald|pearl|coral|sapphire|diamond/))
+          else if (qLow.match(/gem|stone|ruby|emerald|pearl|coral|sapphire|diamond|neelam|manik|pukhraj|panna/))
             { response = ASK_RESPONSES.gemstone(); chipKey = 'other'; }
-          else if (qLow.match(/predict|will i |when will|what will happen|destiny|fate/))
+          else if (qLow.match(/bad chart|cursed|doomed|bad kundali|negative chart|bad horoscope|is my chart bad/))
+            { response = ASK_RESPONSES.badchart(); chipKey = 'other'; }
+          else if (qLow.match(/predict|will i |when will|what will happen|destiny|fate|forecast|future/))
             { response = ASK_RESPONSES.prediction(md, ad, lagna); chipKey = 'other'; }
-          else if (qLow.match(/what is |explain |meaning of |define |nakshatra|yoga |dasha|rashi|bhava/))
-            { response = ASK_RESPONSES.concept(); chipKey = 'other'; }
-          else if (qLow.match(/job|career|work|promotion/))
+          else if (qLow.match(/timing|when should|best time|right time|auspicious/))
+            { response = ASK_RESPONSES.timing(md, ad, lagna); chipKey = 'timing'; }
+          else if (qLow.match(/what is |explain |meaning of |define |nakshatra|yoga |dasha|rashi|bhava|lagna|graha|transit/))
+            { response = ASK_RESPONSES.concept(md, ad, lagna); chipKey = 'other'; }
+          else if (qLow.match(/job|career|work|promotion|business|profession/))
             { response = ASK_RESPONSES.job(md, ad, lagna); chipKey = 'job'; }
-          else if (qLow.match(/money|invest|wealth|finance/))
+          else if (qLow.match(/money|invest|wealth|finance|income|salary|earning/))
             { response = ASK_RESPONSES.money(md, ad, lagna); chipKey = 'money'; }
-          else if (qLow.match(/marr|relation|love|partner/))
+          else if (qLow.match(/marr|relation|love|partner|divorce|breakup|dating/))
             { response = ASK_RESPONSES.relationship(md, ad, lagna); chipKey = 'relationship'; }
-          else if (qLow.match(/health|sick|body|pain/))
+          else if (qLow.match(/health|sick|body|pain|illness|disease|medicine/))
             { response = ASK_RESPONSES.health(md, ad, lagna); chipKey = 'health'; }
           else
             { response = ASK_RESPONSES.default(md, ad, lagna); }
