@@ -4255,6 +4255,7 @@
             // Convert plain text to formatted HTML once typing is done
             el.innerHTML = el.textContent
               .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/\*\*(.*?)\*\*/g,'<strong style="color:#D4B870;font-weight:600">$1</strong>')
               .replace(/\*(.*?)\*/g,'<em style="color:#D4B870;font-style:normal">$1</em>')
               .replace(/\n\n/g,'</p><p style="margin:.45rem 0 0">')
               .replace(/\n/g,'<br>');
