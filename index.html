@@ -1554,7 +1554,7 @@
           setStep(3, 'active', 'Rendering chart');
           window._apiChartData = browserChart;
           setStep(3, 'done');
-          setTimeout(() => { if (noticeEl) { noticeEl.style.opacity = '0'; setTimeout(() => { if (noticeEl) noticeEl.style.display = 'none'; }, 400); } }, 800);
+          setTimeout(() => hideCalcOverlay(), 700);
           initResults(name, dob, pob, browserChart);
           btn.textContent = 'Reveal My Chart →'; btn.classList.remove('loading'); btn.disabled = false;
 
