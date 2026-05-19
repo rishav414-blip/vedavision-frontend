@@ -143,7 +143,7 @@ function FeatureCard({ icon, title, desc }) {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────
-export default function HeroPage({ onChartReady }) {
+export default function HeroPage({ onChartReady, onLogout }) {
   const [form, setForm] = useState({ name: "", dob: "", tob: "", pob: "" });
   const [approxTime, setApproxTime] = useState(false);
   const [errors, setErrors] = useState({});
@@ -236,6 +236,28 @@ export default function HeroPage({ onChartReady }) {
         style={{ top: "40%", right: "20%", zIndex: 0 }}
         transition={{ duration: 14 }}
       />
+
+      {/* ── Sign-out link (top-right) ── */}
+      {onLogout && (
+        <div style={{ position: 'fixed', top: 16, right: 20, zIndex: 100 }}>
+          <button
+            onClick={onLogout}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              borderRadius: 8,
+              padding: '7px 14px',
+              fontFamily: FONTS.body,
+              fontSize: 12,
+              color: T.txt3,
+              cursor: 'pointer',
+              letterSpacing: '0.03em',
+            }}
+          >
+            Sign out
+          </button>
+        </div>
+      )}
 
       {/* ── Content ── */}
       <motion.div
@@ -571,7 +593,7 @@ export default function HeroPage({ onChartReady }) {
           <div style={{ textAlign: "center", marginTop: 14 }}>
             <button
               type="button"
-              onClick={() => onChartReady(null)}
+              onClick={() => onChartReady({ name: 'Demo Chart', dob: '1990-01-01', tob: '06:00', pob: 'New Delhi, India' })}
               style={{
                 background: "none",
                 border: "none",

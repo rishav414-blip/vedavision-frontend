@@ -58,6 +58,7 @@ export default function App() {
       {page === 'hero' && (
         <HeroPage
           onChartReady={handleChartReady}
+          onLogout={handleLogout}
           onTimeline={() => setPage('timeline')}
           onPrivacy={() => setShowPrivacy(true)}
           onPasscode={() => setShowPasscode(true)}
