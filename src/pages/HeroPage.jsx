@@ -143,11 +143,14 @@ function FeatureCard({ icon, title, desc }) {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────
+const BACKEND = "https://vedavision-backend.onrender.com";
+
 export default function HeroPage({ onChartReady, onLogout }) {
   const [form, setForm] = useState({ name: "", dob: "", tob: "", pob: "" });
   const [approxTime, setApproxTime] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
   const [btnHover, setBtnHover] = useState(false);
 
   const validate = () => {
@@ -164,10 +167,30 @@ export default function HeroPage({ onChartReady, onLogout }) {
     setErrors(e2);
     if (Object.keys(e2).length) return;
     setLoading(true);
-    // Simulate brief loading
-    await new Promise((r) => setTimeout(r, 600));
-    setLoading(false);
-    onChartReady({ name: form.name.trim(), dob: form.dob, tob: form.tob, pob: form.pob.trim() });
+    setApiError("");
+    try {
+      const res = await fetch(`${BACKEND}/chart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          dob: form.dob,
+          tob: form.tob || "00:00",
+          pob: form.pob.trim(),
+          approxTime,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Server error ${res.status}`);
+      }
+      const chart = await res.json();
+      onChartReady(chart);
+    } catch (err) {
+      setApiError(err.message || "Could not reach server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field) => (ev) => {
@@ -537,6 +560,13 @@ export default function HeroPage({ onChartReady, onLogout }) {
                 )}
               </div>
 
+              {/* API error */}
+              {apiError && (
+                <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(224,80,80,0.10)", border: "1px solid rgba(224,80,80,0.30)", fontFamily: FONTS.body, fontSize: 13, color: T.error }}>
+                  {apiError}
+                </div>
+              )}
+
               {/* Submit */}
               <motion.button
                 type="submit"
@@ -584,7 +614,7 @@ export default function HeroPage({ onChartReady, onLogout }) {
                     />
                   )}
                 </AnimatePresence>
-                {loading ? "Casting chart…" : "Reveal My Chart →"}
+                {loading ? "Calculating positions…" : "Reveal My Chart →"}
               </motion.button>
             </div>
           </form>
