@@ -3532,6 +3532,104 @@
     </div>
   </div>
 
+  <!-- ═══ PRE-SIGNUP PREVIEW TOUR ═══ -->
+  <div id="previewTourModal" style="display:none;position:fixed;inset:0;z-index:2500;align-items:center;justify-content:center">
+    <!-- scrim -->
+    <div style="position:absolute;inset:0;background:rgba(5,11,26,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)" onclick="closePreviewTour()"></div>
+    <!-- card -->
+    <div style="position:relative;z-index:1;background:rgba(13,10,30,.98);border:1px solid rgba(192,160,96,.25);border-radius:24px;width:100%;max-width:420px;margin:1rem;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.8)">
+
+      <!-- progress bar -->
+      <div style="height:2px;background:rgba(255,255,255,.06)">
+        <div id="ptProgress" style="height:100%;width:33.3%;background:linear-gradient(90deg,#7C3AED,#C0A860);transition:width .35s ease"></div>
+      </div>
+
+      <!-- screens container -->
+      <div style="padding:1.75rem 1.75rem 1.25rem">
+
+        <!-- SCREEN 1 — Chart -->
+        <div id="pt-s1">
+          <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C0A860;margin-bottom:1rem">✦ Your birth chart, decoded</div>
+          <!-- North Indian chart grid -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,52px);gap:1px;background:rgba(192,160,96,.15);border:1px solid rgba(192,160,96,.2);border-radius:10px;overflow:hidden;margin-bottom:1rem">
+            <div style="grid-column:1;grid-row:1;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">12</span><br><span style="font-size:.55rem;color:#5A4A7A">Libra</span></div>
+            <div style="grid-column:2;grid-row:1;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#E05050;font-weight:700">1</span><br><span style="font-size:.55rem;color:#5A4A7A">Scorpio</span><br><span style="font-size:.55rem;color:#AACCFF">Lg</span></div>
+            <div style="grid-column:3;grid-row:1;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">2</span><br><span style="font-size:.55rem;color:#5A4A7A">Sagittarius</span></div>
+            <div style="grid-column:4;grid-row:1;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">3</span><br><span style="font-size:.55rem;color:#5A4A7A">Capricorn</span></div>
+            <div style="grid-column:1;grid-row:2;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">11</span><br><span style="font-size:.55rem;color:#5A4A7A">Virgo</span><br><span style="font-size:.55rem;color:#F5C842">Su</span></div>
+            <div style="grid-column:2;grid-row:2;grid-column:2/4;grid-row:2/4;background:rgba(8,5,20,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem">
+              <div style="font-family:serif;font-size:1.5rem;color:#C0A860;opacity:.7">जyोति</div>
+              <div style="font-size:.6rem;color:#5A4A7A;letter-spacing:.08em;text-transform:uppercase">Celestial Noir</div>
+            </div>
+            <div style="grid-column:4;grid-row:2;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">4</span><br><span style="font-size:.55rem;color:#5A4A7A">Aquarius</span><br><span style="font-size:.55rem;color:#A08050">Sa</span><span style="font-size:.55rem;color:#8855CC"> Ra</span></div>
+            <div style="grid-column:1;grid-row:3;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">10</span><br><span style="font-size:.55rem;color:#5A4A7A">Leo</span><br><span style="font-size:.55rem;color:#7EC8A0">Me</span></div>
+            <div style="grid-column:4;grid-row:3;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">5</span><br><span style="font-size:.55rem;color:#5A4A7A">Pisces</span></div>
+            <div style="grid-column:1;grid-row:4;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">9</span><br><span style="font-size:.55rem;color:#5A4A7A">Cancer</span><br><span style="font-size:.55rem;color:#D0D8F0">Mo</span></div>
+            <div style="grid-column:2;grid-row:4;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">8</span><br><span style="font-size:.55rem;color:#5A4A7A">Gemini</span></div>
+            <div style="grid-column:3;grid-row:4;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">7</span><br><span style="font-size:.55rem;color:#5A4A7A">Taurus</span><br><span style="font-size:.55rem;color:#E48DB0">Ve</span><span style="font-size:.55rem;color:#F0A830"> Ju</span></div>
+            <div style="grid-column:4;grid-row:4;background:rgba(13,10,30,.9);padding:.35rem .4rem;font-size:.62rem;color:#B8B0C8"><span style="color:#8B7CC8;font-weight:700">6</span><br><span style="font-size:.55rem;color:#5A4A7A">Aries</span><br><span style="font-size:.55rem;color:#CC8855">Ke</span></div>
+          </div>
+          <p style="font-size:.75rem;color:#7A6A9A;line-height:1.5;margin:0">Every planet position carries a pattern worth understanding — not as a fate, but as a lens.</p>
+        </div>
+
+        <!-- SCREEN 2 — Dasha Insight -->
+        <div id="pt-s2" style="display:none">
+          <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C0A860;margin-bottom:1rem">✦ What your current period means</div>
+          <!-- Dasha timeline visual -->
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem;margin-bottom:1rem">
+            <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5A4A7A;margin-bottom:.75rem">Vimśottarī Daśā Timeline</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <div style="display:flex;align-items:center;gap:.6rem">
+                <div style="width:8px;height:8px;border-radius:50%;background:#A08050;flex-shrink:0"></div>
+                <div style="flex:1;height:6px;background:linear-gradient(90deg,#A08050 60%,rgba(255,255,255,.06) 60%);border-radius:99px"></div>
+                <div style="font-size:.65rem;color:#A08050;font-weight:700;white-space:nowrap">Saturn MD</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:.6rem;padding-left:1rem">
+                <div style="width:6px;height:6px;border-radius:50%;background:#F0A830;flex-shrink:0"></div>
+                <div style="flex:1;height:4px;background:linear-gradient(90deg,#F0A830 40%,rgba(255,255,255,.06) 40%);border-radius:99px"></div>
+                <div style="font-size:.6rem;color:#F0A830;font-weight:600;white-space:nowrap">Jupiter AD</div>
+              </div>
+            </div>
+            <div style="margin-top:.85rem;padding:.65rem;background:rgba(192,160,96,.05);border-radius:8px;border-left:2px solid rgba(192,160,96,.3)">
+              <div style="font-size:.72rem;color:#C8C0D8;line-height:1.55">Saturn periods tend to surface themes of <span style="color:#C0A860">structure and building</span>. Jupiter Antardasha adds <span style="color:#F0A830">measured optimism</span> — doors open slowly, but they open.</div>
+            </div>
+          </div>
+          <p style="font-size:.75rem;color:#7A6A9A;line-height:1.5;margin:0">Not a prediction — a quality of time worth understanding before you move.</p>
+        </div>
+
+        <!-- SCREEN 3 — Jyoti + CTA -->
+        <div id="pt-s3" style="display:none">
+          <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C0A860;margin-bottom:1rem">✦ Ask Jyoti about your chart</div>
+          <!-- Mock chat -->
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.85rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:.55rem">
+            <div style="align-self:flex-end;background:rgba(124,58,237,.22);border-radius:10px;border-bottom-right-radius:3px;padding:.4rem .6rem;font-size:.72rem;color:#F1F5FE;max-width:80%">What does my Saturn period mean for career?</div>
+            <div style="align-self:flex-start;background:rgba(255,255,255,.05);border-radius:10px;border-bottom-left-radius:3px;padding:.4rem .6rem;font-size:.72rem;color:#C8C0D8;max-width:90%;line-height:1.55">Saturn in your career zone tends to reward <em style="color:#C0A860">sustained effort over quick wins</em>. This period often asks you to build something that lasts — what does that look like for you right now?</div>
+          </div>
+          <div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:.75rem;margin-bottom:1.1rem;display:flex;align-items:center;gap:.6rem">
+            <div style="font-size:1.1rem">✦</div>
+            <div style="font-size:.72rem;color:#9D5CF6;line-height:1.4">Powered by Gemini 2.5 · Vedic-first · Reflects your actual chart — not a script</div>
+          </div>
+          <button onclick="closePreviewTour();showAuthTab('signup');" style="width:100%;padding:.85rem;background:linear-gradient(135deg,#7C3AED,#C0A860);border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:opacity .2s ease;letter-spacing:.02em" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Enter your birth details →</button>
+          <p style="text-align:center;font-size:.65rem;color:#4A3A6A;margin:.6rem 0 0">30 seconds · No card required · Your data stays private</p>
+        </div>
+
+      </div><!-- end padding -->
+
+      <!-- nav footer -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.75rem 1.25rem;border-top:1px solid rgba(255,255,255,.06)">
+        <button id="pt-back" onclick="ptNav(-1)" style="padding:.35rem .8rem;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#7A6A9A;font-size:.75rem;cursor:pointer;font-family:inherit;opacity:0;pointer-events:none">← Back</button>
+        <!-- dots -->
+        <div style="display:flex;gap:.45rem;align-items:center">
+          <div id="pt-d0" style="width:6px;height:6px;border-radius:50%;background:#C0A860;transition:background .25s"></div>
+          <div id="pt-d1" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .25s"></div>
+          <div id="pt-d2" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .25s"></div>
+        </div>
+        <button id="pt-next" onclick="ptNav(1)" style="padding:.35rem .8rem;border-radius:99px;border:1px solid rgba(192,160,96,.4);background:rgba(192,160,96,.08);color:#C0A860;font-size:.75rem;cursor:pointer;font-family:inherit">Next →</button>
+      </div>
+
+    </div><!-- end card -->
+  </div>
+
   <!-- ═══ PASSCODE MODAL ═══ -->
   <div id="passcodeModal"
     style="display:none;position:fixed;inset:0;z-index:1800;background:rgba(5,11,26,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center">
