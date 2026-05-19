@@ -1,8 +1,7 @@
 name = "vedavision-frontend"
 compatibility_date = "2025-01-01"
 
-# Pure static site — no Worker script, no build step.
-# Assets served directly from repo root.
+# Vite builds to dist/ — serve from there
 [assets]
-directory = "./"
+directory = "./dist"
 not_found_handling = "single-page-application"
