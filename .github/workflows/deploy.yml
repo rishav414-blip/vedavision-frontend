@@ -1,4 +1,4 @@
-name: Build & Deploy to Cloudflare
+name: Build & Deploy to Cloudflare Pages
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-deploy:
-    name: Vite Build → Cloudflare Workers
+    name: Vite Build → Cloudflare Pages
     runs-on: ubuntu-latest
 
     steps:
@@ -32,12 +32,12 @@ jobs:
           echo "### Build output" >> $GITHUB_STEP_SUMMARY
           du -sh dist/ >> $GITHUB_STEP_SUMMARY
 
-      - name: Deploy to Cloudflare (push to main only)
+      - name: Deploy to Cloudflare Pages (main only)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           mkdir -p ~/.config/.wrangler/config
           echo "$WRANGLER_CONFIG" > ~/.config/.wrangler/config/default.toml
-          npx wrangler deploy
+          npx wrangler pages deploy dist/ --project-name vedavision-app --branch main
         env:
           WRANGLER_HOME: ~/.config/.wrangler
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
