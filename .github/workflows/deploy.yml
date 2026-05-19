@@ -1,4 +1,4 @@
-name: CI — Build Verification
+name: Build & Deploy to Cloudflare
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: Vite Build Check
+  build-deploy:
+    name: Vite Build → Cloudflare Workers
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +24,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build (Vite)
         run: npm run build
 
       - name: Report build size
         run: |
           echo "### Build output" >> $GITHUB_STEP_SUMMARY
           du -sh dist/ >> $GITHUB_STEP_SUMMARY
-          ls -lh dist/assets/ >> $GITHUB_STEP_SUMMARY
+
+      - name: Deploy to Cloudflare (push to main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p ~/.config/.wrangler/config
+          echo "$WRANGLER_CONFIG" > ~/.config/.wrangler/config/default.toml
+          npx wrangler deploy
+        env:
+          WRANGLER_HOME: ~/.config/.wrangler
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_CONFIG: ${{ secrets.WRANGLER_CONFIG }}
