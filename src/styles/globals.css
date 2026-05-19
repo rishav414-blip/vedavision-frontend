@@ -1,4 +1,7 @@
 /* vedavision.css imported in main.jsx to bypass postcss-import */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 *, *::before, *::after {
   box-sizing: border-box;
