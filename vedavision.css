@@ -288,7 +288,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .day-badge.nomatch{background:var(--bg-card);color:var(--txt3)}
 .mantra-card{padding:1.5rem;border-radius:var(--r-xl)}
 .mantra-dev{font-size:1.6rem;color:var(--gold);margin-bottom:.4rem;line-height:1.4;font-family:serif}
-.mantra-trans{font-size:.78rem;color:var(--txt2);font-style:italic;margin-bottom.75rem}
+.mantra-trans{font-size:.78rem;color:var(--txt2);font-style:italic;margin-bottom:.75rem}
 .mantra-controls{display:flex;align-items:center;gap:1rem;margin-top:1rem}
 .play-btn{width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;font-size:1.2rem;cursor:pointer;transition:transform var(--tr),box-shadow var(--tr);flex-shrink:0}
 .play-btn:hover{transform:scale(1.08);box-shadow:0 0 20px rgba(124,58,237,.5)}
