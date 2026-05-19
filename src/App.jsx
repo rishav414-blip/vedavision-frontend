@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import AuthPage, { getSession, saveSession, clearSession } from './pages/AuthPage'
 import HeroPage from './pages/HeroPage'
 import DashboardPage from './pages/DashboardPage'
 import TimelinePage from './pages/TimelinePage'
@@ -9,18 +10,40 @@ import PrivacyModal from './components/PrivacyModal'
 import PasscodeModal from './components/PasscodeModal'
 
 export default function App() {
-  const [page, setPage] = useState('hero')
+  const [page, setPage] = useState('auth')   // auth | hero | dashboard | timeline
+  const [user, setUser] = useState(null)
   const [chartData, setChartData] = useState(null)
   const [lang, setLang] = useState(() => localStorage.getItem('vv_lang') || 'en')
-  const [showTour, setShowTour] = useState(() => !localStorage.getItem('vv_tour_done'))
+  const [showTour, setShowTour] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [showPasscode, setShowPasscode] = useState(false)
-  const [dharmaUnlocked, setDharmaUnlocked] = useState(() => !!localStorage.getItem('vv_dharma_pass'))
 
-  const handleChartReady = (data) => { setChartData(data); setPage('dashboard') }
-  const toggleLang = () => setLang(l => l === 'en' ? 'hi' : 'en')
+  // Restore session on mount
+  useEffect(() => {
+    const session = getSession()
+    if (session) { setUser(session); setPage('hero') }
+  }, [])
 
-  // Expose modal openers globally for legacy compatibility
+  function handleEnter(u) {
+    saveSession(u)
+    setUser(u)
+    setPage('hero')
+    if (!localStorage.getItem('vv_tour_done')) setShowTour(true)
+  }
+
+  function handleLogout() {
+    clearSession()
+    setUser(null)
+    setChartData(null)
+    setPage('auth')
+  }
+
+  function handleChartReady(data) {
+    setChartData(data)
+    setPage('dashboard')
+  }
+
+  // Expose globally for legacy compat
   useEffect(() => {
     window.openPrivacyModal = () => setShowPrivacy(true)
     window.openPasscodeModal = () => setShowPasscode(true)
@@ -29,7 +52,9 @@ export default function App() {
 
   return (
     <>
-      {/* Pages */}
+      {page === 'auth' && (
+        <AuthPage onEnter={handleEnter} onPreviewTour={() => { setPage('hero') }} />
+      )}
       {page === 'hero' && (
         <HeroPage
           onChartReady={handleChartReady}
@@ -42,26 +67,33 @@ export default function App() {
       {page === 'dashboard' && (
         <DashboardPage
           chart={chartData}
+          user={user}
           onBack={() => setPage('hero')}
-          lang={lang}
-          dharmaUnlocked={dharmaUnlocked}
+          onLogout={handleLogout}
           onPasscode={() => setShowPasscode(true)}
+          lang={lang}
         />
       )}
       {page === 'timeline' && <TimelinePage onBack={() => setPage('hero')} />}
 
-      {/* Global persistent widgets */}
-      <JyotiChat chartContext={chartData} lang={lang} />
-      <HindiToggle lang={lang} onToggle={toggleLang} />
-
-      {/* Modals */}
-      <TourOnboarding key="tour" onDone={() => setShowTour(false)} />
-      {!showTour && (
+      {/* Global widgets — shown on hero + dashboard */}
+      {page !== 'auth' && (
         <>
-          <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
-          <PasscodeModal open={showPasscode} onClose={() => setShowPasscode(false)} onUnlock={() => setDharmaUnlocked(true)} />
+          <JyotiChat chartContext={chartData} lang={lang} />
+          <HindiToggle lang={lang} onToggle={() => setLang(l => l === 'en' ? 'hi' : 'en')} />
         </>
       )}
+
+      {/* Tour — shown after first login */}
+      {showTour && <TourOnboarding onDone={() => setShowTour(false)} />}
+
+      {/* Modals */}
+      <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
+      <PasscodeModal
+        open={showPasscode}
+        onClose={() => setShowPasscode(false)}
+        onUnlock={() => { localStorage.setItem('vv_dharma_pass', '1') }}
+      />
     </>
   )
 }
