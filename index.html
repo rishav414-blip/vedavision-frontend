@@ -3888,9 +3888,36 @@
       setTimeout(() => { saveSession(newUser); enterApp(newUser); }, 1000);
     }
 
-    function handleDemoLogin() {
-      const demo = { name: 'Demo User', email: 'demo@vedavision.app', plan: 'full' };
-      saveSession(demo); enterApp(demo);
+    // Pre-signup preview tour
+    let _ptStep = 0;
+    function openPreviewTour() {
+      _ptStep = 0; _ptRender();
+      document.getElementById('previewTourModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closePreviewTour() {
+      document.getElementById('previewTourModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    function ptNav(dir) { _ptStep = Math.max(0, Math.min(2, _ptStep + dir)); _ptRender(); }
+    function _ptRender() {
+      // screens
+      ['pt-s1','pt-s2','pt-s3'].forEach((id, i) => {
+        document.getElementById(id).style.display = i === _ptStep ? '' : 'none';
+      });
+      // progress bar
+      document.getElementById('ptProgress').style.width = ((_ptStep + 1) / 3 * 100) + '%';
+      // dots
+      [0,1,2].forEach(i => {
+        document.getElementById('pt-d'+i).style.background = i === _ptStep ? '#C0A860' : 'rgba(255,255,255,.15)';
+      });
+      // back button
+      const back = document.getElementById('pt-back');
+      back.style.opacity = _ptStep > 0 ? '1' : '0';
+      back.style.pointerEvents = _ptStep > 0 ? 'auto' : 'none';
+      // next button
+      const next = document.getElementById('pt-next');
+      if (_ptStep === 2) { next.style.display = 'none'; } else { next.style.display = ''; }
     }
 
     function enterApp(user) {
