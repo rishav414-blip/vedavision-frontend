@@ -337,7 +337,7 @@ select.form-input option:hover{background:rgba(124,58,237,.3)}
 .pricing-note{font-size:.72rem;color:var(--txt3);text-align:center;margin-bottom:1.5rem}
 .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
 .testimonial{padding:1.1rem 1.25rem;border-radius:var(--r-lg)}
-.testimonial p{font-size:.8rem;color:var(--txt2);line-height:1.6;margin-bottom.5rem;font-style:italic}
+.testimonial p{font-size:.8rem;color:var(--txt2);line-height:1.6;margin-bottom:.5rem;font-style:italic}
 .testimonial cite{font-size:.72rem;color:var(--txt3);font-style:normal}
 
 /* TOAST */
