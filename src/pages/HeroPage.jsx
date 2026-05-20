@@ -623,7 +623,15 @@ export default function HeroPage({ onChartReady, onLogout }) {
           <div style={{ textAlign: "center", marginTop: 14 }}>
             <button
               type="button"
-              onClick={() => onChartReady({ name: 'Demo Chart', dob: '1990-01-01', tob: '06:00', pob: 'New Delhi, India' })}
+              onClick={async () => {
+                setLoading(true); setApiError('');
+                try {
+                  const res = await fetch(`${BACKEND}/chart`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' }) });
+                  const chart = res.ok ? await res.json() : null;
+                  onChartReady(chart || { name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' });
+                } catch { onChartReady({ name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' }); }
+                finally { setLoading(false); }
+              }}
               style={{
                 background: "none",
                 border: "none",
