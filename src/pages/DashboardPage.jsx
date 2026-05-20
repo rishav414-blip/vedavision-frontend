@@ -11,7 +11,7 @@ import CompatibilityTab from '../tabs/CompatibilityTab'
 import InsightsTab from '../tabs/InsightsTab'
 import DharmaPassTab from '../tabs/DharmaPassTab'
 
-export default function DashboardPage({ chart, user, onBack, onLogout, onPasscode }) {
+export default function DashboardPage({ chart, user, onBack, onLogout, onPasscode, onNewChart }) {
   const [activeTab, setActiveTab] = useState('overview')
   const dharmaUnlocked = !!localStorage.getItem('vv_dharma_pass')
 
@@ -33,7 +33,7 @@ export default function DashboardPage({ chart, user, onBack, onLogout, onPasscod
       chart={chart}
       user={user ?? { name:'Guest', email:'', plan:'free' }}
       activeTab={activeTab}
-      onTabChange={tab => { if (tab === 'hero') { onBack(); return } setActiveTab(tab) }}
+      onTabChange={tab => { if (tab === 'hero') { onNewChart ? onNewChart() : onBack(); return } setActiveTab(tab) }}
       onLogout={onLogout}
       onPasscode={onPasscode}
     >

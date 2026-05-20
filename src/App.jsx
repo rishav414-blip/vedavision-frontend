@@ -8,38 +8,39 @@ import HindiToggle from './components/HindiToggle'
 import TourOnboarding from './components/TourOnboarding'
 import PrivacyModal from './components/PrivacyModal'
 import PasscodeModal from './components/PasscodeModal'
+import SAMPLE_CHART from './lib/sampleChart'
 
 export default function App() {
   const [page, setPage] = useState('auth')   // auth | hero | dashboard | timeline
   const [user, setUser] = useState(null)
-  const [chartData, setChartData] = useState(null)
+  const [chartData, setChartData] = useState(SAMPLE_CHART)   // always populated
   const [lang, setLang] = useState(() => localStorage.getItem('vv_lang') || 'en')
   const [showTour, setShowTour] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [showPasscode, setShowPasscode] = useState(false)
 
-  // Restore session on mount
+  // Restore session on mount — go straight to dashboard
   useEffect(() => {
     const session = getSession()
-    if (session) { setUser(session); setPage('hero') }
+    if (session) { setUser(session); setPage('dashboard') }
   }, [])
 
   function handleEnter(u) {
     saveSession(u)
     setUser(u)
-    setPage('hero')
+    setPage('dashboard')
     if (!localStorage.getItem('vv_tour_done')) setShowTour(true)
   }
 
   function handleLogout() {
     clearSession()
     setUser(null)
-    setChartData(null)
+    setChartData(SAMPLE_CHART)
     setPage('auth')
   }
 
   function handleChartReady(data) {
-    setChartData(data)
+    if (data) setChartData(data)
     setPage('dashboard')
   }
 
@@ -53,7 +54,7 @@ export default function App() {
   return (
     <>
       {page === 'auth' && (
-        <AuthPage onEnter={handleEnter} onPreviewTour={() => { setPage('hero') }} />
+        <AuthPage onEnter={handleEnter} onPreviewTour={() => { setPage('dashboard') }} />
       )}
       {page === 'hero' && (
         <HeroPage
@@ -72,12 +73,13 @@ export default function App() {
           onBack={() => setPage('hero')}
           onLogout={handleLogout}
           onPasscode={() => setShowPasscode(true)}
+          onNewChart={() => setPage('hero')}
           lang={lang}
         />
       )}
-      {page === 'timeline' && <TimelinePage onBack={() => setPage('hero')} />}
+      {page === 'timeline' && <TimelinePage onBack={() => setPage('dashboard')} />}
 
-      {/* Global widgets — shown on hero + dashboard */}
+      {/* Global widgets */}
       {page !== 'auth' && (
         <>
           <JyotiChat chartContext={chartData} lang={lang} />
@@ -85,10 +87,8 @@ export default function App() {
         </>
       )}
 
-      {/* Tour — shown after first login */}
       {showTour && <TourOnboarding onDone={() => setShowTour(false)} />}
 
-      {/* Modals */}
       <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
       <PasscodeModal
         open={showPasscode}
