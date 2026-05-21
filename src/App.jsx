@@ -8,6 +8,7 @@ import HindiToggle from './components/HindiToggle'
 import TourOnboarding from './components/TourOnboarding'
 import PrivacyModal from './components/PrivacyModal'
 import PasscodeModal from './components/PasscodeModal'
+import Toast from './components/Toast'
 import SAMPLE_CHART from './lib/sampleChart'
 
 export default function App() {
@@ -95,6 +96,7 @@ export default function App() {
         onClose={() => setShowPasscode(false)}
         onUnlock={() => { localStorage.setItem('vv_dharma_pass', '1') }}
       />
+      <Toast />
     </>
   )
 }
