@@ -11,10 +11,20 @@ import PasscodeModal from './components/PasscodeModal'
 import Toast from './components/Toast'
 import SAMPLE_CHART from './lib/sampleChart'
 
+const CHART_KEY = 'vv_chart_data'
+
+function loadSavedChart() {
+  try {
+    const raw = localStorage.getItem(CHART_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
 export default function App() {
-  const [page, setPage] = useState('auth')   // auth | hero | dashboard | timeline
+  const [page, setPage] = useState('auth')
   const [user, setUser] = useState(null)
-  const [chartData, setChartData] = useState(SAMPLE_CHART)   // always populated
+  const [chartData, setChartData] = useState(SAMPLE_CHART)
+  const [hasRealChart, setHasRealChart] = useState(false)
   const [lang, setLang] = useState(() => localStorage.getItem('vv_lang') || 'en')
   const [showTour, setShowTour] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
@@ -29,16 +39,33 @@ export default function App() {
     return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
 
-  // Restore session on mount — go straight to dashboard
+  // Restore session on mount
   useEffect(() => {
     const session = getSession()
-    if (session) { setUser(session); setPage('dashboard') }
+    if (!session) return
+    setUser(session)
+    const saved = loadSavedChart()
+    if (saved) {
+      setChartData(saved)
+      setHasRealChart(true)
+      setPage('dashboard')
+    } else {
+      // No chart yet — send to birth form
+      setPage('hero')
+    }
   }, [])
 
   function handleEnter(u) {
     saveSession(u)
     setUser(u)
-    setPage('dashboard')
+    const saved = loadSavedChart()
+    if (saved) {
+      setChartData(saved)
+      setHasRealChart(true)
+      setPage('dashboard')
+    } else {
+      setPage('hero')
+    }
     if (!localStorage.getItem('vv_tour_done')) setShowTour(true)
   }
 
@@ -46,15 +73,20 @@ export default function App() {
     clearSession()
     setUser(null)
     setChartData(SAMPLE_CHART)
+    setHasRealChart(false)
     setPage('auth')
   }
 
   function handleChartReady(data) {
-    if (data) setChartData(data)
+    if (data && data.lagna) {
+      // Real chart from API — save it
+      localStorage.setItem(CHART_KEY, JSON.stringify(data))
+      setChartData(data)
+      setHasRealChart(true)
+    }
     setPage('dashboard')
   }
 
-  // Expose globally for legacy compat
   useEffect(() => {
     window.openPrivacyModal = () => setShowPrivacy(true)
     window.openPasscodeModal = () => setShowPasscode(true)
@@ -68,13 +100,15 @@ export default function App() {
           You are offline — some features may be unavailable
         </div>
       )}
+
       {page === 'auth' && (
-        <AuthPage onEnter={handleEnter} onPreviewTour={() => { setPage('dashboard') }} />
+        <AuthPage onEnter={handleEnter} onPreviewTour={() => setPage('hero')} />
       )}
       {page === 'hero' && (
         <HeroPage
           onChartReady={handleChartReady}
-          onLogout={handleLogout}
+          onBack={hasRealChart ? () => setPage('dashboard') : undefined}
+          onLogout={user ? handleLogout : undefined}
           onTimeline={() => setPage('timeline')}
           onPrivacy={() => setShowPrivacy(true)}
           onPasscode={() => setShowPasscode(true)}
@@ -83,7 +117,8 @@ export default function App() {
       )}
       {page === 'dashboard' && (
         <DashboardPage
-          chart={chartData}
+          chart={hasRealChart ? chartData : SAMPLE_CHART}
+          isSample={!hasRealChart}
           user={user}
           onBack={() => setPage('hero')}
           onLogout={handleLogout}
@@ -94,10 +129,9 @@ export default function App() {
       )}
       {page === 'timeline' && <TimelinePage onBack={() => setPage('dashboard')} />}
 
-      {/* Global widgets */}
       {page !== 'auth' && (
         <>
-          <JyotiChat chartContext={chartData} lang={lang} />
+          <JyotiChat chartContext={hasRealChart ? chartData : null} lang={lang} />
           <HindiToggle lang={lang} onToggle={() => setLang(l => l === 'en' ? 'hi' : 'en')} />
         </>
       )}

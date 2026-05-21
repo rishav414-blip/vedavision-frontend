@@ -145,7 +145,7 @@ function FeatureCard({ icon, title, desc }) {
 // ── Main Component ────────────────────────────────────────────────────────
 const BACKEND = "https://vedavision-backend.onrender.com";
 
-export default function HeroPage({ onChartReady, onLogout }) {
+export default function HeroPage({ onChartReady, onLogout, onBack }) {
   const [form, setForm] = useState({ name: "", dob: "", tob: "", pob: "" });
   const [approxTime, setApproxTime] = useState(false);
   const [errors, setErrors] = useState({});
@@ -260,27 +260,19 @@ export default function HeroPage({ onChartReady, onLogout }) {
         transition={{ duration: 14 }}
       />
 
-      {/* ── Sign-out link (top-right) ── */}
-      {onLogout && (
-        <div style={{ position: 'fixed', top: 16, right: 20, zIndex: 100 }}>
-          <button
-            onClick={onLogout}
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.10)',
-              borderRadius: 8,
-              padding: '7px 14px',
-              fontFamily: FONTS.body,
-              fontSize: 12,
-              color: T.txt3,
-              cursor: 'pointer',
-              letterSpacing: '0.03em',
-            }}
-          >
+      {/* ── Top-right nav ── */}
+      <div style={{ position: 'fixed', top: 16, right: 20, zIndex: 100, display: 'flex', gap: 8 }}>
+        {onBack && (
+          <button onClick={onBack} style={{ background:'rgba(212,184,112,0.10)', border:'1px solid rgba(212,184,112,0.30)', borderRadius:8, padding:'7px 14px', fontFamily:FONTS.body, fontSize:12, color:'#D4B870', cursor:'pointer' }}>
+            ← My Dashboard
+          </button>
+        )}
+        {onLogout && (
+          <button onClick={onLogout} style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.10)', borderRadius:8, padding:'7px 14px', fontFamily:FONTS.body, fontSize:12, color:T.txt3, cursor:'pointer' }}>
             Sign out
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ── Content ── */}
       <motion.div
