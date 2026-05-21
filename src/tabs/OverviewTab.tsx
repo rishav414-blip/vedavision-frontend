@@ -351,6 +351,23 @@ export default function OverviewTab({ chart }: Props) {
       <ActiveDashaCard    chart={chart} />
       <YogasCard          chart={chart} />
       <NakshatraCard      chart={chart} />
+      <motion.button
+        variants={itemVariants}
+        onClick={async () => {
+          const name = chart?.native?.name ?? 'My Chart'
+          const lagna = chart?.lagna?.signEn ?? chart?.lagna?.sign ?? '—'
+          const nak = chart?.nakshatra?.name ?? '—'
+          const md = chart?.dasha?.current?.planet ?? '—'
+          const ak = (chart?.karakas?.atmakaraka?.planet_name) ?? (chart as any)?.ak ?? '—'
+          const text = `✦ ${name}'s Vedic Chart\nLagna: ${lagna} · Nakshatra: ${nak}\nMahādaśā: ${md} · Ātmakāraka: ${ak}\n\nExplore yours → vedavision-app.pages.dev`
+          if (navigator.share) { try { await navigator.share({ text }); return } catch {} }
+          await navigator.clipboard.writeText(text).catch(() => {})
+          window.showToast?.('Chart summary copied to clipboard', 'success')
+        }}
+        style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:10, padding:'10px 0', width:'100%', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}
+      >
+        📤 Share Summary Card
+      </motion.button>
     </motion.div>
   )
 }

@@ -30,6 +30,16 @@ function clearData() {
   window.location.reload()
 }
 
+function exportData() {
+  const data: Record<string, string | null> = {}
+  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k) data[k] = localStorage.getItem(k) }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url; a.download = 'vedavision-data-export.json'; a.click()
+  URL.revokeObjectURL(url)
+  window.showToast?.('Data exported successfully', 'success')
+}
+
 export default function PrivacyModal({ open, onClose }: PrivacyModalProps) {
   return (
     <AnimatePresence>
@@ -47,6 +57,10 @@ export default function PrivacyModal({ open, onClose }: PrivacyModalProps) {
                 {i < SECTIONS.length - 1 && <div style={S.divider} />}
               </div>
             ))}
+            <div style={S.divider} />
+            <span style={S.sectionLabel}>Export Your Data</span>
+            <p style={S.sectionText}>Download a copy of everything stored on this device as a JSON file.</p>
+            <button style={{ ...S.deleteBtn, background:'rgba(176,160,200,0.10)', border:'1px solid rgba(176,160,200,0.3)', color:'#B0A0C8' }} onClick={exportData}>⬇ Export My Data</button>
             <div style={S.divider} />
             <span style={S.sectionLabel}>Delete Your Data</span>
             <p style={S.sectionText}>Permanently remove all locally stored data from this device. This cannot be undone.</p>

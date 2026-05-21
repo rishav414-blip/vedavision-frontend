@@ -19,6 +19,15 @@ export default function App() {
   const [showTour, setShowTour] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [showPasscode, setShowPasscode] = useState(false)
+  const [offline, setOffline] = useState(() => !navigator.onLine)
+
+  useEffect(() => {
+    const on = () => setOffline(false)
+    const off = () => setOffline(true)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
+  }, [])
 
   // Restore session on mount — go straight to dashboard
   useEffect(() => {
@@ -54,6 +63,11 @@ export default function App() {
 
   return (
     <>
+      {offline && (
+        <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:10000, background:'rgba(224,80,80,0.92)', color:'#fff', textAlign:'center', padding:'8px 16px', fontSize:13, fontFamily:'Outfit,sans-serif' }}>
+          You are offline — some features may be unavailable
+        </div>
+      )}
       {page === 'auth' && (
         <AuthPage onEnter={handleEnter} onPreviewTour={() => { setPage('dashboard') }} />
       )}

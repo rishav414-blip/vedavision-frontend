@@ -88,6 +88,17 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
           <div style={{ padding:'12px 16px', background:'rgba(139,124,200,0.08)', border:'1px solid rgba(139,124,200,0.2)', borderRadius:12 }}>
             <p style={{ fontSize:12, color:'#8B7CC8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>This is a general reflection. A full reading considers lagna, navamsha, Venus, and many additional factors — consult a qualified Jyotishi for comprehensive analysis.</p>
           </div>
+          <button
+            onClick={async () => {
+              const text = `✦ Vedic Compatibility: ${total}/36 — ${r.label}\n${moonSign} × ${nakshatra}\n\nCheck yours → vedavision-app.pages.dev`
+              if (navigator.share) { try { await navigator.share({ text }); return } catch {} }
+              await navigator.clipboard.writeText(text).catch(() => {})
+              window.showToast?.('Compatibility result copied', 'success')
+            }}
+            style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.06)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
+          >
+            📱 Share Result
+          </button>
         </>
       )}
     </div>
