@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const T = {
@@ -34,6 +34,59 @@ const PLANET_THEMES: Record<string, { color: string; desc: string }> = {
 
 const FALLBACK_THEME = { color: T.violet, desc: "A period of planetary transition inviting reflection on patterns, cycles and the quality of attention you bring to daily life." }
 
+// ─── 5-Year Thematic Outlook data ────────────────────────────────────────────
+interface YearOutlook {
+  year: number
+  dashaTheme: string
+  signal: string
+  score: number
+  dashaColor: string
+  career: { stars: number; narrative: string; hardTruth: string; actions: string[] }
+  wealth:  { stars: number; narrative: string; hardTruth: string; actions: string[] }
+  health: string
+  do: string[]
+  dont: string[]
+  keyMonths: string[]
+}
+
+const YEARLY_OUTLOOK: YearOutlook[] = [
+  {year:2026,dashaTheme:"Saturn · Mercury Window",signal:"medium",score:62,dashaColor:"#A08050",
+   career:{stars:3,narrative:"Methodical consolidation. Saturn rewards sustained effort — groundwork laid now shapes the next three years. Mercury quickens analytical work.",hardTruth:"Ambition without systems fails in Saturn periods. Build infrastructure before seeking the stage.",actions:["Systematise one core workflow","Invest in a skill that compounds over 3+ years","Document decisions rigorously"]},
+   wealth:{stars:3,narrative:"Steady accumulation is possible; rapid gains unlikely. Focus on reducing unnecessary expenditure.",hardTruth:"Build reserves, not deploy them. Patience is the wealth strategy.",actions:["Review recurring costs","Prioritise debt reduction","Begin one long-horizon savings vehicle"]},
+   health:"Saturn rewards sleep discipline and structured movement.",
+   do:["Maintain consistent routines","Complete what was started","Honour commitments without overcommitting"],
+   dont:["Launch ventures without infrastructure","Neglect rest","Underestimate how long things take"],
+   keyMonths:["Mar 2026","Jul 2026","Nov 2026"]},
+  {year:2027,dashaTheme:"Saturn · Ketu Depth",signal:"low",score:48,dashaColor:"#CC8855",
+   career:{stars:2,narrative:"Ketu brings withdrawal from the external. Creative and spiritual work flourishes; visibility-seeking does not.",hardTruth:"A refining year, not a building year. Forcing external progress will exhaust you.",actions:["Retreat from non-essential commitments","Deepen mastery of existing skills","Identify what no longer aligns"]},
+   wealth:{stars:2,narrative:"Ketu is indifferent to material accumulation. Financial caution advised.",hardTruth:"Preservation outperforms growth this year.",actions:["Hold positions rather than entering new ones","Complete a financial audit","Reduce complexity in financial life"]},
+   health:"Rest is productive. Honour the body's signals.",
+   do:["Meditate or maintain contemplative practice","Release what no longer serves","Focus inward"],
+   dont:["Seek public recognition","Over-extend financially","Ignore burnout signals"],
+   keyMonths:["Feb 2027","Jun 2027","Oct 2027"]},
+  {year:2028,dashaTheme:"Saturn · Venus Emergence",signal:"high",score:78,dashaColor:"#E48DB0",
+   career:{stars:4,narrative:"Venus within Saturn brings creative energy into disciplined form. Partnerships and aesthetic work are highlighted.",hardTruth:"Results arrive for those who prepared. Harvest season — only for those who planted.",actions:["Formalise a key partnership","Bring a creative project to completion","Invest in presentation quality"]},
+   wealth:{stars:4,narrative:"Financial flows improve as Saturn meets Venus. Real estate and creative ventures favoured.",hardTruth:"Gains require active stewardship. Do not become passive once momentum arrives.",actions:["Rebalance investment portfolio","Explore a creative monetisation avenue","Negotiate improved terms"]},
+   health:"Energy returns. Enjoy it without over-scheduling.",
+   do:["Collaborate actively","Launch what was prepared in 2026-27","Invest in relationships"],
+   dont:["Rush past this window","Neglect foundations built earlier","Overcommit"],
+   keyMonths:["Jan 2028","May 2028","Sep 2028"]},
+  {year:2029,dashaTheme:"Saturn · Sun Authority",signal:"high",score:74,dashaColor:"#F5C842",
+   career:{stars:4,narrative:"Sun brings leadership and visibility themes. Authority earned through sustained effort can now be expressed publicly.",hardTruth:"Authentic authority is earned, not performed. Gaps between reputation and reality become visible.",actions:["Step into leadership or mentorship","Articulate your professional position","Pursue recognition through contribution"]},
+   wealth:{stars:3,narrative:"Sun supports career-led income but cautions against ego-driven decisions.",hardTruth:"Pride can override prudence. Run financial decisions through a trusted sounding board.",actions:["Separate identity from financial risk","Consolidate 2028 gains","Plan a medium-term financial milestone"]},
+   health:"Sun periods support vitality. Guard against pride-driven overextension.",
+   do:["Lead where invited","Make work visible","Establish long-term professional commitments"],
+   dont:["Overstate credentials","Make ego-driven financial bets","Neglect collaborative relationships"],
+   keyMonths:["Apr 2029","Aug 2029","Dec 2029"]},
+  {year:2030,dashaTheme:"Saturn · Moon Recalibration",signal:"medium",score:58,dashaColor:"#D0D8F0",
+   career:{stars:3,narrative:"Moon brings emotional currents into the work sphere. Decisions from groundedness will be sound; reactive ones will need correction.",hardTruth:"Unresolved personal patterns show up professionally this year. Address them at the root.",actions:["Establish clearer work/personal boundaries","Make decisions from calm not urgency","Invest in emotional health"]},
+   wealth:{stars:3,narrative:"Wealth is steady but emotional spending can undercut goals.",hardTruth:"Emotional triggers drive financial decisions more than logic this year.",actions:["Track spending against emotional states","Automate savings","Revisit financial goals' deeper motivations"]},
+   health:"Mental and emotional health are the priority. Sleep and relational quality matter.",
+   do:["Honour emotional intelligence","Care for close relationships","Rest when the body asks"],
+   dont:["Suppress emotional signals","Make major decisions during emotional lows","Neglect home and family"],
+   keyMonths:["Mar 2030","Jul 2030","Nov 2030"]},
+]
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function parseDate(s?: string): Date | null {
   if (!s) return null
@@ -55,6 +108,22 @@ function clampPercent(start: Date, end: Date, now: Date): number {
   if (total <= 0) return 100
   const elapsed = now.getTime() - start.getTime()
   return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)))
+}
+
+function signalBadge(score: number): string {
+  if (score >= 70) return "🚀 Bullish"
+  if (score >= 60) return "💰 Favourable"
+  if (score >= 50) return "🟢 Moderate"
+  if (score >= 40) return "🟡 Cautious"
+  return "🔴 Challenging"
+}
+
+function Stars({ count, max = 5 }: { count: number; max?: number }) {
+  return (
+    <span style={{ color: T.gold, fontSize: 13, letterSpacing: 2 }}>
+      {Array.from({ length: max }, (_, i) => i < count ? "★" : "☆").join("")}
+    </span>
+  )
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -112,17 +181,13 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
       flexDirection: "column",
       gap:        12,
     }}>
-      {/* Top row */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-        {/* Glyph + dates */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
           <PlanetGlyph planet={planet} />
           <span style={{ fontSize: 10, color: T.txt3, whiteSpace: "nowrap" }}>
             {formatRange(start, end)}
           </span>
         </div>
-
-        {/* Name + label */}
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span style={{ fontFamily: "Syne, sans-serif", fontSize: 17, fontWeight: 700, color: theme.color }}>
@@ -134,14 +199,11 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
             {theme.desc}
           </p>
         </div>
-
-        {/* Badge */}
         <div style={{ flexShrink: 0, paddingTop: 2 }}>
           {status !== "past" && <span style={badgeStyle}>{status === "current" ? "CURRENT" : "UPCOMING"}</span>}
         </div>
       </div>
 
-      {/* Progress bar */}
       {pct !== null && (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -154,9 +216,113 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
         </div>
       )}
 
-      {/* Disclaimer */}
       <p style={{ margin: 0, fontSize: 10, color: T.txt3, fontStyle: "italic", letterSpacing: "0.03em" }}>
         Reflection only — not a prediction of events
+      </p>
+    </div>
+  )
+}
+
+// ─── Year card ────────────────────────────────────────────────────────────────
+function YearCard({ y }: { y: YearOutlook }) {
+  const careerLocked = y.career.actions.slice(1)
+  const wealthLocked = y.wealth.actions.slice(1)
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Header */}
+      <div style={{ ...glassCard, borderLeft: `3px solid ${y.dashaColor}` }}>
+        {/* Score bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, alignItems: "center" }}>
+          <span style={{ fontSize: 10, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em" }}>Score</span>
+          <span style={{ fontSize: 11, color: y.dashaColor, fontWeight: 700 }}>{y.score}/100</span>
+        </div>
+        <div style={{ height: 5, background: "rgba(255,255,255,0.07)", borderRadius: 3, overflow: "hidden", marginBottom: 12 }}>
+          <div style={{ height: "100%", width: `${y.score}%`, background: y.dashaColor, borderRadius: 3, transition: "width 0.5s ease" }} />
+        </div>
+
+        {/* Signal + theme row */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+          <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: `1px solid ${y.dashaColor}55`, fontSize: 11, color: y.dashaColor, fontWeight: 600 }}>
+            {signalBadge(y.score)}
+          </span>
+          <span style={{ fontSize: 13, color: T.txt2, fontStyle: "italic", fontFamily: "Cormorant Garamond, serif" }}>
+            {y.dashaTheme}
+          </span>
+        </div>
+
+        {/* Key months */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {y.keyMonths.map(m => (
+            <span key={m} style={{ padding: "2px 8px", borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", fontSize: 10, color: T.txt3 }}>{m}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Career + Wealth grid */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+        {/* Career */}
+        <div style={{ ...glassCard, flex: "1 1 280px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>Career</span>
+            <Stars count={y.career.stars} />
+          </div>
+          <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.career.narrative}</p>
+          {/* Hard Truth */}
+          <div style={{ padding: "10px 12px", background: "rgba(212,184,112,0.08)", borderLeft: "3px solid #D4B870", borderRadius: "0 8px 8px 0", marginBottom: 12 }}>
+            <span style={{ fontSize: 9, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
+            <p style={{ fontSize: 12, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.career.hardTruth}</p>
+          </div>
+          {/* First action free */}
+          <p style={{ fontSize: 12, color: T.txt2, margin: "0 0 6px" }}>→ {y.career.actions[0]}</p>
+          {careerLocked.length > 0 && (
+            <button
+              onClick={() => (window as any).openPasscodeModal?.()}
+              style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 11, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
+            >
+              🔒 +{careerLocked.length} more actions — unlock with Dharma Pass
+            </button>
+          )}
+        </div>
+
+        {/* Wealth */}
+        <div style={{ ...glassCard, flex: "1 1 280px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>Wealth</span>
+            <Stars count={y.wealth.stars} />
+          </div>
+          <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.wealth.narrative}</p>
+          <div style={{ padding: "10px 12px", background: "rgba(212,184,112,0.08)", borderLeft: "3px solid #D4B870", borderRadius: "0 8px 8px 0", marginBottom: 12 }}>
+            <span style={{ fontSize: 9, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
+            <p style={{ fontSize: 12, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.wealth.hardTruth}</p>
+          </div>
+          <p style={{ fontSize: 12, color: T.txt2, margin: "0 0 6px" }}>→ {y.wealth.actions[0]}</p>
+          {wealthLocked.length > 0 && (
+            <button
+              onClick={() => (window as any).openPasscodeModal?.()}
+              style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 11, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
+            >
+              🔒 +{wealthLocked.length} more actions — unlock with Dharma Pass
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Do / Don't */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(110,201,122,0.06)", border: "1px solid rgba(110,201,122,0.2)", borderRadius: 10 }}>
+          <p style={{ fontSize: 10, color: "#6EC97A", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>✅ Do</p>
+          {y.do.map(d => <p key={d} style={{ fontSize: 12, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
+        </div>
+        <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(224,80,80,0.06)", border: "1px solid rgba(224,80,80,0.2)", borderRadius: 10 }}>
+          <p style={{ fontSize: 10, color: "#E05050", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>❌ Avoid</p>
+          {y.dont.map(d => <p key={d} style={{ fontSize: 12, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
+        </div>
+      </div>
+
+      {/* Health */}
+      <p style={{ margin: 0, fontSize: 12, color: T.txt3, fontFamily: "Outfit,sans-serif" }}>
+        ❤ Health: {y.health}
       </p>
     </div>
   )
@@ -178,6 +344,7 @@ interface ForecastTabProps { chart: ChartData | null }
 
 export default function ForecastTab({ chart }: ForecastTabProps) {
   const now = new Date()
+  const [activeYear, setActiveYear] = useState(2026)
 
   const periods = useMemo(() => {
     const seq = chart?.dasha?.sequence
@@ -205,6 +372,8 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
       })
   }, [chart])
 
+  const activeOutlook = YEARLY_OUTLOOK.find(y => y.year === activeYear) ?? YEARLY_OUTLOOK[0]
+
   return (
     <div style={{ padding: "24px 0", display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Header */}
@@ -217,7 +386,7 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
         </p>
       </div>
 
-      {/* Content */}
+      {/* Dasha period cards */}
       {!chart || !periods.length ? (
         <div style={{ ...glassCard, textAlign: "center", padding: "40px 20px" }}>
           <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>☿</div>
@@ -238,6 +407,50 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
           ))}
         </div>
       )}
+
+      {/* ── Section divider ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0 0" }}>
+        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
+        <span style={{ fontSize: 10, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
+          5-Year Thematic Outlook
+        </span>
+        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
+      </div>
+
+      {/* Year tab row */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {YEARLY_OUTLOOK.map(y => {
+          const active = y.year === activeYear
+          return (
+            <button
+              key={y.year}
+              onClick={() => setActiveYear(y.year)}
+              style={{
+                padding: "8px 18px",
+                borderRadius: 8,
+                border: active ? "1px solid #D4B870" : "1px solid rgba(255,255,255,0.08)",
+                background: active ? "rgba(212,184,112,0.12)" : "transparent",
+                color: active ? "#D4B870" : "#8090B5",
+                fontSize: 13,
+                fontFamily: "Syne,sans-serif",
+                fontWeight: active ? 700 : 400,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {y.year}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Active year card */}
+      <YearCard y={activeOutlook} />
+
+      {/* Disclaimer */}
+      <p style={{ margin: 0, fontSize: 11, color: T.txt3, fontStyle: "italic", textAlign: "center", letterSpacing: "0.03em" }}>
+        Thematic windows for reflection — not predictions of events
+      </p>
     </div>
   )
 }

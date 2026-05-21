@@ -1,6 +1,19 @@
 import React from 'react'
 
-interface ChartData { lagna?: { sign?: string; lord?: string }; dasha?: { current?: { planet?: string } }; nakshatra?: { name?: string } }
+interface Karaka { planet_name?: string; sign?: string }
+interface Karakas {
+  atmakaraka?: Karaka; amatyakaraka?: Karaka; bhratrukaraka?: Karaka
+  matrukaraka?: Karaka; putrakaraka?: Karaka; gnatikaraka?: Karaka; darakaraka?: Karaka
+}
+interface BNNTransit { transit: string; transitSign: string; natalContact: string; theme: string }
+interface ChartData {
+  lagna?: { sign?: string; lord?: string }
+  dasha?: { current?: { planet?: string }; antardasha?: { planet?: string } }
+  nakshatra?: { name?: string }
+  karakas?: Karakas
+  ak?: string
+  bnnTransits?: BNNTransit[]
+}
 
 const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
 const lbl: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
@@ -51,20 +64,74 @@ const WEALTH_PATTERNS: Record<string, { title: string; description: string }> = 
   Pisces: { title:'Liminal Creator', description:'Intuition, imagination, and transcendent domains orient artha through artistic or healing work.' },
 }
 
+const PLANET_COLORS: Record<string, string> = {
+  Sun:'#F5C842', Moon:'#D0D8F0', Mars:'#E05050', Mercury:'#7EC8A0',
+  Jupiter:'#F0A830', Venus:'#E48DB0', Saturn:'#A08050', Rahu:'#8855CC', Ketu:'#CC8855',
+}
+
+const TAROT_MAP: Record<string, { name: string; num: string; meaning: string; prompt: string }> = {
+  Sun:     { name:'The Sun',            num:'XIX', meaning:'Vitality and authentic self-expression. What was hidden becomes visible.',                                   prompt:'Where in your life are you most fully yourself?' },
+  Moon:    { name:'The High Priestess', num:'II',  meaning:'Intuition and cyclical knowing. What cannot be spoken still guides the hand.',                              prompt:'What does your intuition already know that your mind resists?' },
+  Mars:    { name:'The Chariot',        num:'VII', meaning:'Directed will and disciplined forward motion. Victory through sustained effort.',                           prompt:'What are you driving toward, and what threatens to pull you sideways?' },
+  Mercury: { name:'The Magician',       num:'I',   meaning:'Skill and the capacity to translate inner vision into outer form.',                                         prompt:'What gift do you have that you have not yet fully used?' },
+  Jupiter: { name:'The Wheel',          num:'X',   meaning:'Expansion and the turning of great cycles. Abundance arrives through openness.',                           prompt:'What cycle in your life is completing, and what is beginning?' },
+  Venus:   { name:'The Empress',        num:'III', meaning:'Creativity and sensory intelligence. Growth through beauty and receptivity.',                               prompt:'What are you nurturing, and what needs more of your care?' },
+  Saturn:  { name:'The World',          num:'XXI', meaning:'Completion and earned mastery. The harvest of long patient work.',                                          prompt:'What have you built that now stands on its own?' },
+  Rahu:    { name:'The Fool',           num:'0',   meaning:'Departure into the unknown. The soul at the threshold of unfamiliar territory.',                           prompt:'What leap have you been postponing that the moment is now calling for?' },
+  Ketu:    { name:'The Hermit',         num:'IX',  meaning:'Withdrawal and liberation from what has already been perfected.',                                           prompt:'What are you ready to release in order to move more freely?' },
+}
+
+const KARAKA_DEFS: { key: keyof Karakas; emoji: string; label: string; sub: string; gold?: boolean }[] = [
+  { key:'atmakaraka',   emoji:'⭐', label:'Ātmakāraka',   sub:'Soul indicator',        gold:true },
+  { key:'amatyakaraka', emoji:'💼', label:'Amātyakāraka', sub:'Vocational minister' },
+  { key:'bhratrukaraka',emoji:'🤝', label:'Bhrātṛkāraka', sub:'Sibling & courage' },
+  { key:'matrukaraka',  emoji:'🏠', label:'Mātṛkāraka',   sub:'Mother & property' },
+  { key:'putrakaraka',  emoji:'✨', label:'Putrakāraka',   sub:'Children & creativity' },
+  { key:'gnatikaraka',  emoji:'🔮', label:'Gnātikāraka',  sub:'Spiritual growth' },
+  { key:'darakaraka',   emoji:'💞', label:'Dārakāraka',   sub:'Spouse & partnership' },
+]
+
+function TarotCard({ planet, roleLabel }: { planet?: string; roleLabel: string }) {
+  const t = planet ? (TAROT_MAP[planet] ?? null) : null
+  if (!t) return (
+    <div style={{ flex:'1 1 180px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20, display:'flex', flexDirection:'column', gap:8 }}>
+      <span style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif' }}>{roleLabel}</span>
+      <p style={{ fontSize:13, color:'#8090B5', fontFamily:'Outfit,sans-serif', fontStyle:'italic', margin:0 }}>Data unavailable</p>
+    </div>
+  )
+  return (
+    <div style={{ flex:'1 1 180px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20, display:'flex', flexDirection:'column', gap:10 }}>
+      <span style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif' }}>{roleLabel}</span>
+      <div style={{ fontSize:28, color:'#4A3A6A', fontFamily:'"Cormorant Garamond",serif', fontWeight:300, lineHeight:1 }}>{t.num}</div>
+      <div style={{ fontSize:20, color:'#F0EBF4', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', lineHeight:1.3 }}>{t.name}</div>
+      <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.65, margin:0, fontFamily:'Outfit,sans-serif' }}>{t.meaning}</p>
+      <div style={{ padding:'8px 12px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10 }}>
+        <p style={{ fontSize:12, color:'#B0A0C8', fontStyle:'italic', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.55 }}>{t.prompt}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function InsightsTab({ chart }: { chart: ChartData | null }) {
-  const lord = chart?.lagna?.lord
-  const sign = chart?.lagna?.sign
-  const planet = chart?.dasha?.current?.planet
-  const arch = deriveArchetype(lord, planet)
-  const ak = AK_THEMES[lord ?? 'Sun'] ?? AK_THEMES['Sun']
+  const lord    = chart?.lagna?.lord
+  const sign    = chart?.lagna?.sign
+  const planet  = chart?.dasha?.current?.planet
+  const antPlanet = chart?.dasha?.antardasha?.planet
+  const akPlanet  = chart?.ak ?? chart?.karakas?.atmakaraka?.planet_name
+  const arch   = deriveArchetype(lord, planet)
+  const ak     = AK_THEMES[lord ?? 'Sun'] ?? AK_THEMES['Sun']
   const wealth = WEALTH_PATTERNS[sign ?? ''] ?? { title:'Artha Pattern', description:'The 2nd and 11th houses reveal the texture of material flow. With fuller chart data, a more specific pattern can be surfaced.' }
+  const karakas = chart?.karakas
+  const bnnTransits = chart?.bnnTransits ?? []
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:640, margin:'0 auto' }}>
+
+      {/* ── Card 1: Leadership Archetype ── */}
       <div style={card}>
         <span style={lbl}>Leadership Archetype</span>
         <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:14 }}>
-          <div style={{ width:64, height:64, borderRadius:'50%', border:`2px solid ${arch.color}`, background:`rgba(0,0,0,0.2)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:28, flexShrink:0 }}>{arch.icon}</div>
+          <div style={{ width:64, height:64, borderRadius:'50%', border:`2px solid ${arch.color}`, background:'rgba(0,0,0,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28, flexShrink:0 }}>{arch.icon}</div>
           <div>
             <p style={{ fontSize:22, color:arch.color, fontFamily:'"Cormorant Garamond",serif', fontWeight:600, margin:'0 0 3px', fontStyle:'italic' }}>{arch.name}</p>
             <p style={{ fontSize:11, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif' }}>Lagna lord: {lord ?? '—'} · Daśā: {planet ?? '—'}</p>
@@ -72,10 +139,11 @@ export default function InsightsTab({ chart }: { chart: ChartData | null }) {
         </div>
         <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.7, margin:'0 0 14px', fontFamily:'Outfit,sans-serif' }}>{arch.description}</p>
         <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-          {arch.strengths.map(s => <span key={s} style={{ padding:'4px 12px', borderRadius:999, background:`rgba(0,0,0,0.2)`, border:`1px solid ${arch.color}40`, color:arch.color, fontSize:12, fontFamily:'Outfit,sans-serif' }}>{s}</span>)}
+          {arch.strengths.map(s => <span key={s} style={{ padding:'4px 12px', borderRadius:999, background:'rgba(0,0,0,0.2)', border:`1px solid ${arch.color}40`, color:arch.color, fontSize:12, fontFamily:'Outfit,sans-serif' }}>{s}</span>)}
         </div>
       </div>
 
+      {/* ── Card 2: AK Reflection ── */}
       <div style={card}>
         <span style={lbl}>Ātmakāraka Reflection</span>
         <div style={{ display:'flex', gap:12, alignItems:'flex-start', marginBottom:12 }}>
@@ -85,12 +153,67 @@ export default function InsightsTab({ chart }: { chart: ChartData | null }) {
         <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.7, margin:0, fontFamily:'Outfit,sans-serif' }}>{ak.reflection}</p>
       </div>
 
+      {/* ── Card 3: Wealth Pattern ── */}
       <div style={card}>
         <span style={lbl}>Artha Focus — Wealth Pattern</span>
         <p style={{ fontSize:18, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:'0 0 10px' }}>{wealth.title}</p>
         <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.7, margin:'0 0 12px', fontFamily:'Outfit,sans-serif' }}>{wealth.description}</p>
         <div style={{ padding:'10px 12px', background:'rgba(212,184,112,0.06)', borderRadius:10, borderLeft:'2px solid rgba(212,184,112,0.4)' }}>
           <p style={{ fontSize:12, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif' }}>Primary artha houses — 2nd (Dhana), 10th (Karma), 11th (Labha) — are the core lens for wealth pattern analysis.</p>
+        </div>
+      </div>
+
+      {/* ── Card 4: Jaimini Karakas Grid ── */}
+      <div style={card}>
+        <span style={lbl}>Jaimini Karakas</span>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))', gap:10 }}>
+          {KARAKA_DEFS.map(({ key, emoji, label, sub, gold }) => {
+            const k = karakas?.[key]
+            const borderColor = gold ? '#D4B870' : '#8B7CC8'
+            const borderOpacity = gold ? '0.5' : '0.3'
+            return (
+              <div key={key} style={{ background:'rgba(255,255,255,0.03)', border:`1px solid rgba(${gold ? '212,184,112' : '139,124,200'},${borderOpacity})`, borderRadius:12, padding:'12px 10px', display:'flex', flexDirection:'column', gap:4 }}>
+                <span style={{ fontSize:20, lineHeight:1 }}>{emoji}</span>
+                <p style={{ fontSize:13, color: gold ? borderColor : '#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:600, margin:0, marginTop:2 }}>{k?.planet_name ?? '—'}</p>
+                {k?.sign && <p style={{ fontSize:11, color:'#8090B5', fontFamily:'Outfit,sans-serif', margin:0 }}>{k.sign}</p>}
+                <p style={{ fontSize:11, color: gold ? '#D4B870' : '#8B7CC8', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:0, lineHeight:1.3 }}>{label}</p>
+                <p style={{ fontSize:10, color:'#7A6A9A', fontFamily:'Outfit,sans-serif', margin:0 }}>{sub}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Card 5: BNN Transits ── */}
+      <div style={card}>
+        <span style={lbl}>BNN Transits</span>
+        {bnnTransits.length === 0 ? (
+          <p style={{ fontSize:13, color:'#7A6A9A', fontStyle:'italic', margin:0, fontFamily:'Outfit,sans-serif' }}>Transit data unavailable</p>
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {bnnTransits.map((t, i) => {
+              const pc = PLANET_COLORS[t.transit] ?? '#B0A0C8'
+              return (
+                <div key={i} style={{ padding:'12px 14px', background:'rgba(255,255,255,0.03)', borderRadius:12, borderLeft:`3px solid ${pc}` }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                    <span style={{ fontSize:13, color:pc, fontFamily:'Outfit,sans-serif', fontWeight:600 }}>{t.transit}</span>
+                    <span style={{ fontSize:12, color:'#8090B5', fontFamily:'Outfit,sans-serif' }}>transiting {t.transitSign} → {t.natalContact}</span>
+                  </div>
+                  <p style={{ fontSize:13, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>{t.theme}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Card 6: Tarot Archetypes ── */}
+      <div style={card}>
+        <span style={lbl}>Tarot Archetypes</span>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:14 }}>
+          <TarotCard planet={planet}     roleLabel="Current Period" />
+          <TarotCard planet={antPlanet}  roleLabel="Active Force" />
+          <TarotCard planet={akPlanet}   roleLabel="Soul Signature" />
         </div>
       </div>
 

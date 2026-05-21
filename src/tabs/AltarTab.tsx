@@ -15,66 +15,210 @@ const PLANET_DATA: Record<string, { symbol: string; devanagari: string; romanise
   Ketu:    { symbol:'☋', devanagari:'ॐ केतवे नमः',     romanised:'Om Ketave Namah',        day:'Tuesday',   dana:'Blankets or grey cloth',                 color:'#CC8855', glowColor:'rgba(204,136,85,0.2)' },
 }
 
+// ─── Hora / Day logic ─────────────────────────────────────────────────────────
+const HORA_ORDER = ['Sun','Venus','Mercury','Moon','Saturn','Jupiter','Mars']
+const DAY_RULERS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn']
+const PLANET_COLORS_ALTAR: Record<string,string> = {
+  Sun:'#F5C842', Moon:'#D0D8F0', Mars:'#E05050', Mercury:'#7EC8A0',
+  Jupiter:'#F0A830', Venus:'#E48DB0', Saturn:'#A08050', Rahu:'#8855CC', Ketu:'#CC8855'
+}
+const FASTING: Record<string,string> = {
+  Sun:"Sun's day — fast or eat light. Offer water to the sun at dawn.",
+  Moon:"Moon's day — avoid salty food. White foods and milk are traditional.",
+  Mars:"Mars's day — avoid meat. Red lentils are appropriate.",
+  Mercury:"Mercury's day — light vegetarian meal. Green foods favoured.",
+  Jupiter:"Jupiter's day — fast or eat once. Banana and turmeric are traditional.",
+  Venus:"Venus's day — avoid excess. Sweet foods in moderation.",
+  Saturn:"Saturn's day — fast or eat once at dusk. Sesame and black lentils are traditional.",
+}
+
+function getCurrentHora(): { planet: string; horaNum: number } {
+  const now = new Date()
+  const dayRuler = DAY_RULERS[now.getDay()]
+  const sunrise = new Date(now); sunrise.setHours(6,0,0,0)
+  const horaNum = Math.max(0, Math.floor((now.getTime() - sunrise.getTime()) / 3600000)) % 24
+  const planet = HORA_ORDER[(HORA_ORDER.indexOf(dayRuler) + horaNum) % 7]
+  return { planet, horaNum }
+}
+
+// ─── Planet frequencies ───────────────────────────────────────────────────────
+const PLANET_FREQ: Record<string,number> = {
+  Sun:126.22, Moon:210.42, Mars:144.72, Mercury:141.27,
+  Jupiter:183.58, Venus:221.23, Saturn:147.85, Rahu:168.05, Ketu:168.05
+}
+
 const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
-const label: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
+const lbl: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
 
 export default function AltarTab({ chart }: AltarTabProps) {
-  const planet = chart?.dasha?.current?.planet ?? 'Sun'
-  const data = PLANET_DATA[planet] ?? PLANET_DATA['Sun']
-  const [count, setCount] = useState(0)
+  const activePlanet = chart?.dasha?.current?.planet ?? 'Sun'
+  const data = PLANET_DATA[activePlanet] ?? PLANET_DATA['Sun']
+
+  // Japa counter
+  const [beadCount, setBeadCount] = useState(0)
   const [celebrated, setCelebrated] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout>|null>(null)
 
-  useEffect(() => { setCount(0); setCelebrated(false) }, [planet])
+  // Hora state
+  const [hora, setHora] = useState(getCurrentHora)
+  const todayRuler = DAY_RULERS[new Date().getDay()]
+
+  // Audio state
+  const [audioPlaying, setAudioPlaying] = useState(false)
+  const audioCtxRef = useRef<AudioContext|null>(null)
+  const sourceRef   = useRef<OscillatorNode|null>(null)
+  const gainRef     = useRef<GainNode|null>(null)
+
+  // Reset counter when planet changes
+  useEffect(() => { setBeadCount(0); setCelebrated(false) }, [activePlanet])
+
+  // Hora auto-update every 60s
+  useEffect(() => {
+    const id = setInterval(() => setHora(getCurrentHora()), 60000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Stop audio on unmount
+  useEffect(() => {
+    return () => { stopAudio() }
+  }, [])
+
+  function startAudio(planet: string) {
+    stopAudio()
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'sine'
+    osc.frequency.value = PLANET_FREQ[planet] ?? 136.1
+    gain.gain.setValueAtTime(0, ctx.currentTime)
+    gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.5)
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start()
+    audioCtxRef.current = ctx
+    sourceRef.current   = osc
+    gainRef.current     = gain
+    setAudioPlaying(true)
+  }
+
+  function stopAudio() {
+    if (gainRef.current && audioCtxRef.current) {
+      const gain = gainRef.current
+      const ctx  = audioCtxRef.current
+      gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime)
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5)
+      setTimeout(() => {
+        try { sourceRef.current?.stop(); ctx.close() } catch {}
+        audioCtxRef.current = null; sourceRef.current = null; gainRef.current = null
+      }, 550)
+    }
+    setAudioPlaying(false)
+  }
+
+  function toggleAudio() {
+    if (audioPlaying) { stopAudio() } else { startAudio(activePlanet) }
+  }
 
   function increment() {
-    if (count >= 108) return
-    const next = count + 1; setCount(next)
-    if (next === 108) { setCelebrated(true); timer.current = setTimeout(() => setCelebrated(false), 4000) }
+    if (beadCount >= 108) return
+    const next = beadCount + 1
+    setBeadCount(next)
+    if (next === 108) {
+      setCelebrated(true)
+      timer.current = setTimeout(() => setCelebrated(false), 4000)
+    }
+    // Auto-start audio on first bead
+    if (!audioPlaying && next === 1) startAudio(activePlanet)
   }
-  function reset() { setCount(0); setCelebrated(false); if (timer.current) clearTimeout(timer.current) }
 
-  const pct = Math.min(count / 108, 1)
-  const r = 54, circ = 2 * Math.PI * r
+  function reset() {
+    setBeadCount(0); setCelebrated(false)
+    if (timer.current) clearTimeout(timer.current)
+  }
+
+  const horaColor = PLANET_COLORS_ALTAR[hora.planet] ?? '#D4B870'
+  const freq = PLANET_FREQ[activePlanet] ?? 136.1
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:640, margin:'0 auto' }}>
-      <div style={{ ...card, textAlign:'center', padding:'32px 24px' }}>
-        <span style={label}>Digital Altar</span>
-        <div style={{ width:96, height:96, borderRadius:'50%', border:`2px solid ${data.color}`, boxShadow:`0 0 32px ${data.glowColor}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:44, color:data.color, margin:'0 auto 16px', background:`radial-gradient(circle, ${data.glowColor} 0%, transparent 70%)` }}>{data.symbol}</div>
-        <p style={{ fontSize:18, color:'#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:500, margin:'0 0 2px' }}>{planet}</p>
-        <p style={{ fontSize:11, color:'#B0A0C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 20px', fontFamily:'Outfit,sans-serif' }}>Mahādaśā</p>
-        <p style={{ fontSize:28, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', lineHeight:1.5, margin:'0 0 8px' }}>{data.devanagari}</p>
-        <p style={{ fontSize:13, color:'#B0A0C8', fontFamily:'Outfit,sans-serif', margin:0 }}>{data.romanised}</p>
-      </div>
 
-      <div style={{ ...card, textAlign:'center' }}>
-        <span style={label}>Japa Counter — 108 Repetitions</span>
-        <div style={{ position:'relative', width:140, height:140, margin:'0 auto 16px' }}>
-          <svg width={140} height={140} style={{ transform:'rotate(-90deg)' }}>
-            <circle cx={70} cy={70} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={6} />
-            <circle cx={70} cy={70} r={r} fill="none" stroke={celebrated ? '#6EC97A' : '#D4B870'} strokeWidth={6} strokeDasharray={`${circ*pct} ${circ}`} strokeLinecap="round" style={{ transition:'stroke-dasharray 0.25s ease, stroke 0.4s' }} />
-          </svg>
-          <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-            <span style={{ fontSize:36, fontFamily:'Syne,sans-serif', fontWeight:700, color:celebrated?'#6EC97A':'#D4B870', lineHeight:1 }}>{count}</span>
-            <span style={{ fontSize:12, color:'#B0A0C8', fontFamily:'Outfit,sans-serif' }}>/ 108</span>
+      {/* ── Hora Card ── */}
+      <div style={{ ...card, borderLeft:`3px solid ${horaColor}` }}>
+        <span style={lbl}>Current Hora</span>
+        <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
+          <div>
+            <p style={{ fontSize:28, fontFamily:'Syne,sans-serif', fontWeight:700, color:horaColor, margin:'0 0 2px', lineHeight:1 }}>{hora.planet}</p>
+            <p style={{ fontSize:11, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif' }}>Hour {hora.horaNum + 1} of the day</p>
+          </div>
+          <div style={{ flex:1, padding:'10px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:10 }}>
+            <p style={{ fontSize:10, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Today — {todayRuler}'s day</p>
+            <p style={{ fontSize:12, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{FASTING[todayRuler]}</p>
           </div>
         </div>
-        {celebrated && <p style={{ color:'#6EC97A', fontFamily:'Outfit,sans-serif', fontSize:14, marginBottom:12 }}>✓ 108 complete — well done</p>}
+      </div>
+
+      {/* ── Mantra / Altar card ── */}
+      <div style={{ ...card, textAlign:'center', padding:'32px 24px' }}>
+        <span style={lbl}>Digital Altar</span>
+        <div style={{ width:96, height:96, borderRadius:'50%', border:`2px solid ${data.color}`, boxShadow:`0 0 32px ${data.glowColor}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:44, color:data.color, margin:'0 auto 16px', background:`radial-gradient(circle, ${data.glowColor} 0%, transparent 70%)` }}>{data.symbol}</div>
+        <p style={{ fontSize:18, color:'#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:500, margin:'0 0 2px' }}>{activePlanet}</p>
+        <p style={{ fontSize:11, color:'#B0A0C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 20px', fontFamily:'Outfit,sans-serif' }}>Mahādaśā</p>
+        <p style={{ fontSize:28, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', lineHeight:1.5, margin:'0 0 8px' }}>{data.devanagari}</p>
+        <p style={{ fontSize:13, color:'#B0A0C8', fontFamily:'Outfit,sans-serif', margin:'0 0 16px' }}>{data.romanised}</p>
+
+        {/* Audio toggle */}
+        <button
+          onClick={toggleAudio}
+          style={{ padding:'8px 20px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(255,255,255,0.12)'}`, background: audioPlaying ? `${data.color}15` : 'transparent', color: audioPlaying ? data.color : '#8090B5', fontSize:12, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
+        >
+          {audioPlaying ? `⏸ Stop ${freq}Hz` : `🔊 Play ${freq}Hz`}
+        </button>
+      </div>
+
+      {/* ── Japa Counter ── */}
+      <div style={{ ...card, textAlign:'center' }}>
+        <span style={lbl}>Japa Counter — 108 Repetitions</span>
+
+        {/* Bead ring SVG */}
+        <div style={{ margin:'0 auto 16px', width:80, height:80 }}>
+          <svg width="80" height="80" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4"/>
+            <circle cx="28" cy="28" r="22" fill="none"
+              stroke={celebrated ? '#6EC97A' : '#D4B870'}
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray="138"
+              strokeDashoffset={138 - (138 * beadCount / 108)}
+              transform="rotate(-90 28 28)"
+              style={{ transition:'stroke-dashoffset 0.3s ease, stroke 0.4s' }}
+            />
+            <text x="28" y="33" textAnchor="middle" fill={celebrated ? '#6EC97A' : '#D4B870'} fontSize="13" fontFamily="Syne,sans-serif" fontWeight="700">{beadCount}</text>
+          </svg>
+        </div>
+
+        {beadCount === 108 && (
+          <p style={{ color:'#6EC97A', fontFamily:'Outfit,sans-serif', fontSize:14, marginBottom:12 }}>🙏 108 complete</p>
+        )}
+        {celebrated && beadCount < 108 && (
+          <p style={{ color:'#6EC97A', fontFamily:'Outfit,sans-serif', fontSize:14, marginBottom:12 }}>✓ 108 complete — well done</p>
+        )}
+
         <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
-          <button onClick={increment} disabled={count>=108} style={{ padding:'12px 32px', borderRadius:999, border:`1.5px solid ${count>=108?'rgba(212,184,112,0.3)':'#D4B870'}`, background:'transparent', color:count>=108?'rgba(212,184,112,0.4)':'#D4B870', fontSize:18, fontFamily:'Outfit,sans-serif', cursor:count>=108?'default':'pointer' }}>+ 1</button>
+          <button onClick={increment} disabled={beadCount>=108} style={{ padding:'12px 32px', borderRadius:999, border:`1.5px solid ${beadCount>=108?'rgba(212,184,112,0.3)':'#D4B870'}`, background:'transparent', color:beadCount>=108?'rgba(212,184,112,0.4)':'#D4B870', fontSize:18, fontFamily:'Outfit,sans-serif', cursor:beadCount>=108?'default':'pointer' }}>+ 1</button>
           <button onClick={reset} style={{ padding:'8px 16px', borderRadius:8, border:'1px solid rgba(128,144,181,0.3)', background:'transparent', color:'#8090B5', fontSize:12, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}>Reset</button>
         </div>
       </div>
 
+      {/* ── Practice Guidance ── */}
       <div style={card}>
-        <span style={label}>Practice Guidance</span>
+        <span style={lbl}>Practice Guidance</span>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>📅</span><div><p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Auspicious Day</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.day}</p></div></div>
           <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>🤲</span><div><p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Dāna</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.dana}</p></div></div>
         </div>
         <p style={{ fontSize:11, color:'#8090B5', fontStyle:'italic', marginTop:16, paddingTop:12, borderTop:'1px solid rgba(255,255,255,0.06)', fontFamily:'Outfit,sans-serif' }}>Traditional suggestions — adapt to your constitution.</p>
       </div>
+
     </div>
   )
 }
