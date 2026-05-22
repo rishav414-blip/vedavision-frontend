@@ -146,7 +146,7 @@ function FeatureCard({ icon, title, desc }) {
 const BACKEND = "https://vedavision-backend.onrender.com";
 
 export default function HeroPage({ onChartReady, onLogout, onBack }) {
-  const [form, setForm] = useState({ name: "", dob: "", tob: "", pob: "" });
+  const [form, setForm] = useState({ name: "", dob: "", tob: "", pob: "", gender: "" });
   const [approxTime, setApproxTime] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -177,6 +177,7 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
           dob: form.dob,
           tob: form.tob || "00:00",
           pob: form.pob.trim(),
+          gender: form.gender,
           approxTime,
         }),
       });
@@ -552,6 +553,21 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
                 )}
               </div>
 
+              {/* Gender */}
+              <div>
+                <label style={S.label}>Gender <span style={{ color:T.txt3, fontSize:10 }}>(optional)</span></label>
+                <select
+                  value={form.gender}
+                  onChange={handleChange('gender')}
+                  style={{ ...S.input, colorScheme:'dark' }}
+                >
+                  <option value="">Prefer not to say</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
               {/* API error */}
               {apiError && (
                 <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(224,80,80,0.10)", border: "1px solid rgba(224,80,80,0.30)", fontFamily: FONTS.body, fontSize: 13, color: T.error }}>
@@ -610,6 +626,18 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
               </motion.button>
             </div>
           </form>
+
+          {/* Trust badges */}
+          <div style={{ display:'flex', gap:8, justifyContent:'center', flexWrap:'wrap', marginTop:12 }}>
+            {['🔒 Private · never shared', '✓ Real Swiss Ephemeris', '⭐ 11 features'].map(b => (
+              <span key={b} style={{
+                fontSize:11, color:T.txt3, fontFamily:FONTS.body,
+                background:'rgba(255,255,255,0.04)',
+                border:'1px solid rgba(255,255,255,0.08)',
+                borderRadius:20, padding:'3px 10px',
+              }}>{b}</span>
+            ))}
+          </div>
 
           {/* Demo link */}
           <div style={{ textAlign: "center", marginTop: 14 }}>

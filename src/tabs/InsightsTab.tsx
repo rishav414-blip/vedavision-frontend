@@ -6,6 +6,10 @@ interface Karakas {
   matrukaraka?: Karaka; putrakaraka?: Karaka; gnatikaraka?: Karaka; darakaraka?: Karaka
 }
 interface BNNTransit { transit: string; transitSign: string; natalContact: string; theme: string }
+interface PlanetRow {
+  planet: string; skt: string; glyph: string; sign: string; house: number
+  dignity: string; color: string; notes: string
+}
 interface ChartData {
   lagna?: { sign?: string; lord?: string }
   dasha?: { current?: { planet?: string }; antardasha?: { planet?: string } }
@@ -13,6 +17,7 @@ interface ChartData {
   karakas?: Karakas
   ak?: string
   bnnTransits?: BNNTransit[]
+  planetTable?: PlanetRow[]
 }
 
 const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
@@ -91,6 +96,132 @@ const KARAKA_DEFS: { key: keyof Karakas; emoji: string; label: string; sub: stri
   { key:'darakaraka',   emoji:'💞', label:'Dārakāraka',   sub:'Spouse & partnership' },
 ]
 
+// ── Dignity badge helper ──────────────────────────────────────────────────────
+function DignityBadge({ dignity }: { dignity: string }) {
+  const d = dignity.toLowerCase()
+  let bg = 'rgba(255,255,255,0.06)', color = '#8090B5', border = 'rgba(255,255,255,0.12)'
+  if (d.includes('exalt'))  { bg = 'rgba(110,201,122,0.12)'; color = '#6EC97A'; border = 'rgba(110,201,122,0.3)' }
+  else if (d.includes('own')) { bg = 'rgba(80,140,224,0.12)'; color = '#7AABF0'; border = 'rgba(80,140,224,0.3)' }
+  else if (d.includes('debil')) { bg = 'rgba(224,80,80,0.12)'; color = '#E05050'; border = 'rgba(224,80,80,0.3)' }
+  return (
+    <span style={{ padding: '2px 9px', borderRadius: 999, background: bg, border: `1px solid ${border}`, color, fontSize: 11, fontFamily: 'Outfit,sans-serif', whiteSpace: 'nowrap' as const }}>
+      {dignity || '—'}
+    </span>
+  )
+}
+
+// ── Swiss Ephemeris Table ─────────────────────────────────────────────────────
+function EphemerisTable({ chart }: { chart: ChartData | null }) {
+  const rows = chart?.planetTable ?? []
+  if (!rows.length) return null
+
+  const strong = rows.filter(r => {
+    const d = r.dignity.toLowerCase()
+    return d.includes('exalt') || d.includes('own')
+  })
+  const weak = rows.filter(r => r.dignity.toLowerCase().includes('debil'))
+
+  const thStyle: React.CSSProperties = {
+    fontSize: 9, fontFamily: 'Outfit,sans-serif', fontWeight: 700,
+    letterSpacing: '0.10em', textTransform: 'uppercase' as const,
+    color: '#D4B870', padding: '6px 10px', textAlign: 'left' as const,
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
+  }
+  const tdStyle: React.CSSProperties = {
+    padding: '9px 10px', fontSize: 12, fontFamily: 'Outfit,sans-serif',
+    color: '#B0A0C8', verticalAlign: 'middle' as const,
+  }
+
+  return (
+    <div style={card}>
+      {/* Strong / Weak chip summary */}
+      {(strong.length > 0 || weak.length > 0) && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 14 }}>
+          {strong.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.10em', color: '#6EC97A', fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Strong Planets</span>
+              {strong.map(r => (
+                <span key={r.planet} style={{ padding: '3px 12px', borderRadius: 999, background: 'rgba(110,201,122,0.10)', border: '1px solid rgba(110,201,122,0.3)', color: '#6EC97A', fontSize: 12, fontFamily: 'Outfit,sans-serif' }}>
+                  {r.glyph} {r.planet}
+                </span>
+              ))}
+            </div>
+          )}
+          {weak.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.10em', color: '#E05050', fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Needs Support</span>
+              {weak.map(r => (
+                <span key={r.planet} style={{ padding: '3px 12px', borderRadius: 999, background: 'rgba(224,80,80,0.10)', border: '1px solid rgba(224,80,80,0.3)', color: '#E05050', fontSize: 12, fontFamily: 'Outfit,sans-serif' }}>
+                  {r.glyph} {r.planet}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <span style={lbl}>Swiss Ephemeris — Exact Positions</span>
+
+      <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 480 }}>
+          <thead>
+            <tr>
+              <th style={thStyle}>Planet</th>
+              <th style={thStyle}>Sign</th>
+              <th style={{ ...thStyle, textAlign: 'center' as const }}>House</th>
+              <th style={thStyle}>Dignity</th>
+              <th style={{ ...thStyle, display: 'var(--notes-display, table-cell)' as any }} className="col-notes">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const color = r.color || PLANET_COLORS[r.planet] || '#B0A0C8'
+              const isRetrograde = r.notes?.includes('℞') || r.notes?.toLowerCase().includes('r)')
+              return (
+                <tr key={r.planet}
+                  style={{
+                    background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent')}
+                >
+                  {/* Planet */}
+                  <td style={{ ...tdStyle, color, fontWeight: 600, whiteSpace: 'nowrap' as const }}>
+                    <span style={{ fontSize: 15, marginRight: 6 }}>{r.glyph}</span>{r.planet}
+                    {r.skt && r.skt !== r.planet && (
+                      <span style={{ fontSize: 10, color: '#7A6A9A', marginLeft: 4, fontFamily: '"Cormorant Garamond",serif', fontStyle: 'italic' }}>{r.skt}</span>
+                    )}
+                  </td>
+                  {/* Sign */}
+                  <td style={tdStyle}>{r.sign}</td>
+                  {/* House */}
+                  <td style={{ ...tdStyle, textAlign: 'center' as const, color: '#8090B5' }}>H{r.house}</td>
+                  {/* Dignity */}
+                  <td style={{ ...tdStyle }}><DignityBadge dignity={r.dignity} /></td>
+                  {/* Notes */}
+                  <td style={{ ...tdStyle, fontFamily: '"Courier New",Courier,monospace', fontSize: 11, color: '#7A6A9A' }} className="col-notes">
+                    {r.notes}
+                    {isRetrograde && !r.notes?.includes('℞') && <span style={{ color: '#E05050', marginLeft: 4 }}>℞</span>}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Responsive: hide Notes on narrow screens */}
+      <style>{`
+        @media (max-width: 480px) {
+          .col-notes { display: none !important; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+// ── Tarot Card ────────────────────────────────────────────────────────────────
 function TarotCard({ planet, roleLabel }: { planet?: string; roleLabel: string }) {
   const t = planet ? (TAROT_MAP[planet] ?? null) : null
   if (!t) return (
@@ -126,6 +257,9 @@ export default function InsightsTab({ chart }: { chart: ChartData | null }) {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:640, margin:'0 auto' }}>
+
+      {/* ── Card 0: Swiss Ephemeris Table ── */}
+      <EphemerisTable chart={chart} />
 
       {/* ── Card 1: Leadership Archetype ── */}
       <div style={card}>

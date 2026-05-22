@@ -19,7 +19,38 @@ const glassCard: React.CSSProperties = {
   padding:      "20px",
 }
 
-// ─── Planet index map for deterministic hash ──────────────────────────────────
+// ─── Planet-day affinity ──────────────────────────────────────────────────────
+const PLANET_DAY: Record<string, number> = {
+  Sun: 0, Moon: 1, Mars: 2, Mercury: 3, Jupiter: 4, Venus: 5, Saturn: 6
+}
+
+const PLANET_COLOR: Record<string, string> = {
+  Sun:     "#F5C842",
+  Moon:    "#D0D8F0",
+  Mars:    "#E05050",
+  Mercury: "#7EC8A0",
+  Jupiter: "#F0A830",
+  Venus:   "#E48DB0",
+  Saturn:  "#A08050",
+  Rahu:    "#8855CC",
+  Ketu:    "#CC8855",
+}
+
+const PLANET_GLYPH: Record<string, string> = {
+  Sun:     "☉",
+  Moon:    "☽",
+  Mars:    "♂",
+  Mercury: "☿",
+  Jupiter: "♃",
+  Venus:   "♀",
+  Saturn:  "♄",
+  Rahu:    "☊",
+  Ketu:    "☋",
+}
+
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
+// Planet index map kept for legacy getDashaIndex fallback
 const PLANET_ORDER = ["Sun","Moon","Mars","Rahu","Jupiter","Saturn","Mercury","Ketu","Venus"]
 
 // ─── ChartData interface ──────────────────────────────────────────────────────
@@ -59,9 +90,14 @@ function getDashaIndex(chart: ChartData | null): number {
   return idx === -1 ? 3 : idx  // default Rahu index
 }
 
-/** Deterministic score 0-100 for a given day */
-function dayScore(day: number, month: number, dashaIdx: number): number {
-  return ((day * 7 + month * 13 + dashaIdx * 17) % 100 + 100) % 100
+/** Deterministic score 0-100 weighted by active Mahādaśā planet and day of week */
+function dayScore(date: Date, dashaPlanet: string, idx: number): number {
+  const dow         = date.getDay() // 0=Sun
+  const base        = ((date.getDate() * 7 + date.getMonth() * 13 + idx * 17) % 60) + 20 // 20–80 range
+  const dayBonus    = (PLANET_DAY[dashaPlanet] ?? -1) === dow ? 15 : 0
+  const weekendBonus = (dow === 0 || dow === 6) && ["Moon","Venus"].includes(dashaPlanet) ? 8 : 0
+  const mercBonus   = dow === 3 && dashaPlanet === "Mercury" ? 10 : 0
+  return Math.min(100, Math.max(0, base + dayBonus + weekendBonus + mercBonus))
 }
 
 function energyLabel(score: number): string {
@@ -148,19 +184,20 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
   const [results, setResults]   = useState<DayData[] | null>(null)
   const [searched, setSearched] = useState(false)
 
-  const dashaIdx  = useMemo(() => getDashaIndex(chart), [chart])
+  const dashaPlanet = chart?.dasha?.current?.planet ?? "Saturn"
   const totalDays = useMemo(() => daysInMonth(year, month), [year, month])
   const startDow  = useMemo(() => firstDayOfWeek(year, month), [year, month])
 
   // Build all day data for the current month
   const allDays: DayData[] = useMemo(() =>
     Array.from({ length: totalDays }, (_, i) => {
-      const day = i + 1
-      const d   = new Date(year, month, day)
-      const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-      return { day, date: iso, score: dayScore(day, month + 1, dashaIdx) }
+      const day  = i + 1
+      const d    = new Date(year, month, day)
+      const iso  = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+      const idx  = PLANET_ORDER.indexOf(dashaPlanet) === -1 ? 3 : PLANET_ORDER.indexOf(dashaPlanet)
+      return { day, date: iso, score: dayScore(d, dashaPlanet, idx) }
     }),
-  [totalDays, year, month, dashaIdx])
+  [totalDays, year, month, dashaPlanet])
 
   // Weekly summaries: week 1 = days 1-7, week 2 = 8-14, week 3 = 15-21, week 4 = 22-end
   const weekSummaries = useMemo(() => {
@@ -204,7 +241,13 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
   // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null)
 
-  const selectedScore = selected != null ? dayScore(selected, month + 1, dashaIdx) : null
+  const selectedScore = selected != null
+    ? dayScore(
+        new Date(year, month, selected),
+        dashaPlanet,
+        PLANET_ORDER.indexOf(dashaPlanet) === -1 ? 3 : PLANET_ORDER.indexOf(dashaPlanet)
+      )
+    : null
 
   function handleFind() {
     const act = ACTIVITIES.find(a => a.value === activity)!
@@ -234,6 +277,42 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
         </div>
       </div>
 
+      {/* ── Ruling planet scoring info card ── */}
+      {(() => {
+        const pColor   = PLANET_COLOR[dashaPlanet] ?? T.gold
+        const pGlyph   = PLANET_GLYPH[dashaPlanet] ?? dashaPlanet.charAt(0)
+        const rulingDay = PLANET_DAY[dashaPlanet]
+        const rulingDayName = rulingDay !== undefined ? DAY_NAMES[rulingDay] + "s" : "—"
+        const isRelational = ["Moon","Venus"].includes(dashaPlanet)
+        const secondNote = isRelational
+          ? `Weekends carry extra resonance in ${dashaPlanet} periods`
+          : dashaPlanet === "Mercury"
+          ? "Wednesdays carry extra resonance for communication and commerce"
+          : `${rulingDayName} score highest · other days follow base rhythm`
+        return (
+          <div style={{
+            borderLeft:   `3px solid ${pColor}`,
+            background:   "rgba(255,255,255,0.03)",
+            border:       `1px solid rgba(255,255,255,0.07)`,
+            borderRadius: 10,
+            padding:      "12px 16px",
+          }}>
+            <div style={{ fontSize: 10, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
+              Calendar scoring based on
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 20, color: pColor, fontFamily: "serif" }}>{pGlyph}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: pColor, fontFamily: "Syne, sans-serif" }}>
+                {dashaPlanet} Mahādaśā
+              </span>
+            </div>
+            <p style={{ margin: "6px 0 0", fontSize: 11, color: T.txt3, lineHeight: 1.5 }}>
+              {secondNote}
+            </p>
+          </div>
+        )
+      })()}
+
       {/* Calendar */}
       <div style={glassCard}>
         {/* Day-of-week headers */}
@@ -250,7 +329,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
           {cells.map((day, idx) => {
             if (day === null) return <div key={`blank-${idx}`} />
 
-            const score    = dayScore(day, month + 1, dashaIdx)
+            const score    = dayScore(new Date(year, month, day), dashaPlanet, PLANET_ORDER.indexOf(dashaPlanet) === -1 ? 3 : PLANET_ORDER.indexOf(dashaPlanet))
             const isSelect = day === selected
             const isTod    = isToday(day)
             const dotColor = score >= 70 ? "#4CAF6A" : score < 30 ? "#D95F5F" : "transparent"

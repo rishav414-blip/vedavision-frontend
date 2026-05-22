@@ -54,7 +54,7 @@ interface ChartData {
   karakas?:  { atmakaraka?:{planet_name?:string}; amatyakaraka?:{planet_name?:string} }
   ak?:       string
   amk?:      string
-  wealthScore?: { total?:number }
+  wealthScore?: { total?:number; parashari?:number; bnn?:number }
   chartStrength?: number
 }
 
@@ -100,6 +100,111 @@ function DailySignalCard({ chart }: { chart:ChartData|null }) {
             <span style={{ fontSize:8, color:sig.color, letterSpacing:'0.08em' }}>/ 100</span>
           </div>
         </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Wealth Score Breakdown Card ───────────────────────────────────────────────
+function WealthScoreCard({ chart }: { chart: ChartData | null }) {
+  const ws = chart?.wealthScore
+  const strength = chart?.chartStrength
+  if (ws == null && strength == null) return null
+
+  const total      = ws?.total      ?? 0
+  const parashari  = ws?.parashari  ?? 0
+  const bnn        = ws?.bnn        ?? 0
+
+  const strengthLabel = strength == null ? '—' : strength >= 70 ? 'Strong' : strength >= 40 ? 'Moderate' : 'Needs Support'
+  const strengthColor = strength == null ? T.txt3 : strength >= 70 ? '#6EC97A' : strength >= 40 ? '#F0A830' : '#E05050'
+
+  // mini progress bar helper
+  function Bar({ value, max, color, width = '100%' }: { value: number; max: number; color: string; width?: string }) {
+    const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
+    return (
+      <div style={{ height: 6, background: 'rgba(255,255,255,0.07)', borderRadius: 99, overflow: 'hidden', width }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 99, transition: 'width 0.6s ease' }} />
+      </div>
+    )
+  }
+
+  // circular SVG indicator for chart strength
+  const R = 26, CIRC = 2 * Math.PI * R
+  const dashOffset = strength != null ? CIRC * (1 - Math.min(100, strength) / 100) : CIRC
+
+  return (
+    <motion.div variants={item} style={glass}>
+      <span style={lbl}>Wealth &amp; Chart Strength</span>
+      <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+
+        {/* Left — Wealth Score */}
+        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span style={{ fontFamily: 'Syne,sans-serif', fontSize: 38, fontWeight: 800, color: T.gold, lineHeight: 1 }}>
+              {ws != null ? total : '—'}
+            </span>
+            <span style={{ fontSize: 13, color: T.txt3, fontFamily: 'Outfit,sans-serif' }}>/ 100</span>
+            <span style={{ fontSize: 11, color: T.goldDim, fontFamily: 'Outfit,sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginLeft: 4 }}>Wealth Score</span>
+          </div>
+
+          {ws != null && (
+            <>
+              <Bar value={total} max={100} color={T.gold} />
+
+              {/* Parashari sub-bar */}
+              <div style={{ marginTop: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div>
+                    <span style={{ fontSize: 11, color: T.txt2, fontFamily: 'Outfit,sans-serif', fontWeight: 600 }}>Parashari</span>
+                    <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit,sans-serif', marginLeft: 6 }}>Classical yogas</span>
+                  </div>
+                  <span style={{ fontSize: 12, color: T.gold, fontFamily: 'Syne,sans-serif', fontWeight: 700 }}>{parashari}</span>
+                </div>
+                <Bar value={parashari} max={60} color={T.gold} />
+              </div>
+
+              {/* BNN sub-bar */}
+              <div style={{ marginTop: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div>
+                    <span style={{ fontSize: 11, color: T.txt2, fontFamily: 'Outfit,sans-serif', fontWeight: 600 }}>BNN Bonus</span>
+                    <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit,sans-serif', marginLeft: 6 }}>Transit activation</span>
+                  </div>
+                  <span style={{ fontSize: 12, color: T.goldDim, fontFamily: 'Syne,sans-serif', fontWeight: 700 }}>{bnn}</span>
+                </div>
+                <Bar value={bnn} max={40} color={T.goldDim} />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', alignSelf: 'stretch', flexShrink: 0 }} />
+
+        {/* Right — Chart Strength */}
+        <div style={{ flex: '1 1 140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <div style={{ position: 'relative', width: 72, height: 72 }}>
+            <svg width={72} height={72} style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx={36} cy={36} r={R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={6} />
+              <circle cx={36} cy={36} r={R} fill="none" stroke={strengthColor} strokeWidth={6}
+                strokeDasharray={CIRC} strokeDashoffset={dashOffset}
+                strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 0.7s ease' }} />
+            </svg>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
+              <span style={{ fontFamily: 'Syne,sans-serif', fontSize: 18, fontWeight: 800, color: T.violet, lineHeight: 1 }}>
+                {strength ?? '—'}
+              </span>
+              <span style={{ fontSize: 8, color: T.txt3, letterSpacing: '0.06em' }}>/ 100</span>
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontFamily: 'Syne,sans-serif', fontWeight: 700, color: strengthColor }}>{strengthLabel}</div>
+            <div style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit,sans-serif', marginTop: 3, letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>Chart Strength</div>
+            <div style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit,sans-serif', marginTop: 4, lineHeight: 1.4, maxWidth: 120 }}>Based on planet dignities in D1</div>
+          </div>
+        </div>
+
       </div>
     </motion.div>
   )
@@ -302,6 +407,9 @@ export default function OverviewTab({ chart }: { chart:ChartData|null }) {
 
       {/* ── Daily signal ── */}
       <DailySignalCard chart={chart} />
+
+      {/* ── Wealth score breakdown ── */}
+      <WealthScoreCard chart={chart} />
 
       {/* ── Planet coins ── */}
       <PlanetCoinsGrid chart={chart} />

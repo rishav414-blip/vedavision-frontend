@@ -87,6 +87,19 @@ const YEARLY_OUTLOOK: YearOutlook[] = [
    keyMonths:["Mar 2030","Jul 2030","Nov 2030"]},
 ]
 
+// ─── Planet glyphs (Unicode) ─────────────────────────────────────────────────
+const PLANET_GLYPHS: Record<string, string> = {
+  Sun:     "☉",
+  Moon:    "☽",
+  Mars:    "♂",
+  Mercury: "☿",
+  Jupiter: "♃",
+  Venus:   "♀",
+  Saturn:  "♄",
+  Rahu:    "☊",
+  Ketu:    "☋",
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function parseDate(s?: string): Date | null {
   if (!s) return null
@@ -223,6 +236,95 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
   )
 }
 
+// ─── Dasha Sequence Section ───────────────────────────────────────────────────
+interface SequenceEntry {
+  planet: string
+  years:  number
+  start:  string
+  end:    string
+  status: "current" | "upcoming" | "past"
+}
+
+function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
+  const now = new Date()
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      {/* Section header */}
+      <div style={{ marginBottom: 12 }}>
+        <span style={{ fontSize: 10, color: T.gold, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: "Outfit, sans-serif" }}>
+          Your Vimśottarī Sequence
+        </span>
+      </div>
+
+      <div style={{ ...glassCard, padding: 0, overflow: "hidden" }}>
+        {sequence.map((p, i) => {
+          const theme      = PLANET_THEMES[p.planet] ?? FALLBACK_THEME
+          const glyph      = PLANET_GLYPHS[p.planet] ?? p.planet.charAt(0)
+          const isCurrent  = p.status === "current"
+          const startYear  = parseDate(p.start)?.getFullYear() ?? "—"
+          const endYear    = parseDate(p.end)?.getFullYear()   ?? "—"
+          const pct        = isCurrent && parseDate(p.start) && parseDate(p.end)
+            ? clampPercent(parseDate(p.start)!, parseDate(p.end)!, now)
+            : null
+
+          const badgeStyle: React.CSSProperties = isCurrent
+            ? { background: `${T.gold}20`, color: T.gold, border: `1px solid ${T.gold}55`, fontSize: 10, padding: "1px 7px", borderRadius: 5, letterSpacing: "0.1em", fontWeight: 700, flexShrink: 0 }
+            : { background: `${T.violet}16`, color: T.violet, border: `1px solid ${T.violet}40`, fontSize: 10, padding: "1px 7px", borderRadius: 5, letterSpacing: "0.1em", fontWeight: 600, flexShrink: 0 }
+
+          return (
+            <div
+              key={p.planet + p.start}
+              style={{
+                display:       "flex",
+                alignItems:    "center",
+                gap:           12,
+                padding:       "14px 16px",
+                borderTop:     i > 0 ? "1px solid rgba(255,255,255,0.06)" : undefined,
+                background:    isCurrent ? `${theme.color}08` : "transparent",
+                borderLeft:    isCurrent ? `3px solid ${theme.color}66` : "3px solid transparent",
+              }}
+            >
+              {/* Glyph */}
+              <span style={{ fontSize: 18, color: theme.color, width: 22, textAlign: "center", flexShrink: 0, fontFamily: "serif" }}>
+                {glyph}
+              </span>
+
+              {/* Name + range */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 14, fontWeight: isCurrent ? 700 : 500, color: theme.color, fontFamily: "Syne, sans-serif" }}>
+                    {p.planet}
+                  </span>
+                  <span style={{ fontSize: 11, color: T.txt3 }}>
+                    {startYear}–{endYear}
+                  </span>
+                  <span style={{ fontSize: 10, color: T.txt3 }}>
+                    {p.years}y
+                  </span>
+                </div>
+
+                {/* Progress bar for current only */}
+                {pct !== null && (
+                  <div style={{ marginTop: 6 }}>
+                    <div style={{ height: 3, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden", width: "100%", maxWidth: 220 }}>
+                      <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg,${theme.color}88,${theme.color})`, borderRadius: 2, transition: "width 0.6s ease" }} />
+                    </div>
+                    <span style={{ fontSize: 10, color: T.gold, marginTop: 3, display: "inline-block" }}>{pct}% elapsed</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Badge */}
+              <span style={badgeStyle}>{isCurrent ? "CURRENT" : "UPCOMING"}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ─── Year card ────────────────────────────────────────────────────────────────
 function YearCard({ y }: { y: YearOutlook }) {
   const careerLocked = y.career.actions.slice(1)
@@ -346,6 +448,24 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
   const now = new Date()
   const [activeYear, setActiveYear] = useState(2026)
 
+  // Full sequence for the Vimśottarī section (current + up to 4 upcoming)
+  const dashaSequence = useMemo(() => {
+    const seq = chart?.dasha?.sequence
+    if (!seq?.length) return []
+    return seq
+      .map(p => {
+        const start = parseDate(p.start)
+        const end   = parseDate(p.end)
+        let status: "current" | "upcoming" | "past" = "upcoming"
+        if (start && end && now >= start && now <= end) status = "current"
+        else if (end && now > end) status = "past"
+        return { ...p, status }
+      })
+      .filter(p => p.status !== "past")
+      .slice(0, 5)
+  }, [chart])
+
+  // Filtered periods for the detailed Mahadasha cards (current + upcoming within 5 years)
   const periods = useMemo(() => {
     const seq = chart?.dasha?.sequence
     if (!seq?.length) return []
@@ -386,15 +506,20 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
         </p>
       </div>
 
-      {/* Dasha period cards */}
-      {!chart || !periods.length ? (
+      {/* ── YOUR VIMŚOTTARĪ SEQUENCE ── */}
+      {chart && dashaSequence.length > 0 ? (
+        <DashaSequenceSection sequence={dashaSequence} />
+      ) : (
         <div style={{ ...glassCard, textAlign: "center", padding: "40px 20px" }}>
           <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>☿</div>
           <p style={{ margin: 0, color: T.txt2, fontSize: 14 }}>
             Cast your chart to see your Daśā timeline
           </p>
         </div>
-      ) : (
+      )}
+
+      {/* ── Mahadasha period detail cards ── */}
+      {chart && periods.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {periods.map(p => (
             <PeriodCard
@@ -415,6 +540,20 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
           5-Year Thematic Outlook
         </span>
         <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
+      </div>
+
+      {/* Amber calibration note */}
+      <div style={{
+        background:   "rgba(240,168,48,0.08)",
+        border:       "1px solid rgba(240,168,48,0.25)",
+        borderRadius: 10,
+        padding:      "12px 16px",
+        fontSize:     12,
+        color:        "#F0A830",
+        lineHeight:   1.6,
+      }}>
+        <span style={{ fontWeight: 700, letterSpacing: "0.04em" }}>Note —</span>{" "}
+        These thematic windows are calibrated for Saturn Mahādaśā. Interpretations are most accurate for Saturn period holders — adapt the themes to your active planet.
       </div>
 
       {/* Year tab row */}
