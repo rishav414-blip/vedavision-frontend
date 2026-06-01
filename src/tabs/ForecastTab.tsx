@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react"
+import type { ChartData } from '@/lib/chartTypes'
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const T = {
@@ -7,8 +8,8 @@ const T = {
   txt:     "#F0EBF4",
   txt2:    "#B0A0C8",
   txt3:    "#8090B5",
-  bgCard:  "rgba(255,255,255,0.04)",
-  border:  "rgba(255,255,255,0.08)",
+  bgCard:  "rgba(8,4,22,0.92)",
+  border:  "rgba(114,166,183,0.2)",
   radius:  16,
 }
 
@@ -49,43 +50,186 @@ interface YearOutlook {
   keyMonths: string[]
 }
 
-const YEARLY_OUTLOOK: YearOutlook[] = [
-  {year:2026,dashaTheme:"Saturn · Mercury Window",signal:"medium",score:62,dashaColor:"#A08050",
-   career:{stars:3,narrative:"Methodical consolidation. Saturn rewards sustained effort — groundwork laid now shapes the next three years. Mercury quickens analytical work.",hardTruth:"Ambition without systems fails in Saturn periods. Build infrastructure before seeking the stage.",actions:["Systematise one core workflow","Invest in a skill that compounds over 3+ years","Document decisions rigorously"]},
-   wealth:{stars:3,narrative:"Steady accumulation is possible; rapid gains unlikely. Focus on reducing unnecessary expenditure.",hardTruth:"Build reserves, not deploy them. Patience is the wealth strategy.",actions:["Review recurring costs","Prioritise debt reduction","Begin one long-horizon savings vehicle"]},
-   health:"Saturn rewards sleep discipline and structured movement.",
-   do:["Maintain consistent routines","Complete what was started","Honour commitments without overcommitting"],
-   dont:["Launch ventures without infrastructure","Neglect rest","Underestimate how long things take"],
-   keyMonths:["Mar 2026","Jul 2026","Nov 2026"]},
-  {year:2027,dashaTheme:"Saturn · Ketu Depth",signal:"low",score:48,dashaColor:"#CC8855",
-   career:{stars:2,narrative:"Ketu brings withdrawal from the external. Creative and spiritual work flourishes; visibility-seeking does not.",hardTruth:"A refining year, not a building year. Forcing external progress will exhaust you.",actions:["Retreat from non-essential commitments","Deepen mastery of existing skills","Identify what no longer aligns"]},
-   wealth:{stars:2,narrative:"Ketu is indifferent to material accumulation. Financial caution advised.",hardTruth:"Preservation outperforms growth this year.",actions:["Hold positions rather than entering new ones","Complete a financial audit","Reduce complexity in financial life"]},
-   health:"Rest is productive. Honour the body's signals.",
-   do:["Meditate or maintain contemplative practice","Release what no longer serves","Focus inward"],
-   dont:["Seek public recognition","Over-extend financially","Ignore burnout signals"],
-   keyMonths:["Feb 2027","Jun 2027","Oct 2027"]},
-  {year:2028,dashaTheme:"Saturn · Venus Emergence",signal:"high",score:78,dashaColor:"#E48DB0",
-   career:{stars:4,narrative:"Venus within Saturn brings creative energy into disciplined form. Partnerships and aesthetic work are highlighted.",hardTruth:"Results arrive for those who prepared. Harvest season — only for those who planted.",actions:["Formalise a key partnership","Bring a creative project to completion","Invest in presentation quality"]},
-   wealth:{stars:4,narrative:"Financial flows improve as Saturn meets Venus. Real estate and creative ventures favoured.",hardTruth:"Gains require active stewardship. Do not become passive once momentum arrives.",actions:["Rebalance investment portfolio","Explore a creative monetisation avenue","Negotiate improved terms"]},
-   health:"Energy returns. Enjoy it without over-scheduling.",
-   do:["Collaborate actively","Launch what was prepared in 2026-27","Invest in relationships"],
-   dont:["Rush past this window","Neglect foundations built earlier","Overcommit"],
-   keyMonths:["Jan 2028","May 2028","Sep 2028"]},
-  {year:2029,dashaTheme:"Saturn · Sun Authority",signal:"high",score:74,dashaColor:"#F5C842",
-   career:{stars:4,narrative:"Sun brings leadership and visibility themes. Authority earned through sustained effort can now be expressed publicly.",hardTruth:"Authentic authority is earned, not performed. Gaps between reputation and reality become visible.",actions:["Step into leadership or mentorship","Articulate your professional position","Pursue recognition through contribution"]},
-   wealth:{stars:3,narrative:"Sun supports career-led income but cautions against ego-driven decisions.",hardTruth:"Pride can override prudence. Run financial decisions through a trusted sounding board.",actions:["Separate identity from financial risk","Consolidate 2028 gains","Plan a medium-term financial milestone"]},
-   health:"Sun periods support vitality. Guard against pride-driven overextension.",
-   do:["Lead where invited","Make work visible","Establish long-term professional commitments"],
-   dont:["Overstate credentials","Make ego-driven financial bets","Neglect collaborative relationships"],
-   keyMonths:["Apr 2029","Aug 2029","Dec 2029"]},
-  {year:2030,dashaTheme:"Saturn · Moon Recalibration",signal:"medium",score:58,dashaColor:"#D0D8F0",
-   career:{stars:3,narrative:"Moon brings emotional currents into the work sphere. Decisions from groundedness will be sound; reactive ones will need correction.",hardTruth:"Unresolved personal patterns show up professionally this year. Address them at the root.",actions:["Establish clearer work/personal boundaries","Make decisions from calm not urgency","Invest in emotional health"]},
-   wealth:{stars:3,narrative:"Wealth is steady but emotional spending can undercut goals.",hardTruth:"Emotional triggers drive financial decisions more than logic this year.",actions:["Track spending against emotional states","Automate savings","Revisit financial goals' deeper motivations"]},
-   health:"Mental and emotional health are the priority. Sleep and relational quality matter.",
-   do:["Honour emotional intelligence","Care for close relationships","Rest when the body asks"],
-   dont:["Suppress emotional signals","Make major decisions during emotional lows","Neglect home and family"],
-   keyMonths:["Mar 2030","Jul 2030","Nov 2030"]},
-]
+const OUTLOOK_PLANET_THEMES: Record<string, {
+  career: string; wealth: string; theme: string
+  careerHardTruth: string; wealthHardTruth: string
+  health: string; do: string[]; dont: string[]
+  score: number; careerStars: number; wealthStars: number
+}> = {
+  Sun: {
+    career: "Authority and leadership come into focus. Sustained effort earns recognition — a time to step forward with clarity of purpose.",
+    wealth: "Recognition opens new income streams. Career-led gains are possible; guard against ego-driven financial risk.",
+    theme: "Identity & Purpose",
+    careerHardTruth: "Authentic authority is earned, not performed. Gaps between reputation and reality become visible.",
+    wealthHardTruth: "Pride can override prudence. Run financial decisions through a trusted sounding board.",
+    health: "Sun periods support vitality. Guard against pride-driven overextension.",
+    do: ["Lead where invited", "Make work visible", "Establish long-term professional commitments"],
+    dont: ["Overstate credentials", "Make ego-driven financial bets", "Neglect collaborative relationships"],
+    score: 74, careerStars: 4, wealthStars: 3,
+  },
+  Moon: {
+    career: "Intuition guides key decisions. Emotional currents enter the work sphere — groundedness yields sound results; reactivity requires correction.",
+    wealth: "Nurturing ventures yield steady returns. Emotional spending can undercut goals; automate what you can.",
+    theme: "Reflection & Cycles",
+    careerHardTruth: "Unresolved personal patterns show up professionally this year. Address them at the root.",
+    wealthHardTruth: "Emotional triggers drive financial decisions more than logic this year.",
+    health: "Mental and emotional health are the priority. Sleep and relational quality matter.",
+    do: ["Honour emotional intelligence", "Care for close relationships", "Rest when the body asks"],
+    dont: ["Suppress emotional signals", "Make major decisions during emotional lows", "Neglect home and family"],
+    score: 58, careerStars: 3, wealthStars: 3,
+  },
+  Mercury: {
+    career: "Communication and skill-building accelerate. Analytical and network-based work is highlighted; methodical effort compounds.",
+    wealth: "Trade and learning create opportunities. Steady accumulation is favoured; rapid gains less likely.",
+    theme: "Intellect & Exchange",
+    careerHardTruth: "Ambition without systems fails. Build infrastructure before seeking the stage.",
+    wealthHardTruth: "Build reserves, not deploy them. Patience is the wealth strategy.",
+    health: "Mercury rewards mental hygiene — structured rest prevents overthinking.",
+    do: ["Systematise one core workflow", "Invest in a skill that compounds over 3+ years", "Document decisions rigorously"],
+    dont: ["Launch ventures without infrastructure", "Neglect rest", "Underestimate how long things take"],
+    score: 62, careerStars: 3, wealthStars: 3,
+  },
+  Venus: {
+    career: "Creative and relational work flourishes. Partnerships and aesthetic ventures are highlighted; disciplined effort yields visible results.",
+    wealth: "Comfort and aesthetics attract resources. Financial flows improve; gains require active stewardship.",
+    theme: "Harmony & Value",
+    careerHardTruth: "Results arrive for those who prepared. Harvest season — only for those who planted.",
+    wealthHardTruth: "Gains require active stewardship. Do not become passive once momentum arrives.",
+    health: "Energy returns. Enjoy it without over-scheduling.",
+    do: ["Collaborate actively", "Bring a creative project to completion", "Invest in relationships"],
+    dont: ["Rush past this window", "Neglect foundations built earlier", "Overcommit"],
+    score: 78, careerStars: 4, wealthStars: 4,
+  },
+  Mars: {
+    career: "Bold action and initiative dominate. Directed drive produces results; impulsiveness can undo them.",
+    wealth: "Effort-driven gains are possible. Watch impulsiveness — reactive decisions can erase progress.",
+    theme: "Courage & Drive",
+    careerHardTruth: "Action without strategy burns resources. Identify the one decisive move before acting broadly.",
+    wealthHardTruth: "Mars gains can be lost to Mars decisions. Pause before deploying capital.",
+    health: "Physical energy is high. Channel it into structured movement; avoid recklessness.",
+    do: ["Initiate what has been delayed", "Compete where you have genuine edge", "Establish clear boundaries"],
+    dont: ["React without reflection", "Over-leverage", "Ignore signs of burnout"],
+    score: 65, careerStars: 3, wealthStars: 3,
+  },
+  Jupiter: {
+    career: "Expansion, teaching, and wisdom grow. Dharmic alignment opens doors; abundance is accessible to those who hold ethics.",
+    wealth: "Abundance and growth if ethics are maintained. Long-term investments and mentorship-based income are favoured.",
+    theme: "Growth & Dharma",
+    careerHardTruth: "Growth without depth becomes inflation. Ensure expansion is rooted in genuine value.",
+    wealthHardTruth: "Optimism can override diligence. Verify before committing to large ventures.",
+    health: "Jupiter supports overall vitality; guard against overindulgence.",
+    do: ["Teach or mentor", "Expand into aligned territory", "Invest in wisdom-based relationships"],
+    dont: ["Over-promise", "Neglect details in pursuit of vision", "Confuse luck with skill"],
+    score: 80, careerStars: 4, wealthStars: 4,
+  },
+  Saturn: {
+    career: "Discipline and long-term work are rewarded. Groundwork laid now shapes the next several years; shortcuts are exposed.",
+    wealth: "Slow but structural wealth-building is the theme. Preservation and debt reduction outperform speculative moves.",
+    theme: "Karma & Structure",
+    careerHardTruth: "Ambition without systems fails in Saturn periods. Build infrastructure before seeking the stage.",
+    wealthHardTruth: "Build reserves, not deploy them. Patience is the wealth strategy.",
+    health: "Saturn rewards sleep discipline and structured movement.",
+    do: ["Maintain consistent routines", "Complete what was started", "Honour commitments without overcommitting"],
+    dont: ["Launch ventures without infrastructure", "Neglect rest", "Underestimate how long things take"],
+    score: 60, careerStars: 3, wealthStars: 3,
+  },
+  Rahu: {
+    career: "Unconventional paths and obsessive focus drive this window. Foreign influence, pivots, and innovation are themes.",
+    wealth: "Sudden gains are possible; watch illusions and over-reach. Diversify rather than concentrate.",
+    theme: "Ambition & Shadow",
+    careerHardTruth: "Obsession can masquerade as strategy. Periodically step back to verify direction.",
+    wealthHardTruth: "Rahu amplifies desire as much as result. Distinguish genuine opportunity from compulsion.",
+    health: "Rest is often neglected in Rahu periods. Schedule recovery as deliberately as action.",
+    do: ["Explore unconventional approaches", "Diversify your skill set", "Welcome cross-cultural input"],
+    dont: ["Chase every shiny opportunity", "Ignore legal or ethical edges", "Exhaust yourself pursuing illusions"],
+    score: 55, careerStars: 3, wealthStars: 2,
+  },
+  Ketu: {
+    career: "Detachment, spiritual depth, and past skills resurface. Creative and interior work flourishes; external visibility-seeking does not.",
+    wealth: "Non-material richness defines this period; material accumulation fluctuates. Preservation outperforms growth.",
+    theme: "Release & Wisdom",
+    careerHardTruth: "A refining year, not a building year. Forcing external progress will exhaust you.",
+    wealthHardTruth: "Preservation outperforms growth this year.",
+    health: "Rest is productive. Honour the body's signals.",
+    do: ["Meditate or maintain contemplative practice", "Release what no longer serves", "Deepen mastery of existing skills"],
+    dont: ["Seek public recognition", "Over-extend financially", "Ignore burnout signals"],
+    score: 48, careerStars: 2, wealthStars: 2,
+  },
+}
+
+const OUTLOOK_FALLBACK_PLANET = {
+  career: "Planetary transition invites consolidation and careful reflection on direction.",
+  wealth: "A period for careful stewardship and review of existing positions.",
+  theme: "Transition & Reflection",
+  careerHardTruth: "Clarity precedes action. Use this window to understand before committing.",
+  wealthHardTruth: "Review before deploying. Preserve optionality.",
+  health: "Balance activity and rest during transition periods.",
+  do: ["Reflect on patterns", "Consolidate existing efforts", "Strengthen core relationships"],
+  dont: ["Force major decisions", "Neglect self-care", "Overcommit resources"],
+  score: 55, careerStars: 3, wealthStars: 3,
+}
+
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+function generateKeyMonths(year: number, planet: string): string[] {
+  // Deterministic 3 evenly-spaced months offset by planet seed
+  const seed = [...planet].reduce((a, c) => a + c.charCodeAt(0), 0)
+  const offset = seed % 4
+  return [
+    `${MONTH_NAMES[offset]} ${year}`,
+    `${MONTH_NAMES[(offset + 4) % 12]} ${year}`,
+    `${MONTH_NAMES[(offset + 8) % 12]} ${year}`,
+  ]
+}
+
+function generateYearlyOutlook(chart: { dasha?: { sequence?: { planet: string; start: string; end: string }[] } } | null, currentYear: number): YearOutlook[] {
+  const sequence = chart?.dasha?.sequence
+  if (!sequence?.length) return []
+
+  const results: YearOutlook[] = []
+
+  for (let i = 0; i < 5; i++) {
+    const year = currentYear + i
+    const midYear = new Date(year, 6, 1) // 1 July — representative midpoint
+
+    // Find which mahadasha is active at midpoint of this year
+    const active = sequence.find(p => {
+      const s = new Date(p.start)
+      const e = new Date(p.end)
+      return midYear >= s && midYear < e
+    }) ?? sequence[sequence.length - 1]
+
+    const planet = active?.planet ?? "Saturn"
+    const themes = OUTLOOK_PLANET_THEMES[planet] ?? OUTLOOK_FALLBACK_PLANET
+    const color  = (PLANET_THEMES[planet] ?? FALLBACK_THEME).color
+
+    results.push({
+      year,
+      dashaTheme: `${planet} · ${themes.theme}`,
+      signal: themes.score >= 70 ? "high" : themes.score >= 55 ? "medium" : "low",
+      score:  themes.score,
+      dashaColor: color,
+      career: {
+        stars:     themes.careerStars,
+        narrative: themes.career,
+        hardTruth: themes.careerHardTruth,
+        actions:   themes.do,
+      },
+      wealth: {
+        stars:     themes.wealthStars,
+        narrative: themes.wealth,
+        hardTruth: themes.wealthHardTruth,
+        actions:   ["Review financial position", ...themes.dont.slice(0, 2)],
+      },
+      health:    themes.health,
+      do:        themes.do,
+      dont:      themes.dont,
+      keyMonths: generateKeyMonths(year, planet),
+    })
+  }
+
+  return results
+}
 
 // ─── Planet glyphs (Unicode) ─────────────────────────────────────────────────
 const PLANET_GLYPHS: Record<string, string> = {
@@ -223,7 +367,7 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
             <span style={{ fontSize: 10, color: T.txt3 }}>Period elapsed</span>
             <span style={{ fontSize: 10, color: T.gold }}>{pct}%</span>
           </div>
-          <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden" }}>
+          <div style={{ height: 4, background: "rgba(114,166,183,0.15)", borderRadius: 2, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${T.gold}88, ${T.gold})`, borderRadius: 2, transition: "width 0.6s ease" }} />
           </div>
         </div>
@@ -280,7 +424,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
                 alignItems:    "center",
                 gap:           12,
                 padding:       "14px 16px",
-                borderTop:     i > 0 ? "1px solid rgba(255,255,255,0.06)" : undefined,
+                borderTop:     i > 0 ? "1px solid rgba(114,166,183,0.12)" : undefined,
                 background:    isCurrent ? `${theme.color}08` : "transparent",
                 borderLeft:    isCurrent ? `3px solid ${theme.color}66` : "3px solid transparent",
               }}
@@ -307,7 +451,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
                 {/* Progress bar for current only */}
                 {pct !== null && (
                   <div style={{ marginTop: 6 }}>
-                    <div style={{ height: 3, background: "rgba(255,255,255,0.07)", borderRadius: 2, overflow: "hidden", width: "100%", maxWidth: 220 }}>
+                    <div style={{ height: 3, background: "rgba(114,166,183,0.15)", borderRadius: 2, overflow: "hidden", width: "100%", maxWidth: 220 }}>
                       <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg,${theme.color}88,${theme.color})`, borderRadius: 2, transition: "width 0.6s ease" }} />
                     </div>
                     <span style={{ fontSize: 10, color: T.gold, marginTop: 3, display: "inline-block" }}>{pct}% elapsed</span>
@@ -339,13 +483,13 @@ function YearCard({ y }: { y: YearOutlook }) {
           <span style={{ fontSize: 10, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em" }}>Score</span>
           <span style={{ fontSize: 11, color: y.dashaColor, fontWeight: 700 }}>{y.score}/100</span>
         </div>
-        <div style={{ height: 5, background: "rgba(255,255,255,0.07)", borderRadius: 3, overflow: "hidden", marginBottom: 12 }}>
+        <div style={{ height: 5, background: "rgba(114,166,183,0.15)", borderRadius: 3, overflow: "hidden", marginBottom: 12 }}>
           <div style={{ height: "100%", width: `${y.score}%`, background: y.dashaColor, borderRadius: 3, transition: "width 0.5s ease" }} />
         </div>
 
         {/* Signal + theme row */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
-          <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: `1px solid ${y.dashaColor}55`, fontSize: 11, color: y.dashaColor, fontWeight: 600 }}>
+          <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(114,166,183,0.12)", border: `1px solid ${y.dashaColor}55`, fontSize: 11, color: y.dashaColor, fontWeight: 600 }}>
             {signalBadge(y.score)}
           </span>
           <span style={{ fontSize: 13, color: T.txt2, fontStyle: "italic", fontFamily: "Cormorant Garamond, serif" }}>
@@ -356,7 +500,7 @@ function YearCard({ y }: { y: YearOutlook }) {
         {/* Key months */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {y.keyMonths.map(m => (
-            <span key={m} style={{ padding: "2px 8px", borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", fontSize: 10, color: T.txt3 }}>{m}</span>
+            <span key={m} style={{ padding: "2px 8px", borderRadius: 6, background: "rgba(10,5,26,0.90)", border: "1px solid rgba(114,166,183,0.2)", fontSize: 10, color: T.txt3 }}>{m}</span>
           ))}
         </div>
       </div>
@@ -366,7 +510,7 @@ function YearCard({ y }: { y: YearOutlook }) {
         {/* Career */}
         <div style={{ ...glassCard, flex: "1 1 280px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>Career</span>
+            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Career Theme', 'करियर विषय')}</span>
             <Stars count={y.career.stars} />
           </div>
           <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.career.narrative}</p>
@@ -390,7 +534,7 @@ function YearCard({ y }: { y: YearOutlook }) {
         {/* Wealth */}
         <div style={{ ...glassCard, flex: "1 1 280px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>Wealth</span>
+            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Wealth Pattern', 'धन पैटर्न')}</span>
             <Stars count={y.wealth.stars} />
           </div>
           <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.wealth.narrative}</p>
@@ -430,23 +574,19 @@ function YearCard({ y }: { y: YearOutlook }) {
   )
 }
 
-// ─── ChartData interface ──────────────────────────────────────────────────────
-interface ChartData {
-  native?: { name?: string; dob?: string }
-  lagna?:  { sign?: string }
-  dasha?:  {
-    current?:     { planet?: string; start?: string; end?: string }
-    antardasha?:  { planet?: string; end?: string }
-    sequence?:    { planet: string; years: number; start: string; end: string }[]
-  }
-}
+// ─── i18n helper ─────────────────────────────────────────────────────────────
+// Module-level lang ref so sub-components can access it without prop drilling
+let _lang = 'en'
+const t = (en: string, hi: string) => _lang === 'hi' ? hi : en
 
 // ─── ForecastTab ──────────────────────────────────────────────────────────────
-interface ForecastTabProps { chart: ChartData | null }
+interface ForecastTabProps { chart: ChartData | null; lang?: string }
 
-export default function ForecastTab({ chart }: ForecastTabProps) {
+export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
+  _lang = lang  // sync module-level ref before render
   const now = new Date()
-  const [activeYear, setActiveYear] = useState(2026)
+  const currentYear = now.getFullYear()
+  const [activeYear, setActiveYear] = useState(currentYear)
 
   // Full sequence for the Vimśottarī section (current + up to 4 upcoming)
   const dashaSequence = useMemo(() => {
@@ -492,17 +632,19 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
       })
   }, [chart])
 
-  const activeOutlook = YEARLY_OUTLOOK.find(y => y.year === activeYear) ?? YEARLY_OUTLOOK[0]
+  // Generate dynamic yearly outlook from chart dasha sequence
+  const yearlyOutlook = useMemo(() => generateYearlyOutlook(chart, currentYear), [chart, currentYear])
+  const activeOutlook = yearlyOutlook.find(y => y.year === activeYear) ?? yearlyOutlook[0]
 
   return (
     <div style={{ padding: "24px 0", display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Header */}
       <div>
         <h2 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 22, fontWeight: 700, color: T.txt }}>
-          5-Year Forecast
+          {t('5-Year Forecast', '5 वर्ष का दृष्टिकोण')}
         </h2>
         <p style={{ margin: "4px 0 0", fontSize: 13, color: T.txt3, letterSpacing: "0.04em" }}>
-          Thematic Daśā windows — reflection, not prediction
+          {t('Thematic Daśā windows — reflection, not prediction', 'दाशा आधारित विषय — चिंतन, भविष्यवाणी नहीं')}
         </p>
       </div>
 
@@ -535,14 +677,25 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
 
       {/* ── Section divider ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0 0" }}>
-        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
+        <div style={{ flex: 1, height: 1, background: "rgba(114,166,183,0.15)" }} />
         <span style={{ fontSize: 10, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
           5-Year Thematic Outlook
         </span>
-        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
+        <div style={{ flex: 1, height: 1, background: "rgba(114,166,183,0.15)" }} />
       </div>
 
-      {/* Amber calibration note */}
+      {/* Amber calibration note / no-data fallback */}
+      {yearlyOutlook.length === 0 ? (
+        <div style={{ ...glassCard, textAlign: "center", padding: "40px 20px" }}>
+          <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>♄</div>
+          <p style={{ margin: 0, color: T.txt2, fontSize: 14 }}>
+            Birth data required for a personalised 5-year forecast
+          </p>
+          <p style={{ margin: "8px 0 0", color: T.txt3, fontSize: 12 }}>
+            Cast your chart above to generate your Daśā-based outlook
+          </p>
+        </div>
+      ) : (
       <div style={{
         background:   "rgba(240,168,48,0.08)",
         border:       "1px solid rgba(240,168,48,0.25)",
@@ -553,38 +706,43 @@ export default function ForecastTab({ chart }: ForecastTabProps) {
         lineHeight:   1.6,
       }}>
         <span style={{ fontWeight: 700, letterSpacing: "0.04em" }}>Note —</span>{" "}
-        These thematic windows are calibrated for Saturn Mahādaśā. Interpretations are most accurate for Saturn period holders — adapt the themes to your active planet.
+        These thematic windows are derived from your Vimśottarī Mahādaśā sequence. Themes reflect the active planetary period at the midpoint of each year — reflection, not prediction.
       </div>
+      )}
 
-      {/* Year tab row */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {YEARLY_OUTLOOK.map(y => {
-          const active = y.year === activeYear
-          return (
-            <button
-              key={y.year}
-              onClick={() => setActiveYear(y.year)}
-              style={{
-                padding: "8px 18px",
-                borderRadius: 8,
-                border: active ? "1px solid #D4B870" : "1px solid rgba(255,255,255,0.08)",
-                background: active ? "rgba(212,184,112,0.12)" : "transparent",
-                color: active ? "#D4B870" : "#8090B5",
-                fontSize: 13,
-                fontFamily: "Syne,sans-serif",
-                fontWeight: active ? 700 : 400,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-            >
-              {y.year}
-            </button>
-          )
-        })}
-      </div>
+      {/* Year tab row + active year card — only shown when dynamic data is available */}
+      {yearlyOutlook.length > 0 && activeOutlook && (
+        <>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {yearlyOutlook.map(y => {
+              const active = y.year === activeYear
+              return (
+                <button
+                  key={y.year}
+                  onClick={() => setActiveYear(y.year)}
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: 8,
+                    border: active ? "1px solid #D4B870" : "1px solid rgba(114,166,183,0.2)",
+                    background: active ? "rgba(212,184,112,0.12)" : "transparent",
+                    color: active ? "#D4B870" : "#8090B5",
+                    fontSize: 13,
+                    fontFamily: "Syne,sans-serif",
+                    fontWeight: active ? 700 : 400,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {y.year}
+                </button>
+              )
+            })}
+          </div>
 
-      {/* Active year card */}
-      <YearCard y={activeOutlook} />
+          {/* Active year card */}
+          <YearCard y={activeOutlook} />
+        </>
+      )}
 
       {/* Disclaimer */}
       <p style={{ margin: 0, fontSize: 11, color: T.txt3, fontStyle: "italic", textAlign: "center", letterSpacing: "0.03em" }}>

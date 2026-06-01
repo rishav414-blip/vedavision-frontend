@@ -1,9 +1,18 @@
-export interface ChartData {
-  native?: { name?: string; dob?: string; tob?: string; pob?: string }
-  lagna?: { sign?: string; lord?: string }
-  nakshatra?: { name?: string; lord?: string; pada?: number }
-  dasha?: { current?: { planet?: string; start?: string; end?: string }; antardasha?: { planet?: string; end?: string } }
-  yoga?: string[]
+export type { ChartData } from '@/lib/chartTypes'
+import type { ChartData } from '@/lib/chartTypes'
+import { YOGA_DESCRIPTIONS } from '@/lib/yogaData'
+
+// Planet-specific dasha remedies (reflection practices, not prescriptions)
+const DASHA_PRACTICES: Record<string, string> = {
+  Sun:     "Morning sun salutation, Sunday charity to governance/authority causes, cultivate leadership with integrity.",
+  Moon:    "Evening water offering, Monday fasting or light diet, journaling emotional patterns, time in nature.",
+  Mars:    "Tuesday physical discipline (yoga, exercise), courage practices, service to the vulnerable.",
+  Mercury: "Wednesday reading or writing practice, study of a classical text, charitable donation to education.",
+  Jupiter: "Thursday gratitude reflection, study of dharmic texts, mentorship or teaching.",
+  Venus:   "Friday creative practice (art, music, poetry), gratitude for beauty, charity to women's causes.",
+  Saturn:  "Saturday discipline, fasting or simplicity, charity to elderly or labourers, consistency over intensity.",
+  Rahu:    "Meditation on illusion and desire, charity to outcast communities, grounding practices.",
+  Ketu:    "Silence and solitude, spiritual study, charity to spiritual seekers, releasing attachments.",
 }
 
 declare global { interface Window { jspdf?: { jsPDF: new (o?: object) => jsPDFInst } } }
@@ -87,12 +96,84 @@ export async function exportChartPDF(chart: ChartData): Promise<void> {
 
   sec("Active Yogas")
   if (!chart.yoga?.length) { row("Yogas", "—") }
-  else { chart.yoga.slice(0,5).forEach((yg,i) => { doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...h("#8090B5")); doc.text(`${i+1}.`, ML+4, y); doc.setTextColor(...h("#F0EBF4")); doc.text(yg, ML+10, y); y += 6 }) }
+  else {
+    chart.yoga.slice(0,10).forEach((yg, i) => {
+      const desc = YOGA_DESCRIPTIONS[yg] ?? "A significant planetary combination present in the chart."
+      doc.setFont("helvetica","normal"); doc.setFontSize(9)
+      doc.setTextColor(...h("#8090B5")); doc.text(`${i+1}.`, ML+4, y)
+      doc.setTextColor(...h("#F0EBF4")); doc.text(yg, ML+10, y)
+      doc.setTextColor(...h("#8090B5")); doc.setFontSize(8)
+      const descLines = doc.internal && (doc as any).splitTextToSize
+        ? (doc as any).splitTextToSize(desc, CW - 20) as string[]
+        : [desc]
+      descLines.forEach((line: string) => { doc.text(line, ML+10, y + 5); y += 4.5 })
+      y += 3
+    })
+  }
+  y += 4
+
+  // Remedies / practices section
+  sec("Reflective Practices (Current Daśā)")
+  const dashaPlanet = chart.dasha?.current?.planet ?? ''
+  const practiceText = DASHA_PRACTICES[dashaPlanet]
+  if (practiceText) {
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...h("#8090B5"))
+    doc.text(`${dashaPlanet} Mahādaśā:`, ML+4, y); y += 5.5
+    doc.setTextColor(...h("#F0EBF4")); doc.setFontSize(8.5)
+    const practiceLines: string[] = (doc as any).splitTextToSize
+      ? (doc as any).splitTextToSize(practiceText, CW - 8)
+      : [practiceText]
+    practiceLines.forEach((line: string) => { doc.text(line, ML+4, y); y += 5 })
+  } else {
+    row("Practices", "Cast your chart with a known birth time for personalised practices.")
+  }
+  y += 6
+
+  // 5-Year Forecast summary
+  sec("5-Year Dasha Themes (2026–2030)")
+  const YEAR_THEMES: Record<string, string> = {
+    Sun:     "Identity, authority, and vitality come into focus. Examine your sense of purpose.",
+    Moon:    "Emotional currents deepen. Inner life and nurturing relationships take precedence.",
+    Mars:    "Energy, initiative, and will. A period for disciplined action and testing courage.",
+    Mercury: "Intellect, communication, and commerce. Learning and discernment are highlighted.",
+    Jupiter: "Expansion, wisdom, and dharma. Growth through study, teaching, and generosity.",
+    Venus:   "Refinement, beauty, and relationship. Pleasure and aesthetic sensibility flourish.",
+    Saturn:  "Discipline, responsibility, and long-term structures. Patience yields lasting gains.",
+    Rahu:    "Ambition, illusion, and worldly desire. Question what you are pursuing and why.",
+    Ketu:    "Detachment, spirituality, and past patterns. A time to release and turn inward.",
+  }
+  const years = [2026, 2027, 2028, 2029, 2030]
+  const sequence = chart.dasha?.sequence ?? []
+  years.forEach(yr => {
+    const yrStr = yr.toString()
+    // Find which dasha period covers this year
+    let planet = dashaPlanet
+    if (sequence.length) {
+      const match = sequence.find(s => {
+        const start = s.start ? parseInt(s.start.slice(0,4)) : 0
+        const end = s.end ? parseInt(s.end.slice(0,4)) : 9999
+        return yr >= start && yr <= end
+      })
+      if (match?.planet) planet = match.planet
+    }
+    const theme = YEAR_THEMES[planet] ?? "Reflection on the themes of this planetary period."
+    doc.setFont("helvetica","bold"); doc.setFontSize(8.5); doc.setTextColor(...h("#D4B870"))
+    doc.text(`${yrStr}`, ML+4, y)
+    doc.setFont("helvetica","normal"); doc.setTextColor(...h("#8090B5"))
+    doc.text(`${planet} MD —`, ML+16, y)
+    doc.setTextColor(...h("#F0EBF4"))
+    const themeLines: string[] = (doc as any).splitTextToSize
+      ? (doc as any).splitTextToSize(theme, CW - 35)
+      : [theme]
+    doc.text(themeLines[0], ML+38, y)
+    y += 5.5
+  })
+  y += 4
 
   // Footer
   doc.setFillColor(...h("#2A1A3A")); doc.rect(ML, PH-18, CW, 0.3, "F")
   doc.setFont("helvetica","italic"); doc.setFontSize(7.5); doc.setTextColor(...h("#4A3A6A"))
-  doc.text("This report is for reflection and self-inquiry. Not professional advice.", PW/2, PH-12, { align:"center" })
+  doc.text("This report is for reflection only. Not a prediction. Consult a qualified Jyotishi for in-person guidance.", PW/2, PH-12, { align:"center" })
 
   const name = chart.native?.name?.trim().replace(/\s+/g,"-").toLowerCase() || "chart"
   doc.save(`vedavision-chart-${name}.pdf`)

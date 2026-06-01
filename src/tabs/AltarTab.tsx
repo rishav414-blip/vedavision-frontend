@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import type { ChartData } from '@/lib/chartTypes'
 
-interface ChartData { native?: { name?: string }; lagna?: { sign?: string; lord?: string }; dasha?: { current?: { planet?: string } }; nakshatra?: { name?: string; lord?: string } }
 interface AltarTabProps { chart: ChartData | null }
 
 const PLANET_DATA: Record<string, { symbol: string; devanagari: string; romanised: string; day: string; dana: string; color: string; glowColor: string }> = {
@@ -47,7 +47,7 @@ const PLANET_FREQ: Record<string,number> = {
   Jupiter:183.58, Venus:221.23, Saturn:147.85, Rahu:168.05, Ketu:168.05
 }
 
-const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
+const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
 const lbl: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
 
 export default function AltarTab({ chart }: AltarTabProps) {
@@ -150,7 +150,7 @@ export default function AltarTab({ chart }: AltarTabProps) {
             <p style={{ fontSize:28, fontFamily:'Syne,sans-serif', fontWeight:700, color:horaColor, margin:'0 0 2px', lineHeight:1 }}>{hora.planet}</p>
             <p style={{ fontSize:11, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif' }}>Hour {hora.horaNum + 1} of the day</p>
           </div>
-          <div style={{ flex:1, padding:'10px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:10 }}>
+          <div style={{ flex:1, padding:'10px 14px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(114,166,183,0.15)', borderRadius:10 }}>
             <p style={{ fontSize:10, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Today — {todayRuler}'s day</p>
             <p style={{ fontSize:12, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{FASTING[todayRuler]}</p>
           </div>
@@ -169,7 +169,7 @@ export default function AltarTab({ chart }: AltarTabProps) {
         {/* Audio toggle */}
         <button
           onClick={toggleAudio}
-          style={{ padding:'8px 20px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(255,255,255,0.12)'}`, background: audioPlaying ? `${data.color}15` : 'transparent', color: audioPlaying ? data.color : '#8090B5', fontSize:12, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
+          style={{ padding:'8px 20px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(114,166,183,0.22)'}`, background: audioPlaying ? `${data.color}15` : 'transparent', color: audioPlaying ? data.color : '#8090B5', fontSize:12, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
         >
           {audioPlaying ? `⏸ Stop ${freq}Hz` : `🔊 Play ${freq}Hz`}
         </button>
@@ -182,7 +182,7 @@ export default function AltarTab({ chart }: AltarTabProps) {
         {/* Bead ring SVG */}
         <div style={{ margin:'0 auto 16px', width:80, height:80 }}>
           <svg width="80" height="80" viewBox="0 0 56 56">
-            <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4"/>
+            <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(114,166,183,0.2)" strokeWidth="4"/>
             <circle cx="28" cy="28" r="22" fill="none"
               stroke={celebrated ? '#6EC97A' : '#D4B870'}
               strokeWidth="4"
@@ -216,7 +216,7 @@ export default function AltarTab({ chart }: AltarTabProps) {
           <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>📅</span><div><p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Auspicious Day</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.day}</p></div></div>
           <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>🤲</span><div><p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Dāna</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.dana}</p></div></div>
         </div>
-        <p style={{ fontSize:11, color:'#8090B5', fontStyle:'italic', marginTop:16, paddingTop:12, borderTop:'1px solid rgba(255,255,255,0.06)', fontFamily:'Outfit,sans-serif' }}>Traditional suggestions — adapt to your constitution.</p>
+        <p style={{ fontSize:11, color:'#8090B5', fontStyle:'italic', marginTop:16, paddingTop:12, borderTop:'1px solid rgba(114,166,183,0.12)', fontFamily:'Outfit,sans-serif' }}>Traditional suggestions — adapt to your constitution.</p>
       </div>
 
     </div>

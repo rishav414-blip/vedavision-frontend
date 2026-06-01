@@ -1,19 +1,27 @@
 import { useState, useRef } from "react";
+import { geocodePob } from "@/lib/geocode";
+import { buildPartialChart } from "@/lib/chartBuilder";
+import { calcDasha } from "@/lib/dasha";
+import { detectYogas } from "@/lib/yogaDetect";
+import { calcScores } from "@/lib/scoring";
+import { deriveLeadershipType } from "@/lib/archetypes";
+import { computeKarakas } from "@/lib/karakas";
 import { motion, AnimatePresence } from "framer-motion";
+import { useShaderBackground } from "@/lib/useShaderBackground";
 
 // ── Design tokens ──────────────────────────────────────────────────────────
 const T = {
-  bg: "#0D0A1E",
-  violet: "#8B7CC8",
-  violet2: "#A99BD9",
+  bg: "#0F0524",
+  violet: "#72A6B7",      // teal replaces violet
+  violet2: "#9ABFCC",
   gold: "#D4B870",
   goldDim: "#A08050",
-  txt: "#F0EBF4",
-  txt2: "#B0A0C8",
-  txt3: "#8090B5",
-  glass: "rgba(255,255,255,0.05)",
-  glassBorder: "rgba(255,255,255,0.10)",
-  glassBorderHover: "rgba(212,184,112,0.35)",
+  txt: "#E8E0F0",
+  txt2: "#B8B0C8",
+  txt3: "#7A6A9A",
+  glass: "rgba(26,14,50,0.75)",
+  glassBorder: "rgba(114,166,183,0.18)",
+  glassBorderHover: "rgba(212,184,112,0.4)",
   error: "#E05050",
 };
 
@@ -51,8 +59,8 @@ const S = {
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    background: "rgba(139,124,200,0.12)",
-    border: `1px solid rgba(139,124,200,0.25)`,
+    background: "rgba(212,184,112,0.08)",
+    border: `1px solid rgba(212,184,112,0.3)`,
     borderRadius: 20,
     padding: "4px 12px",
     fontFamily: FONTS.heading,
@@ -102,7 +110,7 @@ function FloatingOrb({ size, color, initial, animate, style }) {
         borderRadius: "50%",
         background: color,
         filter: "blur(60px)",
-        opacity: 0.18,
+        opacity: 0.08,
         pointerEvents: "none",
         ...style,
       }}
@@ -123,10 +131,10 @@ function FeatureCard({ icon, title, desc }) {
         flex: 1,
         minWidth: 0,
         background: T.glass,
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${hovered ? T.glassBorderHover : T.glassBorder}`,
-        borderRadius: 12,
+        borderRadius: 20,
         padding: "16px 14px",
         textAlign: "center",
         cursor: "default",
@@ -142,16 +150,58 @@ function FeatureCard({ icon, title, desc }) {
   );
 }
 
+// ── Local chart pipeline ──────────────────────────────────────────────────
+async function buildChart(name, dob, tob, pob, gender, onStep) {
+  onStep("Locating place…");
+  const geo = await geocodePob(pob);
+
+  onStep("Computing positions…");
+  const input = { name, dob, tob: tob || "00:00", pob, lat: geo.lat, lon: geo.lon, tz: geo.tz, gender };
+  const partial = buildPartialChart(input);
+
+  // Derive birth UTC the same way chartBuilder does, so dasha start is consistent.
+  const [y, m, d] = dob.split("-").map(Number);
+  const [h, min] = (tob || "00:00").split(":").map(Number);
+  const localMs = Date.UTC(y, m - 1, d, h, min);
+  const tzOffset = (new Date(new Date(localMs).toLocaleString("en-US", { timeZone: geo.tz })).getTime()
+                  - new Date(new Date(localMs).toLocaleString("en-US", { timeZone: "UTC" })).getTime()) / 3600000;
+  const birthUTC = new Date(localMs - tzOffset * 3600000);
+
+  const moonRow = partial.planetTable?.find(r => r.planet === "Moon");
+  const moonSidLon = moonRow?.degreeDecimal ?? 0;
+  const dashaResult = calcDasha(moonSidLon, birthUTC);
+
+  const withDasha = { ...partial, dasha: { sequence: dashaResult.sequence, current: dashaResult.current, antardasha: dashaResult.antardasha } };
+
+  onStep("Detecting yogas…");
+  const yogaList = detectYogas(withDasha);
+  const withYogas = { ...withDasha, yoga: yogaList, yogas: yogaList };
+
+  // Compute karakas from live degreeDecimal values before scoring and archetype.
+  const karakas = computeKarakas(withYogas);
+  const withKarakas = { ...withYogas, karakas };
+
+  const { wealthScore, chartStrength } = calcScores(withKarakas);
+
+  const akPlanet = karakas.atmakaraka?.planet_name ?? "Sun";
+  const lagnaLord = partial.lagna?.lord ?? "Sun";
+  const leadershipType = deriveLeadershipType(akPlanet, lagnaLord);
+
+  return { ...withKarakas, wealthScore, chartStrength, leadershipType, _geo: { lat: geo.lat, lon: geo.lon, tz: geo.tz } };
+}
+
 // ── Main Component ────────────────────────────────────────────────────────
-const BACKEND = "https://vedavision-backend.onrender.com";
 
 export default function HeroPage({ onChartReady, onLogout, onBack }) {
+  const canvasRef = useShaderBackground();
   const [form, setForm] = useState({ name: "", dob: "", tob: "", pob: "", gender: "" });
   const [approxTime, setApproxTime] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState("");
   const [apiError, setApiError] = useState("");
   const [btnHover, setBtnHover] = useState(false);
+  const geoCache = useRef({ pob: "", result: null });
 
   const validate = () => {
     const e = {};
@@ -169,28 +219,16 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
     setLoading(true);
     setApiError("");
     try {
-      const res = await fetch(`${BACKEND}/chart`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          dob: form.dob,
-          tob: form.tob || "00:00",
-          pob: form.pob.trim(),
-          gender: form.gender,
-          approxTime,
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || `Server error ${res.status}`);
-      }
-      const chart = await res.json();
+      const chart = await buildChart(
+        form.name.trim(), form.dob, form.tob, form.pob.trim(), form.gender,
+        (step) => setLoadingStep(step),
+      );
       onChartReady(chart);
     } catch (err) {
-      setApiError(err.message || "Could not reach server. Please try again.");
+      setApiError(err.message || "Could not compute chart. Please check your inputs.");
     } finally {
       setLoading(false);
+      setLoadingStep("");
     }
   };
 
@@ -218,20 +256,28 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
         paddingBottom: 64,
       }}
     >
-      {/* ── Nebula background ── */}
+      {/* ── WebGL shader background ── */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          display: 'block', pointerEvents: 'none', zIndex: 0,
+        }}
+      />
+
+      {/* ── Nebula overlay (no solid fill — shader shows through) ── */}
       <div
         aria-hidden="true"
         style={{
-          position: "fixed",
+          position: "absolute",
           inset: 0,
           background: [
-            `radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,124,200,0.18) 0%, transparent 65%)`,
-            `radial-gradient(ellipse 60% 50% at 80% 80%, rgba(80,50,140,0.14) 0%, transparent 60%)`,
+            `radial-gradient(ellipse 80% 60% at 20% 10%, rgba(114,166,183,0.12) 0%, transparent 65%)`,
+            `radial-gradient(ellipse 60% 50% at 80% 80%, rgba(80,50,140,0.10) 0%, transparent 60%)`,
             `radial-gradient(ellipse 40% 40% at 55% 45%, rgba(212,184,112,0.06) 0%, transparent 55%)`,
-            T.bg,
           ].join(", "),
           pointerEvents: "none",
-          zIndex: 0,
+          zIndex: 1,
         }}
       />
 
@@ -283,6 +329,7 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
         style={{
           position: "relative",
           zIndex: 1,
+
           width: "100%",
           maxWidth: 520,
           padding: "0 20px",
@@ -590,7 +637,7 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
                   padding: "13px 24px",
                   borderRadius: 10,
                   border: "none",
-                  background: `linear-gradient(135deg, #A08050 0%, ${T.gold} 50%, #C8A850 100%)`,
+                  background: `linear-gradient(135deg, #C0A860, #D4B870)`,
                   color: "#0D0A1E",
                   fontFamily: FONTS.heading,
                   fontSize: 14,
@@ -622,7 +669,7 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
                     />
                   )}
                 </AnimatePresence>
-                {loading ? "Calculating positions…" : "Reveal My Chart →"}
+                {loading ? (loadingStep || "Calculating positions…") : "Reveal My Chart →"}
               </motion.button>
             </div>
           </form>
@@ -646,11 +693,10 @@ export default function HeroPage({ onChartReady, onLogout, onBack }) {
               onClick={async () => {
                 setLoading(true); setApiError('');
                 try {
-                  const res = await fetch(`${BACKEND}/chart`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' }) });
-                  const chart = res.ok ? await res.json() : null;
-                  onChartReady(chart || { name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' });
-                } catch { onChartReady({ name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' }); }
-                finally { setLoading(false); }
+                  const chart = await buildChart('Demo Chart', '1990-08-15', '06:30', 'New Delhi, India', '', (step) => setLoadingStep(step));
+                  onChartReady(chart);
+                } catch { onChartReady({ native:{ name:'Demo Chart', dob:'1990-08-15', tob:'06:30', pob:'New Delhi, India' } }); }
+                finally { setLoading(false); setLoadingStep(''); }
               }}
               style={{
                 background: "none",

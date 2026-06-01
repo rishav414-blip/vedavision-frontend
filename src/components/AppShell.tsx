@@ -1,19 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useShaderBackground } from '@/lib/useShaderBackground';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// ── Types ──────────────────────────────────────────────────────────────────────
-
-interface ChartData {
-  native?: { name?: string; dob?: string; tob?: string; pob?: string }
-  lagna?: { sign?: string; signEn?: string; lord?: string }
-  moonSign?: { sign?: string; signEn?: string }
-  sunSign?: { sign?: string; signEn?: string }
-  nakshatra?: { name?: string; pada?: number; lord?: string }
-  dasha?: { current?: { planet?: string; start?: string; end?: string }; antardasha?: { planet?: string; end?: string } }
-  yoga?: string[]
-  houses?: { id: number; sign: string; planets: string[] }[]
-  planetTable?: { planet: string; sign: string; house: number; dignity: string; notes?: string }[]
-}
+import type { ChartData } from '@/lib/chartTypes';
+import { getSignStr } from '@/lib/chartTypes';
 
 interface AppShellProps {
   chart: ChartData | null
@@ -28,20 +17,23 @@ interface AppShellProps {
 // ── Design tokens ──────────────────────────────────────────────────────────────
 
 const T = {
-  bg: '#0A0618',
-  surface: 'rgba(255,255,255,0.04)',
-  border: 'rgba(192,160,96,0.18)',
+  bg: '#0F0524',
+  surface: 'rgba(8,4,22,0.60)',
+  border: 'rgba(114,166,183,0.18)',
   gold: '#D4B870',
   goldDim: 'rgba(212,184,112,0.08)',
   goldBorder: 'rgba(212,184,112,0.35)',
-  violet: '#8B7CC8',
-  violetBg: 'rgba(139,124,200,0.18)',
-  txt: '#F0EBF4',
-  txt2: '#B0A0C8',
-  txt3: '#8090B5',
-  summaryBg: 'rgba(8,5,18,0.95)',
-  sidebarBg: 'rgba(10,6,24,0.97)',
-  hoverBg: 'rgba(255,255,255,0.05)',
+  teal: '#72A6B7',
+  tealBg: 'rgba(114,166,183,0.08)',
+  tealBorder: 'rgba(114,166,183,0.2)',
+  violet: '#72A6B7',
+  violetBg: 'rgba(114,166,183,0.12)',
+  txt: '#E8E0F0',
+  txt2: '#B8B0C8',
+  txt3: '#7A6A9A',
+  summaryBg: 'rgba(8,4,22,0.78)',
+  sidebarBg: 'rgba(6,2,16,0.82)',
+  hoverBg: 'rgba(8,4,22,0.92)',
 };
 
 // ── Sidebar nav config ─────────────────────────────────────────────────────────
@@ -101,8 +93,8 @@ function SummaryChip({ label, value }: ChipProps) {
         alignItems: 'center',
         gap: 6,
         padding: '3px 10px',
-        background: T.surface,
-        border: `1px solid ${T.border}`,
+        background: 'rgba(8,4,22,0.60)',
+        border: '1px solid rgba(114,166,183,0.2)',
         borderRadius: 20,
         whiteSpace: 'nowrap',
         flexShrink: 0,
@@ -175,16 +167,18 @@ function UserMenu({ user, onLogout, onPasscode }: UserMenuProps) {
               top: 'calc(100% + 8px)',
               right: 0,
               minWidth: 210,
-              background: 'rgba(14,9,30,0.98)',
-              border: `1px solid ${T.border}`,
-              borderRadius: 10,
+              background: 'rgba(8,4,22,0.92)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(114,166,183,0.15)',
+              borderRadius: 16,
               boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
               overflow: 'hidden',
               zIndex: 200,
             }}
           >
             {/* User info */}
-            <div style={{ padding: '12px 16px 10px', borderBottom: `1px solid ${T.border}` }}>
+            <div style={{ padding: '12px 16px 10px', borderBottom: '1px solid rgba(114,166,183,0.15)' }}>
               <div style={{ fontSize: 13, color: T.txt, fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 500, marginBottom: 2 }}>
                 {user.name}
               </div>
@@ -266,8 +260,8 @@ function SummaryBar({ chart, user, onTabChange, onLogout, onPasscode, isMobile }
   const name = chart?.native?.name ?? '—';
   const dob = formatDOB(chart?.native?.dob);
   const lagna = chart?.lagna?.signEn ?? chart?.lagna?.sign ?? '—';
-  const moon = chart?.moonSign?.signEn ?? chart?.moonSign?.sign ?? '—';
-  const sun = chart?.sunSign?.signEn ?? chart?.sunSign?.sign ?? '—';
+  const moon = getSignStr(chart?.moonSign) || '—';
+  const sun  = getSignStr(chart?.sunSign)  || '—';
   const mdPlanet = chart?.dasha?.current?.planet ?? '—';
   const adPlanet = chart?.dasha?.antardasha?.planet;
   const mdLabel = adPlanet ? `${mdPlanet}/${adPlanet}` : mdPlanet;
@@ -284,9 +278,10 @@ function SummaryBar({ chart, user, onTabChange, onLogout, onPasscode, isMobile }
         padding: '0 12px',
         gap: 8,
         background: T.summaryBg,
-        borderBottom: `1px solid ${T.border}`,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(114,166,183,0.12)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        boxShadow: '0 4px 30px rgba(0,0,0,0.4)',
       }}
     >
       {/* Logo mark */}
@@ -297,6 +292,7 @@ function SummaryBar({ chart, user, onTabChange, onLogout, onPasscode, isMobile }
           flexShrink: 0,
           marginRight: 4,
           fontFamily: 'Cormorant Garamond, Georgia, serif',
+          fontStyle: 'italic',
         }}
       >
         ☽
@@ -329,7 +325,7 @@ function SummaryBar({ chart, user, onTabChange, onLogout, onPasscode, isMobile }
         style={{
           flexShrink: 0,
           background: 'transparent',
-          border: `1px solid ${T.border}`,
+          border: '1px solid rgba(114,166,183,0.18)',
           borderRadius: 6,
           color: T.txt3,
           fontSize: 12,
@@ -347,7 +343,7 @@ function SummaryBar({ chart, user, onTabChange, onLogout, onPasscode, isMobile }
         }}
         onMouseLeave={e => {
           e.currentTarget.style.color = T.txt3;
-          e.currentTarget.style.borderColor = T.border;
+          e.currentTarget.style.borderColor = 'rgba(114,166,183,0.18)';
         }}
       >
         <span>✎</span>
@@ -370,9 +366,10 @@ interface SidebarProps {
 
 function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
   const [hovered, setHovered] = useState(false);
-  const isDharmaUnlocked = typeof window !== 'undefined'
-    ? !!localStorage.getItem('vv_dharma_pass')
-    : false;
+  const isDharmaUnlocked = typeof window !== 'undefined' ? (() => {
+    if (localStorage.getItem('vv_dharma_pass')) return true
+    try { const t = localStorage.getItem('vv_dharma_timed'); if (!t) return false; const { expiry } = JSON.parse(t); return Date.now() < expiry } catch { return false }
+  })() : false;
 
   const expanded = hovered;
 
@@ -386,7 +383,9 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
         flexShrink: 0,
         height: '100%',
         background: T.sidebarBg,
-        borderRight: `1px solid ${T.border}`,
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        borderRight: '1px solid rgba(114,166,183,0.1)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -402,11 +401,11 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
           fontSize: 9,
           letterSpacing: '0.14em',
           textTransform: 'uppercase',
-          color: T.txt3,
+          color: '#4A3A6A',
           fontFamily: 'Inter, system-ui, sans-serif',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
-          borderBottom: `1px solid ${T.border}`,
+          borderBottom: '1px solid rgba(114,166,183,0.1)',
           minHeight: 36,
           display: 'flex',
           alignItems: 'center',
@@ -438,20 +437,20 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
                 alignItems: 'center',
                 gap: 12,
                 width: '100%',
-                padding: '0 13px',
-                height: 40,
+                padding: '0 16px',
+                height: 44,
                 background: isActive
-                  ? (isDharma ? 'rgba(212,184,112,0.08)' : 'rgba(139,124,200,0.1)')
+                  ? (isDharma ? 'rgba(212,184,112,0.08)' : 'rgba(114,166,183,0.08)')
                   : 'transparent',
                 border: 'none',
                 borderLeft: isActive
-                  ? `2px solid ${isDharma ? T.gold : T.violet}`
-                  : '2px solid transparent',
+                  ? `3px solid ${isDharma ? T.gold : T.teal}`
+                  : '3px solid transparent',
                 color: isActive
-                  ? (isDharma ? T.gold : T.txt)
+                  ? (isDharma ? T.gold : T.teal)
                   : isDharma
                     ? T.gold
-                    : T.txt2,
+                    : T.txt3,
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'background 0.13s, color 0.13s',
@@ -468,12 +467,12 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
               {/* Icon */}
               <span
                 style={{
-                  fontSize: 15,
+                  fontSize: 18,
                   flexShrink: 0,
                   width: 20,
                   textAlign: 'center',
                   color: isActive
-                    ? (isDharma ? T.gold : T.violet)
+                    ? (isDharma ? T.gold : T.teal)
                     : isDharma ? T.gold : T.txt3,
                   fontFamily: 'system-ui, sans-serif',
                 }}
@@ -524,9 +523,10 @@ interface MobileTabBarProps {
 }
 
 function MobileTabBar({ activeTab, onTabChange, onPasscode }: MobileTabBarProps) {
-  const isDharmaUnlocked = typeof window !== 'undefined'
-    ? !!localStorage.getItem('vv_dharma_pass')
-    : false;
+  const isDharmaUnlocked = typeof window !== 'undefined' ? (() => {
+    if (localStorage.getItem('vv_dharma_pass')) return true
+    try { const t = localStorage.getItem('vv_dharma_timed'); if (!t) return false; const { expiry } = JSON.parse(t); return Date.now() < expiry } catch { return false }
+  })() : false;
 
   const tabItems = NAV_ITEMS.filter(n => (MOBILE_TABS as readonly string[]).includes(n.id));
 
@@ -538,10 +538,10 @@ function MobileTabBar({ activeTab, onTabChange, onPasscode }: MobileTabBarProps)
         left: 0,
         right: 0,
         zIndex: 150,
-        background: T.summaryBg,
-        borderTop: `1px solid ${T.border}`,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(8,4,22,0.78)',
+        borderTop: '1px solid rgba(114,166,183,0.12)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'stretch',
         height: 56,
@@ -572,10 +572,10 @@ function MobileTabBar({ activeTab, onTabChange, onPasscode }: MobileTabBarProps)
               background: 'transparent',
               border: 'none',
               borderTop: isActive
-                ? `2px solid ${isDharma ? T.gold : T.violet}`
+                ? `2px solid ${isDharma ? T.gold : T.teal}`
                 : '2px solid transparent',
               color: isActive
-                ? (isDharma ? T.gold : T.violet)
+                ? (isDharma ? T.gold : T.teal)
                 : T.txt3,
               cursor: 'pointer',
               padding: '0 4px',
@@ -604,6 +604,8 @@ export default function AppShell({
   children,
 }: AppShellProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const [isOffline, setIsOffline] = useState(() => !navigator.onLine);
+  const shaderCanvasRef = useShaderBackground();
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -613,22 +615,89 @@ export default function AppShell({
     return () => mq.removeEventListener('change', handler);
   }, []);
 
+  useEffect(() => {
+    const onOnline = () => setIsOffline(false);
+    const onOffline = () => setIsOffline(true);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
+  }, []);
+
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: T.bg,
+        background: '#0F0524',
         color: T.txt,
         fontFamily: 'Inter, system-ui, sans-serif',
         display: 'flex',
         flexDirection: 'column',
+        position: 'relative',
       }}
     >
-      {/* Inject no-scrollbar style once */}
+      {/* ── WebGL shader — fixed, full-viewport, behind everything ── */}
+      <canvas
+        ref={shaderCanvasRef}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
+          opacity: 0.40,
+          pointerEvents: 'none',
+          display: 'block',
+        }}
+      />
+      {/* ── Inject no-scrollbar style once ── */}
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         * { box-sizing: border-box; }
+        .shimmer-bar {
+          background: linear-gradient(90deg, #72A6B7 0%, #9ABFCC 45%, #72A6B7 60%, #4A8A9A 100%);
+          background-size: 200% 100%;
+          animation: shimmer 2.5s ease infinite;
+        }
+        .shimmer-bar-gold {
+          background: linear-gradient(90deg, #C0A860 0%, #D4B870 45%, #C0A860 60%, #A08050 100%);
+          background-size: 200% 100%;
+          animation: shimmer 2.5s ease infinite;
+        }
+        @keyframes shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position:  200% center; }
+        }
+        .scroll-reveal { opacity: 0; transform: translateY(20px); }
+        .scroll-reveal.visible {
+          opacity: 1; transform: translateY(0);
+          transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), transform 0.65s cubic-bezier(0.22,1,0.36,1);
+        }
       `}</style>
+
+      {/* Offline banner */}
+      {isOffline && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            background: '#E05050',
+            color: '#fff',
+            textAlign: 'center',
+            fontSize: 13,
+            fontFamily: 'Inter, system-ui, sans-serif',
+            padding: '7px 16px',
+            letterSpacing: '0.01em',
+          }}
+        >
+          You are offline — some features unavailable
+        </div>
+      )}
 
       {/* Summary bar */}
       <SummaryBar
@@ -660,6 +729,7 @@ export default function AppShell({
 
         {/* Main content */}
         <main
+          data-chart-export=""
           style={{
             flex: 1,
             minWidth: 0,

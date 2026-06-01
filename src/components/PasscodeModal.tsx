@@ -3,7 +3,10 @@ import { AnimatePresence, motion } from "framer-motion"
 
 interface PasscodeModalProps { open: boolean; onClose: () => void; onUnlock: () => void }
 
-const VALID = ["CELESTIAL2026", "DHARMA", "VEDAVISION"]
+const PERMANENT_CODES = ["CELESTIAL2026", "DHARMA", "VEDAVISION", "COSMICPASS"]
+const TIMED_CODES     = ["CHARLIE"]   // 1-hour sessions
+const TIMED_TTL_MS    = 60 * 60 * 1000
+const ALL_VALID       = [...PERMANENT_CODES, ...TIMED_CODES]
 
 export default function PasscodeModal({ open, onClose, onUnlock }: PasscodeModalProps) {
   const [code, setCode] = useState("")
@@ -13,9 +16,17 @@ export default function PasscodeModal({ open, onClose, onUnlock }: PasscodeModal
   useEffect(() => { if (open) { setCode(""); setStatus("idle"); setTimeout(() => inputRef.current?.focus(), 80) } }, [open])
 
   function submit() {
-    if (VALID.includes(code.trim().toUpperCase())) {
+    const upper = code.trim().toUpperCase()
+    if (ALL_VALID.includes(upper)) {
       setStatus("success")
-      localStorage.setItem("vv_dharma_pass", code.trim().toUpperCase())
+      if (TIMED_CODES.includes(upper)) {
+        // 1-hour timed session
+        localStorage.setItem("vv_dharma_timed", JSON.stringify({ code: upper, expiry: Date.now() + TIMED_TTL_MS }))
+      } else {
+        // Permanent
+        localStorage.setItem("vv_dharma_pass", "1")
+        localStorage.setItem("vv_dharma_access", JSON.stringify({ code: upper, activatedAt: Date.now() }))
+      }
       setTimeout(() => { onUnlock(); onClose() }, 1500)
     } else {
       setStatus("error")

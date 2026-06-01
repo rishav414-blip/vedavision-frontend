@@ -10,12 +10,79 @@
 }
 
 body {
-  font-family: Inter, system-ui, -apple-system, sans-serif;
-  background: #0D0A1E;
-  color: #F0EBF4;
+  font-family: 'Outfit', Inter, system-ui, -apple-system, sans-serif;
+  background: #0F0524;
+  color: #E8E0F0;
   min-height: 100vh;
 }
 
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #8B7CC8; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(114,166,183,0.4); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #72A6B7; }
+
+/* Direction 4 — glassmorphism card base */
+.glass-card {
+  background: rgba(26,14,50,0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(114,166,183,0.18);
+  border-radius: 20px;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 50px rgba(192,168,96,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Shimmer animation for progress bars */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.shimmer-bar {
+  background: linear-gradient(90deg, #72A6B7 0%, #9ABFCC 40%, #72A6B7 60%, #4A8A9A 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease infinite;
+}
+.shimmer-bar-gold {
+  background: linear-gradient(90deg, #C0A860 0%, #D4B870 40%, #C0A860 60%, #A08050 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease infinite;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #C0A860, #D4B870, #72A6B7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Fade-in-up animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fadeInUp 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+/* Scroll-reveal: starts hidden, IntersectionObserver adds .fade-in-up */
+.scroll-reveal { opacity: 0; }
+.scroll-reveal.fade-in-up { opacity: 1; }
+
+/* Planet coin glow on hover */
+.planet-coin {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.planet-coin:hover {
+  transform: scale(1.08);
+}
+
+/* Active tab underline */
+.tab-active {
+  color: #72A6B7 !important;
+  border-bottom: 2px solid #72A6B7 !important;
+}

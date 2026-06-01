@@ -20,7 +20,7 @@ interface Message {
 
 const TOKENS = {
   bg: '#0D0A1E',
-  bgPanel: '#100C20',
+  bgPanel: '#060310',
   bgMid: '#160F2A',
   violet: '#8B7CC8',
   violetDim: 'rgba(139,124,200,0.18)',
@@ -29,21 +29,88 @@ const TOKENS = {
   txt: '#F0EBF4',
   txt2: '#B0A0C8',
   txt3: '#8090B5',
-  glass: 'rgba(255,255,255,0.05)',
-  border: 'rgba(255,255,255,0.10)',
+  glass: 'rgba(12,6,28,0.92)',
+  border: 'rgba(114,166,183,0.2)',
   borderAccent: 'rgba(139,124,200,0.30)',
   userBubble: 'rgba(139,124,200,0.22)',
-  botBubble: 'rgba(22,15,42,0.90)',
+  botBubble: 'rgba(8,4,22,0.88)',
   danger: '#E05050',
 };
 
-const API_URL = 'https://vedavision-backend.onrender.com/api/jyoti';
+const STREAM_URL = 'https://vedavision-backend.onrender.com/api/jyoti/stream';
 const TIMEOUT_MS = 25_000;
 const MAX_HISTORY = 20;
 
 const CRISIS_PATTERNS = /\b(suicide|suicidal|kill myself|end my life|want to die|no reason to live|hopeless|self.harm|hurt myself|ending it all|can't go on)\b/i;
 
 const CRISIS_RESPONSE = `I'm here. What you're feeling matters.\n\n**Please reach out to someone who can help right now:**\n\n*iCall (India):* **9152987821**\n*Crisis Text Line:* text **HOME** to **741741**\n\nYou don't have to face this alone.`;
+
+// ── Scope blocks (checked before API call) ────────────────────────────────────
+
+interface ScopeBlock { pattern: RegExp; response: string }
+
+const SCOPE_BLOCKS: ScopeBlock[] = [
+  {
+    pattern: /\b(predict|will i|when will|what year|exact date|specific date)\b/i,
+    response: "Jyoti reflects patterns, not predictions. I can explore themes and tendencies in your chart, but specific forecasts aren't within my scope — that would require a qualified Jyotishi in person.",
+  },
+  {
+    pattern: /\b(medicine|medication|dosage|doctor|diagnos|treat|cure|illness|disease|symptom)\b/i,
+    response: "Medical questions are outside my scope. Please consult a qualified healthcare professional. I can explore wellness themes in your chart, but never as medical guidance.",
+  },
+  {
+    pattern: /\b(invest|stock|crypto|buy|sell|trading|portfolio|financial advice)\b/i,
+    response: "Specific financial advice is outside my scope. Your chart's 2nd and 11th houses show wealth themes — I can reflect on those patterns, but investment decisions need a financial advisor.",
+  },
+  {
+    pattern: /\b(legal|lawsuit|court|lawyer|attorney|sue|contract)\b/i,
+    response: "Legal advice is outside my scope. I can reflect on Saturn's role in your chart around discipline and consequence, but please consult a qualified legal professional.",
+  },
+];
+
+// ── Chart context serializer ──────────────────────────────────────────────────
+
+function buildSystemPrompt(chart?: Record<string, any>): string {
+  const base = `You are Jyoti — a scholarly Vedic astrology guide for Celestial Noir. You speak in a restrained, contemplative, dark-academia tone. You surface patterns and symbolism for self-inquiry. You never predict specific outcomes, recommend gemstones, give career directives, medical advice, or financial advice. You frame everything on the reflection axis, not the prediction axis.`;
+
+  if (!chart) return base;
+
+  const lagna = chart.lagna
+    ? `Lagna: ${chart.lagna.sign ?? '—'} (lord: ${chart.lagna.lord ?? '—'})`
+    : '';
+
+  const houses: string = Array.isArray(chart.houses)
+    ? 'Houses: ' + chart.houses
+        .map((h: any) => `H${h.id}(${Array.isArray(h.planets) && h.planets.length ? h.planets.join(',') : '∅'})`)
+        .join(', ')
+    : '';
+
+  const md = chart.dasha?.current;
+  const ad = chart.dasha?.antardasha;
+  const dashaLine = md
+    ? `Current Dasha: ${md.planet ?? '—'} MD / ${ad?.planet ?? '—'} AD (${md.start ?? '?'} – ${md.end ?? '?'})`
+    : '';
+
+  const yogaLine = Array.isArray(chart.yoga) && chart.yoga.length
+    ? `Yogas: ${chart.yoga.join(', ')}`
+    : '';
+
+  const nak = chart.nakshatra;
+  const nakLine = nak
+    ? `Nakshatra: ${nak.name ?? '—'} Pada ${nak.pada ?? '—'} (lord: ${nak.lord ?? '—'})`
+    : '';
+
+  const karakas = chart.karakas;
+  const karakaLine = karakas
+    ? `Karakas: ${Object.entries(karakas).map(([k, v]) => `${k}=${v}`).join(', ')}`
+    : '';
+
+  const contextLines = [lagna, houses, dashaLine, yogaLine, nakLine, karakaLine]
+    .filter(Boolean)
+    .join('\n');
+
+  return `${base}\n\nCHART CONTEXT:\n${contextLines}`;
+}
 
 const QUICK_REPLIES_EN = ['Career outlook?', 'Wealth this period?', 'Relationship outlook?', 'Health check?'];
 const QUICK_REPLIES_HI = ['करियर का भविष्य?', 'इस काल में धन?', 'संबंध दृष्टिकोण?', 'स्वास्थ्य जांच?'];
@@ -171,9 +238,9 @@ const Bubble: React.FC<BubbleProps> = ({ msg, isLast, isTyping, typedText }) => 
       <div
         style={{
           maxWidth: '82%',
-          background: isBot ? TOKENS.botBubble : TOKENS.userBubble,
-          border: `1px solid ${isBot ? TOKENS.border : TOKENS.borderAccent}`,
-          borderRadius: isBot ? '4px 14px 14px 14px' : '14px 4px 14px 14px',
+          background: isBot ? TOKENS.botBubble : 'rgba(114,166,183,0.18)',
+          border: `1px solid ${isBot ? 'rgba(114,166,183,0.15)' : 'rgba(114,166,183,0.3)'}`,
+          borderRadius: isBot ? '18px 18px 18px 4px' : '18px 18px 4px 18px',
           padding: '9px 13px',
           fontSize: 13.5,
           lineHeight: 1.55,
@@ -274,6 +341,14 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
       return;
     }
 
+    // Scope-block check (hard stops — no API call)
+    const scopeHit = SCOPE_BLOCKS.find(b => b.pattern.test(trimmed));
+    if (scopeHit) {
+      setMessages(prev => [...prev, { id: uid(), role: 'user', text: trimmed, timestamp: Date.now() }]);
+      addBotMessage(scopeHit.response);
+      return;
+    }
+
     const userMsg: Message = { id: uid(), role: 'user', text: trimmed, timestamp: Date.now() };
     setMessages(prev => {
       const updated = [...prev, userMsg];
@@ -292,7 +367,7 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
     const timeoutId = setTimeout(() => abortRef.current?.abort(), TIMEOUT_MS);
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(STREAM_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: abortRef.current.signal,
@@ -300,28 +375,65 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
           message: trimmed,
           history,
           chart_context: chartContext ?? null,
+          system_prompt: buildSystemPrompt(chartContext),
         }),
       });
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.body) throw new Error('No stream body');
+
+      // Create an empty bot message immediately, then fill it incrementally
+      const streamId = uid();
+      setMessages(prev => [...prev, { id: streamId, role: 'bot', text: '', timestamp: Date.now() }]);
+      setLastBotId(streamId);
+      setIsTypingAnimating(false); // no typewriter — real streaming
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') { streamDone = true; break; }
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.chunk) {
+              fullText += parsed.chunk;
+              setMessages(prev =>
+                prev.map(m => m.id === streamId ? { ...m, text: fullText } : m)
+              );
+            }
+            if (parsed.error) throw new Error(parsed.error);
+          } catch (parseErr) {
+            // ignore malformed SSE lines
+          }
+        }
       }
-
-      const data = await response.json();
-      const replyText: string = data.reply ?? data.message ?? data.response ?? 'No response received.';
-      const modelName: string = data.model ?? 'Gemini 2.5';
-
-      addBotMessage(replyText, modelName);
+      // final update to ensure full text is set (handles any leftover buffer)
+      if (fullText) {
+        setMessages(prev =>
+          prev.map(m => m.id === streamId ? { ...m, text: fullText } : m)
+        );
+      }
     } catch (err: any) {
       clearTimeout(timeoutId);
       if (err.name !== 'AbortError') {
         addBotMessage('Connection issue — the server may be warming up. Try again in a moment.');
       }
-      setStatusLabel('AI');
     } finally {
       setLoading(false);
+      setStatusLabel('AI');
     }
   }, [loading, messages, chartContext, addBotMessage]);
 
@@ -373,7 +485,7 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
     borderRadius: 999,
     padding: '10px 18px 10px 14px',
     cursor: 'pointer',
-    backdropFilter: 'blur(12px)',
+    backdropFilter: 'blur(6px)',
     boxShadow: `0 4px 24px rgba(139,124,200,0.25), 0 1px 4px rgba(0,0,0,0.4)`,
     transition: 'transform 0.15s, box-shadow 0.15s',
     userSelect: 'none',
@@ -439,10 +551,10 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
               display: 'flex',
               flexDirection: 'column',
               background: TOKENS.bgPanel,
-              border: `1px solid ${TOKENS.borderAccent}`,
-              borderRadius: 16,
-              boxShadow: `0 16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,124,200,0.08), 0 4px 24px rgba(139,124,200,0.15)`,
-              backdropFilter: 'blur(20px)',
+              border: `1px solid ${TOKENS.border}`,
+              borderRadius: 20,
+              boxShadow: `0 16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(114,166,183,0.08), 0 4px 24px rgba(114,166,183,0.12)`,
+              backdropFilter: 'blur(8px)',
               overflow: 'hidden',
             }}
           >
@@ -500,7 +612,7 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: 10, color: TOKENS.txt3, letterSpacing: '0.02em', minWidth: 60 }}>
+                <span style={{ fontSize: 11, color: TOKENS.txt3, letterSpacing: '0.02em', minWidth: 60 }}>
                   {statusLabel}
                 </span>
               </div>
@@ -603,7 +715,7 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
                     style={{
                       background: TOKENS.botBubble,
                       border: `1px solid ${TOKENS.border}`,
-                      borderRadius: '4px 14px 14px 14px',
+                      borderRadius: '18px 18px 18px 4px',
                       padding: '10px 14px',
                     }}
                   >
@@ -663,9 +775,9 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
                 alignItems: 'center',
                 gap: 8,
                 padding: '10px 12px 12px',
-                borderTop: `1px solid ${TOKENS.border}`,
+                borderTop: `1px solid rgba(114,166,183,0.15)`,
                 flexShrink: 0,
-                background: `rgba(13,10,30,0.6)`,
+                background: `rgba(8,4,22,0.95)`,
               }}
             >
               <input
@@ -677,9 +789,9 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
                 disabled={loading}
                 style={{
                   flex: 1,
-                  background: TOKENS.glass,
+                  background: 'rgba(114,166,183,0.08)',
                   border: `1px solid ${input ? TOKENS.borderAccent : TOKENS.border}`,
-                  borderRadius: 10,
+                  borderRadius: 12,
                   color: TOKENS.txt,
                   fontSize: 13.5,
                   padding: '8px 12px',
@@ -699,10 +811,10 @@ const JyotiChat: React.FC<JyotiChatProps> = ({ chartContext, lang = 'en' }) => {
                   height: 36,
                   borderRadius: 10,
                   background: input.trim() && !loading
-                    ? `linear-gradient(135deg, ${TOKENS.violet}, #5B4A9A)`
-                    : TOKENS.glass,
-                  border: `1px solid ${input.trim() && !loading ? TOKENS.violet : TOKENS.border}`,
-                  color: input.trim() && !loading ? '#fff' : TOKENS.txt3,
+                    ? `linear-gradient(135deg, #C0A860, #D4B870)`
+                    : 'rgba(8,4,22,0.72)',
+                  border: `1px solid ${input.trim() && !loading ? TOKENS.gold : TOKENS.border}`,
+                  color: input.trim() && !loading ? '#060310' : TOKENS.txt3,
                   fontSize: 16,
                   cursor: input.trim() && !loading ? 'pointer' : 'default',
                   display: 'flex',

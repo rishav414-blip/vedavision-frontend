@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react"
+import type { ChartData } from '@/lib/chartTypes'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -7,8 +8,8 @@ const T = {
   txt:    "#F0EBF4",
   txt2:   "#B0A0C8",
   txt3:   "#8090B5",
-  bgCard: "rgba(255,255,255,0.04)",
-  border: "rgba(255,255,255,0.08)",
+  bgCard: "rgba(8,4,22,0.92)",
+  border: "rgba(114,166,183,0.2)",
   radius: 16,
 }
 
@@ -46,17 +47,6 @@ const PLANET_THEMES: Record<string, string> = {
 
 const FALLBACK_COLOR = T.violet
 const FALLBACK_THEME = "A period of planetary transition inviting reflection on cycles and the quality of attention you bring to daily life."
-
-// ─── ChartData interface ──────────────────────────────────────────────────────
-interface ChartData {
-  native?:  { name?: string; dob?: string }
-  lagna?:   { sign?: string }
-  dasha?:   {
-    current?:    { planet?: string; start?: string; end?: string }
-    antardasha?: { planet?: string; end?: string }
-    sequence?:   { planet: string; years: number; start: string; end: string }[]
-  }
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function parseYear(s?: string): number | null {
@@ -283,7 +273,7 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
                         flexShrink:     0,
                         background:     isActive ? `${color}30` : `${color}12`,
                         borderTop:      `2px solid ${color}${isActive ? "CC" : "55"}`,
-                        borderRight:    idx < segments.length - 1 ? `1px solid rgba(255,255,255,0.06)` : "none",
+                        borderRight:    idx < segments.length - 1 ? `1px solid rgba(114,166,183,0.12)` : "none",
                         display:        "flex",
                         flexDirection:  "column",
                         alignItems:     "center",

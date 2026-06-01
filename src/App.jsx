@@ -93,6 +93,13 @@ export default function App() {
     return () => { delete window.openPrivacyModal; delete window.openPasscodeModal }
   }, [])
 
+  // First-visit disclaimer: auto-show after 1 s if never dismissed
+  useEffect(() => {
+    if (localStorage.getItem('vv_disclaimer_shown')) return
+    const id = setTimeout(() => setShowPrivacy(true), 1000)
+    return () => clearTimeout(id)
+  }, [])
+
   return (
     <>
       {offline && (
@@ -138,11 +145,18 @@ export default function App() {
 
       {showTour && <TourOnboarding onDone={() => setShowTour(false)} />}
 
-      <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
+      <PrivacyModal open={showPrivacy} onClose={() => { setShowPrivacy(false); localStorage.setItem('vv_disclaimer_shown', 'true') }} />
       <PasscodeModal
         open={showPasscode}
         onClose={() => setShowPasscode(false)}
-        onUnlock={() => { localStorage.setItem('vv_dharma_pass', '1') }}
+        onUnlock={() => {
+          // PasscodeModal already wrote the correct key (permanent or timed).
+          // Only set the permanent flag if it's not a timed session.
+          try {
+            const t = localStorage.getItem('vv_dharma_timed')
+            if (!t) localStorage.setItem('vv_dharma_pass', '1')
+          } catch { localStorage.setItem('vv_dharma_pass', '1') }
+        }}
       />
       <Toast />
     </>

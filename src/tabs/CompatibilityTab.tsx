@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
+import type { ChartData } from '@/lib/chartTypes'
+import { getSignStr } from '@/lib/chartTypes'
+import { NAKSHATRA_NAMES, YONI, YONI_ENEMIES, GANA, NADI_MAP } from '@/lib/nakshatraData'
 
+const NAKSHATRAS = NAKSHATRA_NAMES
 const RASHIS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
-const NAKSHATRAS = ['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishtha','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati']
 const PLANETS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu']
 const KOOTS = [
   { name:'Varna',       max:1, desc:'Spiritual compatibility' },
@@ -22,12 +25,6 @@ const DASHA_COMPAT: Record<string, string> = {
 }
 const DASHA_FALLBACK = 'Planetary periods carry their own textures. The quality of connection transcends dasha timing.'
 
-function score(a: string, b: string, max: number, seed: number) {
-  let h = seed
-  for (let i = 0; i < a.length + b.length; i++) { const c = i < a.length ? a.charCodeAt(i) : b.charCodeAt(i - a.length); h = (h * 31 + c) & 0x7fffffff }
-  return Math.min(max, Math.round(((h % (max + 1)) + (h >> 4) % (max + 1)) / 2))
-}
-
 function rating(total: number): { label: string; color: string } {
   if (total >= 30) return { label:'Excellent',        color:'#6EC97A' }
   if (total >= 24) return { label:'Good',             color:'#D4B870' }
@@ -35,13 +32,114 @@ function rating(total: number): { label: string; color: string } {
   return                   { label:'Needs Reflection', color:'#E05050' }
 }
 
-const NADI_MAP: Record<string, 'Aadi'|'Madhya'|'Antya'> = {
-  Ashwini:'Aadi',Bharani:'Madhya',Krittika:'Antya',Rohini:'Aadi',Mrigashira:'Madhya',
-  Ardra:'Antya',Punarvasu:'Aadi',Pushya:'Madhya',Ashlesha:'Antya',Magha:'Aadi',
-  'Purva Phalguni':'Madhya','Uttara Phalguni':'Antya',Hasta:'Aadi',Chitra:'Madhya',
-  Swati:'Antya',Vishakha:'Aadi',Anuradha:'Madhya',Jyeshtha:'Antya',Mula:'Aadi',
-  'Purva Ashadha':'Madhya','Uttara Ashadha':'Antya',Shravana:'Aadi',Dhanishtha:'Madhya',
-  Shatabhisha:'Antya','Purva Bhadrapada':'Aadi','Uttara Bhadrapada':'Madhya',Revati:'Antya',
+// ── Real Ashtakoot Kuta tables ────────────────────────────────────────────────
+
+const VARNA: Record<string, number> = {
+  Cancer:1, Scorpio:1, Pisces:1,       // Brahmin (highest = 1)
+  Aries:2, Leo:2, Sagittarius:2,        // Kshatriya
+  Taurus:3, Virgo:3, Capricorn:3,       // Vaishya
+  Gemini:4, Libra:4, Aquarius:4,        // Shudra
+}
+
+const VASHYA: Record<string, string> = {
+  Aries:'Chatushpada', Taurus:'Chatushpada', Capricorn:'Chatushpada',
+  Gemini:'Manava', Virgo:'Manava', Libra:'Manava', Sagittarius:'Manava', Aquarius:'Manava',
+  Cancer:'Jalchar', Pisces:'Jalchar',
+  Leo:'Vanchar',
+  Scorpio:'Keeta',
+}
+
+
+const SIGN_LORD: Record<string, string> = {
+  Aries:'Mars', Taurus:'Venus', Gemini:'Mercury', Cancer:'Moon', Leo:'Sun',
+  Virgo:'Mercury', Libra:'Venus', Scorpio:'Mars', Sagittarius:'Jupiter',
+  Capricorn:'Saturn', Aquarius:'Saturn', Pisces:'Jupiter',
+}
+
+// 1=friend, 0=neutral, -1=enemy
+const FRIENDSHIP: Record<string, Record<string, number>> = {
+  Sun:     { Moon:1, Mars:1, Jupiter:1, Mercury:0, Venus:-1, Saturn:-1 },
+  Moon:    { Sun:1, Mercury:1, Mars:0, Jupiter:0, Venus:0, Saturn:0 },
+  Mars:    { Sun:1, Moon:1, Jupiter:1, Venus:0, Saturn:0, Mercury:-1 },
+  Mercury: { Sun:1, Venus:1, Mars:0, Saturn:0, Jupiter:0, Moon:-1 },
+  Jupiter: { Sun:1, Moon:1, Mars:1, Saturn:0, Mercury:-1, Venus:-1 },
+  Venus:   { Mercury:1, Saturn:1, Mars:0, Jupiter:0, Sun:-1, Moon:-1 },
+  Saturn:  { Mercury:1, Venus:1, Jupiter:0, Sun:-1, Moon:-1, Mars:-1 },
+}
+
+function kulaFriend(p1: string, p2: string): number {
+  if (p1 === p2) return 1
+  return FRIENDSHIP[p1]?.[p2] ?? 0
+}
+
+// ── 8 Kuta scoring functions ──────────────────────────────────────────────────
+
+function scoreVarna(nSign: string, pSign: string): number {
+  const nv = VARNA[nSign] ?? 4, pv = VARNA[pSign] ?? 4
+  return nv <= pv ? 1 : 0
+}
+
+function scoreVashya(nSign: string, pSign: string): number {
+  const ng = VASHYA[nSign], pg = VASHYA[pSign]
+  if (!ng || !pg) return 1
+  if (ng === pg) return 2
+  if ((ng === 'Chatushpada' && pg === 'Jalchar') || (ng === 'Jalchar' && pg === 'Chatushpada')) return 1
+  if ((ng === 'Jalchar' && pg === 'Manava') || (ng === 'Manava' && pg === 'Jalchar')) return 1
+  return 0
+}
+
+function scoreTara(nNak: string, pNak: string): number {
+  const nIdx = NAKSHATRAS.indexOf(nNak), pIdx = NAKSHATRAS.indexOf(pNak)
+  if (nIdx === -1 || pIdx === -1) return 0
+  const AUSP = new Set([2, 4, 6, 8, 0])
+  const fromN = ((pIdx - nIdx + 27) % 27) % 9
+  const fromP = ((nIdx - pIdx + 27) % 27) % 9
+  return (AUSP.has(fromN) && AUSP.has(fromP)) ? 3 : (AUSP.has(fromN) || AUSP.has(fromP)) ? 1 : 0
+}
+
+function scoreYoni(nNak: string, pNak: string): number {
+  const ny = YONI[nNak], py = YONI[pNak]
+  if (!ny || !py) return 2
+  if (ny === py) return 4
+  const mortal = (ny === 'Serpent' && py === 'Mongoose') || (ny === 'Mongoose' && py === 'Serpent')
+  if (mortal) return 0
+  const enemy = YONI_ENEMIES.some(([a, b]) => (a === ny && b === py) || (a === py && b === ny))
+  return enemy ? 1 : 2
+}
+
+function scoreGrahaMaitri(nSign: string, pSign: string): number {
+  const nl = SIGN_LORD[nSign], pl = SIGN_LORD[pSign]
+  if (!nl || !pl) return 3
+  if (nl === pl) return 5
+  const n2p = kulaFriend(nl, pl), p2n = kulaFriend(pl, nl)
+  if (n2p === 1  && p2n === 1)  return 5
+  if (n2p === 1  && p2n === 0)  return 4
+  if (n2p === 0  && p2n === 1)  return 4
+  if (n2p === 0  && p2n === 0)  return 3
+  if (n2p === 1  && p2n === -1) return 1
+  if (n2p === -1 && p2n === 1)  return 1
+  if (n2p === -1 && p2n === 0)  return 1
+  if (n2p === 0  && p2n === -1) return 1
+  return 0
+}
+
+function scoreGana(nNak: string, pNak: string): number {
+  const ng = GANA[nNak], pg = GANA[pNak]
+  if (!ng || !pg) return 3
+  if (ng === pg) return 6
+  if ((ng === 'Deva' && pg === 'Manushya') || (ng === 'Manushya' && pg === 'Deva')) return 5
+  if ((ng === 'Deva' && pg === 'Rakshasa') || (ng === 'Rakshasa' && pg === 'Deva')) return 1
+  return 0
+}
+
+function scoreBhakoot(nSign: string, pSign: string): number {
+  return hasBhakootDosha(nSign, pSign) ? 0 : 7
+}
+
+function scoreNadi(nNak: string, pNak: string): number {
+  const nn = NADI_MAP[nNak], pn = NADI_MAP[pNak]
+  if (!nn || !pn) return 4
+  return nn === pn ? 0 : 8
 }
 
 function hasBhakootDosha(s1: string, s2: string): boolean {
@@ -61,12 +159,12 @@ function severityStyle(sev: DoshaSeverity): { bg: string; border: string; icon: 
   }
 }
 
-const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
-const sel:  React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', outline:'none' }
-const inputStyle: React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', outline:'none', boxSizing:'border-box' }
+const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
+const sel:  React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.22)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', outline:'none' }
+const inputStyle: React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.22)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', outline:'none', boxSizing:'border-box' }
 const lbl: React.CSSProperties = { fontSize:11, color:'#8090B5', display:'block', marginBottom:6, fontFamily:'Outfit,sans-serif', textTransform:'uppercase', letterSpacing:'0.08em' }
 
-export default function CompatibilityTab({ chart }: { chart: any }) {
+export default function CompatibilityTab({ chart }: { chart: ChartData | null }) {
   const [partnerName,   setPartnerName]   = useState('')
   const [partnerDob,    setPartnerDob]    = useState('')
   const [moonSign,      setMoonSign]      = useState('')
@@ -76,16 +174,28 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
   const [partnerMangal, setPartnerMangal] = useState(false)
   const [results,       setResults]       = useState<number[]|null>(null)
 
+  const nativeSign = getSignStr(chart?.moonSign)
+  const nativeNak  = chart?.nakshatra?.name ?? ''
+
   function check() {
-    if (!moonSign || !nakshatra) return
-    setResults(KOOTS.map((k, i) => score(moonSign, nakshatra, k.max, i * 7 + 13)))
+    if (!moonSign || !nakshatra || !nativeSign || !nativeNak) return
+    setResults([
+      scoreVarna(nativeSign, moonSign),
+      scoreVashya(nativeSign, moonSign),
+      scoreTara(nativeNak, nakshatra),
+      scoreYoni(nativeNak, nakshatra),
+      scoreGrahaMaitri(nativeSign, moonSign),
+      scoreGana(nativeNak, nakshatra),
+      scoreBhakoot(nativeSign, moonSign),
+      scoreNadi(nativeNak, nakshatra),
+    ])
   }
 
   const total = results ? results.reduce((a, b) => a + b, 0) : 0
   const r     = results ? rating(total) : null
 
-  const nadiSame = moonSign && nakshatra ? NADI_MAP[nakshatra] !== undefined && NADI_MAP[nakshatra] === NADI_MAP[moonSign] : false
-  const bhakoot  = moonSign && nakshatra ? hasBhakootDosha(moonSign, nakshatra) : false
+  const nadiSame = nativeNak && nakshatra ? NADI_MAP[nativeNak] === NADI_MAP[nakshatra] : false
+  const bhakoot  = nativeSign && moonSign  ? hasBhakootDosha(nativeSign, moonSign) : false
 
   const userDasha    = chart?.dasha?.current?.planet ?? ''
   const userLagna    = chart?.lagna?.sign ?? ''
@@ -95,7 +205,7 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
 
   // Mangal: check if user has Mangal dosha — chart houses 1,2,4,7,8,12
   const userMangal = chart?.houses ? [1,2,4,7,8,12].some((h: number) => {
-    const house = chart.houses.find((hh: any) => hh.id === h)
+    const house = chart.houses?.find((hh) => hh.id === h)
     return house?.planets?.includes('Mars') || house?.planets?.includes('Ma')
   }) : false
 
@@ -184,7 +294,7 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
               onClick={() => setPartnerMangal(v => !v)}
               style={{
                 width:36, height:20, borderRadius:10,
-                background: partnerMangal ? '#E05050' : 'rgba(255,255,255,0.10)',
+                background: partnerMangal ? '#E05050' : 'rgba(114,166,183,0.2)',
                 border:'none', cursor:'pointer', position:'relative',
                 transition:'background 0.2s', padding:0, flexShrink:0,
               }}
@@ -205,7 +315,7 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
           <button
             onClick={check}
             disabled={!moonSign || !nakshatra}
-            style={{ padding:'12px 0', borderRadius:12, border:'none', background: moonSign && nakshatra ? 'linear-gradient(135deg,#C0A860,#D4B870)' : 'rgba(255,255,255,0.06)', color: moonSign && nakshatra ? '#0A0618' : '#8090B5', fontSize:14, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor: moonSign && nakshatra ? 'pointer' : 'default' }}
+            style={{ padding:'12px 0', borderRadius:12, border:'none', background: moonSign && nakshatra ? 'linear-gradient(135deg,#C0A860,#D4B870)' : 'rgba(114,166,183,0.12)', color: moonSign && nakshatra ? '#0A0618' : '#8090B5', fontSize:14, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor: moonSign && nakshatra ? 'pointer' : 'default' }}
           >
             Check Compatibility
           </button>
@@ -232,7 +342,7 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
               const s = results[i], pct = s / k.max
               const bc = pct >= 0.8 ? '#6EC97A' : pct >= 0.5 ? '#D4B870' : '#E05050'
               return (
-                <div key={k.name} style={{ padding:'10px 0', borderBottom: i < KOOTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                <div key={k.name} style={{ padding:'10px 0', borderBottom: i < KOOTS.length - 1 ? '1px solid rgba(10,5,26,0.88)' : 'none' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
                     <div>
                       <span style={{ fontSize:13, color:'#F0EBF4', fontFamily:'Outfit,sans-serif', marginRight:8 }}>{k.name}</span>
@@ -240,7 +350,7 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
                     </div>
                     <span style={{ fontSize:13, color:bc, fontFamily:'Syne,sans-serif', fontWeight:600 }}>{s} / {k.max}</span>
                   </div>
-                  <div style={{ height:4, background:'rgba(255,255,255,0.06)', borderRadius:2, overflow:'hidden' }}>
+                  <div style={{ height:4, background:'rgba(114,166,183,0.12)', borderRadius:2, overflow:'hidden' }}>
                     <div style={{ width:`${pct * 100}%`, height:'100%', background:bc, borderRadius:2, transition:'width 0.4s ease' }} />
                   </div>
                 </div>
@@ -309,7 +419,7 @@ export default function CompatibilityTab({ chart }: { chart: any }) {
               await navigator.clipboard.writeText(text).catch(() => {})
               window.showToast?.('Compatibility result copied', 'success')
             }}
-            style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.06)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
+            style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'1px solid rgba(114,166,183,0.22)', background:'rgba(114,166,183,0.12)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
           >
             📱 Share Result
           </button>

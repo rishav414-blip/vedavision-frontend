@@ -3,6 +3,26 @@ import { exportChartPDF, ChartData } from "@/lib/pdfExport"
 
 interface PDFExportButtonProps { chartData?: ChartData }
 
+const RAZORPAY_KEY = (import.meta as any).env?.VITE_RAZORPAY_KEY || 'rzp_test_YOUR_KEY_HERE'
+
+function openRazorpayForPDF(onSuccess: () => void) {
+  const options = {
+    key: RAZORPAY_KEY,
+    amount: 9900, // ₹99 in paise
+    currency: 'INR',
+    name: 'Celestial Noir',
+    description: 'Full Birth Chart PDF Report',
+    theme: { color: '#C0A860' },
+    handler: () => {
+      localStorage.setItem('vv_pdf_purchased', 'true')
+      onSuccess()
+    },
+    modal: { ondismiss: () => {} },
+  }
+  const rzp = new (window as any).Razorpay(options)
+  rzp.open()
+}
+
 export default function PDFExportButton({ chartData }: PDFExportButtonProps) {
   const [status, setStatus] = useState<"idle"|"loading"|"error">("idle")
   const [hov, setHov] = useState(false)
@@ -11,9 +31,27 @@ export default function PDFExportButton({ chartData }: PDFExportButtonProps) {
   async function handleClick() {
     if (!chartData || status === "loading") return
     if (timer.current) { clearTimeout(timer.current); timer.current = null }
-    setStatus("loading")
-    try { await exportChartPDF(chartData); setStatus("idle") }
-    catch { setStatus("error"); timer.current = setTimeout(() => setStatus("idle"), 3000) }
+
+    if (localStorage.getItem('vv_pdf_purchased') === 'true') {
+      // already purchased — export directly
+      setStatus("loading")
+      try { await exportChartPDF(chartData); setStatus("idle") }
+      catch { setStatus("error"); timer.current = setTimeout(() => setStatus("idle"), 3000) }
+    } else if (typeof (window as any).Razorpay !== 'undefined') {
+      openRazorpayForPDF(async () => {
+        setStatus("loading")
+        try { await exportChartPDF(chartData); setStatus("idle") }
+        catch { setStatus("error"); timer.current = setTimeout(() => setStatus("idle"), 3000) }
+      })
+    } else {
+      // Razorpay not loaded — fallback confirm
+      if (window.confirm('Unlock your full birth chart PDF for ₹99. Proceed?')) {
+        localStorage.setItem('vv_pdf_purchased', 'true')
+        setStatus("loading")
+        try { await exportChartPDF(chartData); setStatus("idle") }
+        catch { setStatus("error"); timer.current = setTimeout(() => setStatus("idle"), 3000) }
+      }
+    }
   }
 
   const disabled = !chartData || status === "loading"

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+import type { ChartData } from '@/lib/chartTypes'
+import { t } from '@/lib/i18n'
 
-interface ChartData { lagna?: { lord?: string }; dasha?: { current?: { planet?: string } } }
 interface RemedyData { day: string; color: string; charity: string; mantra: string; romanised: string; themes: string; planetColor: string }
 
 const REMEDIES: Record<string, RemedyData> = {
@@ -32,23 +33,32 @@ const PLANET_GLYPHS: Record<string, string> = {
   Sun:'☉', Moon:'☽', Mars:'♂', Mercury:'☿', Jupiter:'♃', Venus:'♀', Saturn:'♄', Rahu:'☊', Ketu:'☋',
 }
 
-const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
+const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
 const lbl: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
 
 function hexRgb(hex: string) { const c = hex.replace('#',''); return `${parseInt(c.slice(0,2),16)},${parseInt(c.slice(2,4),16)},${parseInt(c.slice(4,6),16)}` }
 
-function RemedyCard({ remedy }: { remedy: RemedyData }) {
+
+
+function RemedyCard({ remedy, lang = 'en' }: { remedy: RemedyData; lang?: string }) {
+  const labels = [
+    ['Day',    t('Day',    'दिन',    lang), remedy.day],
+    ['Colour', t('Colour', 'रंग',    lang), remedy.color],
+    ['Dāna',   t('Fasting','उपवास',  lang), remedy.charity],
+    ['Mantra', t('Mantra', 'मंत्र',  lang), `${remedy.mantra} — ${remedy.romanised}`],
+  ] as [string, string, string][]
+
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        {[['Day', remedy.day],['Colour', remedy.color],['Dāna', remedy.charity],['Mantra', `${remedy.mantra} — ${remedy.romanised}`]].map(([k,v]) => (
-          <div key={k} style={{ background:'rgba(255,255,255,0.03)', borderRadius:10, padding:'10px 12px', gridColumn: k==='Mantra'?'1/-1':undefined }}>
-            <p style={{ fontSize:10, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>{k}</p>
-            <p style={{ fontSize: k==='Mantra'?15:13, color:'#F0EBF4', margin:0, fontFamily: k==='Mantra'?'"Cormorant Garamond",serif':'Outfit,sans-serif' }}>{v}</p>
+        {labels.map(([key, label, value]) => (
+          <div key={key} style={{ background:'rgba(10,5,26,0.88)', borderRadius:10, padding:'10px 12px', gridColumn: key==='Mantra'?'1/-1':undefined }}>
+            <p style={{ fontSize:10, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>{label}</p>
+            <p style={{ fontSize: key==='Mantra'?15:13, color:'#F0EBF4', margin:0, fontFamily: key==='Mantra'?'"Cormorant Garamond",serif':'Outfit,sans-serif' }}>{value}</p>
           </div>
         ))}
       </div>
-      <div style={{ padding:'10px 12px', background:'rgba(255,255,255,0.02)', borderRadius:10, borderLeft:`2px solid ${remedy.planetColor}` }}>
+      <div style={{ padding:'10px 12px', background:'rgba(114,166,183,0.06)', borderRadius:10, borderLeft:`2px solid ${remedy.planetColor}` }}>
         <p style={{ fontSize:12, color:'#B0A0C8', margin:0, lineHeight:1.6, fontFamily:'Outfit,sans-serif' }}>{remedy.themes}</p>
       </div>
       <div style={{ padding:'10px 14px', background:'rgba(139,124,200,0.08)', borderRadius:10, border:'1px solid rgba(139,124,200,0.2)' }}>
@@ -58,7 +68,7 @@ function RemedyCard({ remedy }: { remedy: RemedyData }) {
   )
 }
 
-export default function RemediesTab({ chart }: { chart: ChartData | null }) {
+export default function RemediesTab({ chart, lang = 'en' }: { chart: ChartData | null; lang?: string }) {
   const activePlanet = chart?.dasha?.current?.planet ?? 'Sun'
   const [expanded, setExpanded] = useState<string|null>(null)
 
@@ -68,23 +78,23 @@ export default function RemediesTab({ chart }: { chart: ChartData | null }) {
         <p style={{ fontSize:12, color:'#8B7CC8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>Classical Vedic remedies are offered as reflective practices. Consult a qualified Jyotishi before adopting gemstone or major ritual remedies.</p>
       </div>
       <div style={card}>
-        <span style={lbl}>Active Period — {activePlanet} Mahādaśā</span>
-        <RemedyCard remedy={REMEDIES[activePlanet] ?? REMEDIES['Sun']} />
+        <span style={lbl}>{t('Active Period', 'सक्रिय अवधि', lang)} — {activePlanet} Mahādaśā</span>
+        <RemedyCard remedy={REMEDIES[activePlanet] ?? REMEDIES['Sun']} lang={lang} />
       </div>
       <div style={card}>
-        <span style={lbl}>Planet Remedy Browser</span>
+        <span style={lbl}>{t('Remedies & Practices', 'उपाय और अभ्यास', lang)}</span>
         <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:16 }}>
           {Object.keys(REMEDIES).map(p => {
             const r = REMEDIES[p], active = expanded === p
-            return <button key={p} onClick={() => setExpanded(prev => prev===p?null:p)} style={{ padding:'6px 14px', borderRadius:999, border:`1px solid ${active?r.planetColor:'rgba(255,255,255,0.12)'}`, background:active?`rgba(${hexRgb(r.planetColor)},0.12)`:'rgba(255,255,255,0.03)', color:active?r.planetColor:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}>{p}</button>
+            return <button key={p} onClick={() => setExpanded(prev => prev===p?null:p)} style={{ padding:'6px 14px', borderRadius:999, border:`1px solid ${active?r.planetColor:'rgba(114,166,183,0.22)'}`, background:active?`rgba(${hexRgb(r.planetColor)},0.12)`:'rgba(8,4,22,0.88)', color:active?r.planetColor:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}>{p}</button>
           })}
         </div>
-        {expanded && <div style={{ borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:16 }}><span style={{ ...lbl, color:REMEDIES[expanded].planetColor }}>{expanded}</span><RemedyCard remedy={REMEDIES[expanded]} /></div>}
+        {expanded && <div style={{ borderTop:'1px solid rgba(114,166,183,0.12)', paddingTop:16 }}><span style={{ ...lbl, color:REMEDIES[expanded].planetColor }}>{expanded}</span><RemedyCard remedy={REMEDIES[expanded]} lang={lang} /></div>}
       </div>
 
       {/* ── Gemstone Reference Table ── */}
       <div style={card}>
-        <span style={lbl}>Gemstone Reference</span>
+        <span style={lbl}>{t('Gemstone Reference', 'रत्न संदर्भ', lang)}</span>
 
         {/* Prominent disclaimer */}
         <div style={{
@@ -107,7 +117,7 @@ export default function RemediesTab({ chart }: { chart: ChartData | null }) {
             <thead>
               <tr>
                 {['Planet','Primary Stone','Substitute','Metal','Finger'].map(h => (
-                  <th key={h} style={{ fontSize:9, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', fontWeight:600, padding:'6px 10px', textAlign:'left', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>{h}</th>
+                  <th key={h} style={{ fontSize:9, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', fontWeight:600, padding:'6px 10px', textAlign:'left', borderBottom:'1px solid rgba(114,166,183,0.2)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -119,7 +129,7 @@ export default function RemediesTab({ chart }: { chart: ChartData | null }) {
                   <tr
                     key={row.planet}
                     style={{
-                      background: i % 2 === 1 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                      background: i % 2 === 1 ? 'rgba(114,166,183,0.06)' : 'transparent',
                       borderLeft: isActive ? `3px solid ${pc}` : '3px solid transparent',
                     }}
                   >
@@ -146,7 +156,7 @@ export default function RemediesTab({ chart }: { chart: ChartData | null }) {
           @media (min-width: 541px) {
             .gemstone-cards { display: none !important; }
           }
-          .gemstone-row:hover { background: rgba(255,255,255,0.04) !important; }
+          .gemstone-row:hover { background: rgba(10,5,26,0.88) !important; }
         `}</style>
 
         <div className="gemstone-cards" style={{ display:'none', flexDirection:'column', gap:8 }}>
@@ -156,9 +166,9 @@ export default function RemediesTab({ chart }: { chart: ChartData | null }) {
             return (
               <div key={row.planet} style={{
                 padding:'12px 14px',
-                background:'rgba(255,255,255,0.03)',
+                background:'rgba(10,5,26,0.88)',
                 borderRadius:10,
-                borderLeft:`3px solid ${isActive ? pc : 'rgba(255,255,255,0.08)'}`,
+                borderLeft:`3px solid ${isActive ? pc : 'rgba(114,166,183,0.2)'}`,
               }}>
                 <p style={{ fontSize:14, color:pc, fontWeight:600, fontFamily:'Outfit,sans-serif', margin:'0 0 8px' }}>
                   {PLANET_GLYPHS[row.planet]} {row.planet}

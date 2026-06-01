@@ -1,4 +1,12 @@
 import React, { useState, useMemo } from "react"
+import type { ChartData } from '@/lib/chartTypes'
+import { NAKSHATRA_NAMES } from '@/lib/nakshatraData'
+import {
+  dateToJD, lahiriAyanamsa, moonTropicalLong, sunTropicalLong,
+  moonSiderealLong, getNakshatra, getTithi,
+  dayScore, PLANET_ORDER, INAUSPICIOUS_TITHIS, AUSPICIOUS_TITHIS,
+  FAVORABLE_NAKSHATRAS, INAUSPICIOUS_NAKSHATRAS,
+} from '@/lib/panchang'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -7,8 +15,8 @@ const T = {
   txt:    "#F0EBF4",
   txt2:   "#B0A0C8",
   txt3:   "#8090B5",
-  bgCard: "rgba(255,255,255,0.04)",
-  border: "rgba(255,255,255,0.08)",
+  bgCard: "rgba(8,4,22,0.92)",
+  border: "rgba(114,166,183,0.2)",
   radius: 16,
 }
 
@@ -51,24 +59,14 @@ const PLANET_GLYPH: Record<string, string> = {
 const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 // Planet index map kept for legacy getDashaIndex fallback
-const PLANET_ORDER = ["Sun","Moon","Mars","Rahu","Jupiter","Saturn","Mercury","Ketu","Venus"]
-
-// ─── ChartData interface ──────────────────────────────────────────────────────
-interface ChartData {
-  native?:  { name?: string; dob?: string }
-  lagna?:   { sign?: string }
-  dasha?:   {
-    current?:    { planet?: string; start?: string; end?: string }
-    antardasha?: { planet?: string; end?: string }
-    sequence?:   { planet: string; years: number; start: string; end: string }[]
-  }
-}
 
 // ─── DayData type ─────────────────────────────────────────────────────────────
 interface DayData {
-  day:   number
-  date:  string   // ISO "YYYY-MM-DD"
-  score: number
+  day:        number
+  date:       string   // ISO "YYYY-MM-DD"
+  score:      number
+  nakshatra?: string
+  tithi?:     number
 }
 
 // ─── Activity definitions ─────────────────────────────────────────────────────
@@ -83,21 +81,12 @@ const ACTIVITIES = [
 
 type ActivityValue = typeof ACTIVITIES[number]["value"]
 
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getDashaIndex(chart: ChartData | null): number {
   const planet = chart?.dasha?.current?.planet ?? ""
   const idx    = PLANET_ORDER.indexOf(planet)
   return idx === -1 ? 3 : idx  // default Rahu index
-}
-
-/** Deterministic score 0-100 weighted by active Mahādaśā planet and day of week */
-function dayScore(date: Date, dashaPlanet: string, idx: number): number {
-  const dow         = date.getDay() // 0=Sun
-  const base        = ((date.getDate() * 7 + date.getMonth() * 13 + idx * 17) % 60) + 20 // 20–80 range
-  const dayBonus    = (PLANET_DAY[dashaPlanet] ?? -1) === dow ? 15 : 0
-  const weekendBonus = (dow === 0 || dow === 6) && ["Moon","Venus"].includes(dashaPlanet) ? 8 : 0
-  const mercBonus   = dow === 3 && dashaPlanet === "Mercury" ? 10 : 0
-  return Math.min(100, Math.max(0, base + dayBonus + weekendBonus + mercBonus))
 }
 
 function energyLabel(score: number): string {
@@ -194,8 +183,13 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
       const day  = i + 1
       const d    = new Date(year, month, day)
       const iso  = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-      const idx  = PLANET_ORDER.indexOf(dashaPlanet) === -1 ? 3 : PLANET_ORDER.indexOf(dashaPlanet)
-      return { day, date: iso, score: dayScore(d, dashaPlanet, idx) }
+      return {
+        day,
+        date: iso,
+        score: dayScore(d, dashaPlanet),
+        nakshatra: getNakshatra(d),
+        tithi: getTithi(d),
+      }
     }),
   [totalDays, year, month, dashaPlanet])
 
@@ -241,13 +235,8 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
   // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null)
 
-  const selectedScore = selected != null
-    ? dayScore(
-        new Date(year, month, selected),
-        dashaPlanet,
-        PLANET_ORDER.indexOf(dashaPlanet) === -1 ? 3 : PLANET_ORDER.indexOf(dashaPlanet)
-      )
-    : null
+  const selectedDay   = selected != null ? allDays.find(d => d.day === selected) ?? null : null
+  const selectedScore = selectedDay?.score ?? null
 
   function handleFind() {
     const act = ACTIVITIES.find(a => a.value === activity)!
@@ -292,8 +281,8 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
         return (
           <div style={{
             borderLeft:   `3px solid ${pColor}`,
-            background:   "rgba(255,255,255,0.03)",
-            border:       `1px solid rgba(255,255,255,0.07)`,
+            background:   "rgba(8,4,22,0.90)",
+            border:       `1px solid rgba(114,166,183,0.15)`,
             borderRadius: 10,
             padding:      "12px 16px",
           }}>
@@ -329,7 +318,9 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
           {cells.map((day, idx) => {
             if (day === null) return <div key={`blank-${idx}`} />
 
-            const score    = dayScore(new Date(year, month, day), dashaPlanet, PLANET_ORDER.indexOf(dashaPlanet) === -1 ? 3 : PLANET_ORDER.indexOf(dashaPlanet))
+            const dayData  = allDays.find(d => d.day === day)
+            const score    = dayData?.score ?? 50
+            const nakName  = dayData?.nakshatra ?? ""
             const isSelect = day === selected
             const isTod    = isToday(day)
             const dotColor = score >= 70 ? "#4CAF6A" : score < 30 ? "#D95F5F" : "transparent"
@@ -338,6 +329,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
               <button
                 key={day}
                 onClick={() => setSelected(day === selected ? null : day)}
+                title={nakName ? `${nakName} · score ${score}` : undefined}
                 style={{
                   background:   isSelect ? `${T.gold}22` : energyBg(score),
                   border:       isTod
@@ -353,7 +345,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                   alignItems:   "center",
                   gap:          2,
                   transition:   "background 0.15s",
-                  minHeight:    40,
+                  minHeight:    48,
                 }}
               >
                 <span style={{ fontSize: 12, color: isTod ? T.gold : isSelect ? T.gold : T.txt, fontWeight: isTod ? 700 : 400 }}>
@@ -361,6 +353,11 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                 </span>
                 {(score >= 70 || score < 30) && (
                   <span style={{ fontSize: 7, color: dotColor, lineHeight: 1 }}>●</span>
+                )}
+                {nakName && (
+                  <span style={{ fontSize: 8, color: T.txt3, lineHeight: 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingInline: 1 }}>
+                    {nakName.slice(0, 5)}
+                  </span>
                 )}
               </button>
             )
@@ -411,8 +408,19 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
             {energyNote(selectedScore)}
           </p>
 
+          {selectedDay?.nakshatra && (
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, color: T.txt3 }}>
+                Nakṣatra: <span style={{ color: T.txt2, fontWeight: 600 }}>{selectedDay.nakshatra}</span>
+              </span>
+              <span style={{ fontSize: 11, color: T.txt3 }}>
+                Tithi: <span style={{ color: T.txt2, fontWeight: 600 }}>{selectedDay.tithi}</span>
+              </span>
+            </div>
+          )}
+
           <p style={{ margin: 0, fontSize: 10, color: T.txt3, fontStyle: "italic" }}>
-            Based on thematic daśā patterns — not live Panchang data
+            Nakṣatra & Tithi computed from Moon's sidereal longitude (Lahiri ayanamsa) · daśā rhythm applied
           </p>
         </div>
       )}
@@ -430,8 +438,8 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
               <div
                 key={label}
                 style={{
-                  background:   "rgba(255,255,255,0.04)",
-                  border:       "1px solid rgba(255,255,255,0.08)",
+                  background:   "rgba(8,4,22,0.90)",
+                  border:       "1px solid rgba(114,166,183,0.2)",
                   borderRadius: 12,
                   padding:      "14px 16px",
                 }}
@@ -451,7 +459,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                 </div>
 
                 {/* Progress bar */}
-                <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+                <div style={{ height: 3, borderRadius: 2, background: "rgba(114,166,183,0.2)", overflow: "hidden" }}>
                   <div style={{
                     height: "100%",
                     width:  `${avg}%`,
@@ -482,8 +490,8 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
               setSearched(false)
             }}
             style={{
-              background:   "rgba(255,255,255,0.06)",
-              border:       "1px solid rgba(255,255,255,0.12)",
+              background:   "rgba(10,5,26,0.90)",
+              border:       "1px solid rgba(114,166,183,0.2)",
               borderRadius: 8,
               color:        T.txt,
               fontSize:     13,
@@ -538,8 +546,8 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                 <div
                   key={d.date}
                   style={{
-                    background:   "rgba(255,255,255,0.04)",
-                    border:       "1px solid rgba(255,255,255,0.08)",
+                    background:   "rgba(8,4,22,0.90)",
+                    border:       "1px solid rgba(114,166,183,0.2)",
                     borderLeft:   "3px solid #4CAF6A",
                     borderRadius: 10,
                     padding:      "12px 14px",
@@ -555,6 +563,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                     </span>
                     <span style={{ fontSize: 11, color: T.txt3 }}>
                       {auspiciousLabel(d.score)}
+                      {d.nakshatra ? ` · ${d.nakshatra}` : ""}
                     </span>
                   </div>
                   <div style={{

@@ -3,15 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // ── Design tokens ──────────────────────────────────────────────────────────
 const T = {
-  bg: "#0D0A1E",
-  surface: "rgba(255,255,255,0.05)",
-  border: "rgba(255,255,255,0.10)",
-  violet: "#8B7CC8",
-  violet2: "#A99BD9",
+  bg: "#0F0524",
+  surface: "rgba(26,14,50,0.75)",
+  border: "rgba(114,166,183,0.18)",
+  violet: "#72A6B7",
+  violet2: "#72A6B7",
   gold: "#D4B870",
-  txt: "#F0EBF4",
-  txt2: "#B0A0C8",
-  txt3: "#8090B5",
+  txt: "#E8E0F0",
+  txt2: "#B8B0C8",
+  txt3: "#7A6A9A",
   error: "#E05050",
 };
 
@@ -68,6 +68,14 @@ function saveUsers(users: StoredUser[]): void {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password + 'vv_salt_2026')
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
 // ── Props ──────────────────────────────────────────────────────────────────
 interface AuthPageProps {
   onEnter: (user: VVUser) => void;
@@ -93,11 +101,11 @@ if (!document.getElementById(SHINE_ID)) {
       50%       { opacity: 1; }
     }
     .vv-input:focus {
-      border-color: #D4B870 !important;
+      border-color: rgba(114,166,183,0.5) !important;
       outline: none;
     }
     .vv-link {
-      color: #A99BD9;
+      color: #72A6B7;
       cursor: pointer;
       text-decoration: none;
       font-family: 'Inter', sans-serif;
@@ -180,8 +188,8 @@ function Field({ label, type = "text", value, onChange, placeholder, autoComplet
         style={{
           width: "100%",
           background: "rgba(255,255,255,0.04)",
-          border: `1px solid ${T.border}`,
-          borderRadius: 8,
+          border: `1px solid rgba(114,166,183,0.2)`,
+          borderRadius: 10,
           padding: "11px 14px",
           color: T.txt,
           fontFamily: FONTS.body,
@@ -217,20 +225,21 @@ function PrimaryBtn({ children, onClick, type = "button", disabled }: BtnProps) 
         overflow: "hidden",
         width: "100%",
         padding: "13px 0",
-        background: hovered
-          ? "linear-gradient(135deg, #A99BD9 0%, #22D3EE 100%)"
-          : "linear-gradient(135deg, #8B7CC8 0%, #06B6D4 100%)",
+        background: "linear-gradient(135deg, #C0A860, #D4B870)",
         border: "none",
-        borderRadius: 10,
-        color: "#fff",
+        borderRadius: 50,
+        color: "#0F0524",
         fontFamily: FONTS.heading,
         fontSize: 14,
-        fontWeight: 600,
+        fontWeight: 700,
         letterSpacing: "0.04em",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.6 : 1,
-        transition: "background 0.3s",
+        transition: "box-shadow 0.3s",
         marginTop: 4,
+        boxShadow: hovered
+          ? "0 6px 30px rgba(192,168,96,0.45)"
+          : "0 4px 20px rgba(192,168,96,0.3)",
       }}
     >
       {/* Shine sweep */}
@@ -290,18 +299,32 @@ function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const users = getUsers();
-    const found = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    if (!found) {
+    const candidate = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (!candidate) {
       setError("Invalid email or password");
       return;
     }
-    const user: VVUser = { name: found.name, email: found.email, plan: found.plan };
+    const hashed = await hashPassword(password);
+    // Migration: if stored password is not 64 chars it's plain text — compare plain, then upgrade
+    if (candidate.password.length !== 64) {
+      if (candidate.password !== password) {
+        setError("Invalid email or password");
+        return;
+      }
+      // Upgrade to hashed
+      const updated = users.map((u) =>
+        u.email.toLowerCase() === email.toLowerCase() ? { ...u, password: hashed } : u
+      );
+      saveUsers(updated);
+    } else if (candidate.password !== hashed) {
+      setError("Invalid email or password");
+      return;
+    }
+    const user: VVUser = { name: candidate.name, email: candidate.email, plan: candidate.plan };
     saveSession(user);
     onEnter(user);
   };
@@ -366,7 +389,7 @@ function SignupForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -382,7 +405,8 @@ function SignupForm({
       return;
     }
 
-    const newUser: StoredUser = { name: name.trim(), email: email.toLowerCase(), password, plan: "free" };
+    const hashed = await hashPassword(password);
+    const newUser: StoredUser = { name: name.trim(), email: email.toLowerCase(), password: hashed, plan: "free" };
     saveUsers([...users, newUser]);
 
     const session: VVUser = { name: newUser.name, email: newUser.email, plan: "free" };
@@ -471,17 +495,17 @@ export default function AuthPage({ onEnter, onPreviewTour }: AuthPageProps) {
           position: "absolute",
           inset: 0,
           background:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,124,200,0.14) 0%, transparent 70%), " +
-            "radial-gradient(ellipse 60% 40% at 10% 90%, rgba(6,182,212,0.08) 0%, transparent 60%), " +
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(114,166,183,0.12) 0%, transparent 70%), " +
+            "radial-gradient(ellipse 60% 40% at 10% 90%, rgba(114,166,183,0.07) 0%, transparent 60%), " +
             "radial-gradient(ellipse 50% 50% at 90% 80%, rgba(212,184,112,0.07) 0%, transparent 55%)",
           pointerEvents: "none",
         }}
       />
 
       {/* Floating orbs */}
-      <FloatingOrb size={320} color="#7C3AED" top="-8%" left="-6%" duration={9} yRange={30} />
-      <FloatingOrb size={260} color="#0891B2" top="55%" right="-5%" duration={11} yRange={24} />
-      <FloatingOrb size={200} color="#D97706" bottom="-4%" left="38%" duration={8} yRange={20} />
+      <FloatingOrb size={320} color="#72A6B7" top="-8%" left="-6%" duration={9} yRange={30} />
+      <FloatingOrb size={260} color="#4A8A9A" top="55%" right="-5%" duration={11} yRange={24} />
+      <FloatingOrb size={200} color="#D4B870" bottom="-4%" left="38%" duration={8} yRange={20} />
 
       {/* Centered card column */}
       <motion.div
@@ -545,7 +569,7 @@ export default function AuthPage({ onEnter, onPreviewTour }: AuthPageProps) {
             fontWeight: 800,
             fontSize: 30,
             margin: "0 0 8px",
-            background: `linear-gradient(135deg, ${T.violet2} 0%, ${T.gold} 100%)`,
+            background: `linear-gradient(135deg, #D4B870 0%, #72A6B7 100%)`,
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -574,7 +598,7 @@ export default function AuthPage({ onEnter, onPreviewTour }: AuthPageProps) {
         <div
           style={{
             display: "flex",
-            background: "rgba(255,255,255,0.05)",
+            background: "rgba(26,14,50,0.5)",
             border: `1px solid ${T.border}`,
             borderRadius: 12,
             padding: 4,
@@ -610,13 +634,14 @@ export default function AuthPage({ onEnter, onPreviewTour }: AuthPageProps) {
         <div
           style={{
             width: "100%",
-            background: "rgba(13,10,30,0.95)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 20,
-            backdropFilter: "blur(32px)",
-            WebkitBackdropFilter: "blur(32px)",
+            background: "rgba(26,14,50,0.75)",
+            border: "1px solid rgba(114,166,183,0.18)",
+            borderRadius: 24,
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             overflow: "hidden",
             position: "relative",
+            boxShadow: "0 8px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
           }}
         >
           <AnimatePresence mode="wait" custom={tabDir}>

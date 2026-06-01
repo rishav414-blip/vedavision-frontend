@@ -3,26 +3,48 @@ import React, { useState, useEffect } from 'react'
 interface DharmaPassTabProps { unlocked: boolean; onOpenPasscode: () => void }
 
 // ─── Access utilities ─────────────────────────────────────────────────────────
-const ACCESS_KEY = 'vv_dharma_access'
-const VALID_CODES = ['CELESTIAL2026','DHARMA','VEDAVISION','COSMICPASS']
+const ACCESS_KEY   = 'vv_dharma_access'
+const TIMED_KEY    = 'vv_dharma_timed'
+const TIMED_CODES  = ['CHARLIE']
+const VALID_CODES  = ['CELESTIAL2026','DHARMA','VEDAVISION','COSMICPASS','CHARLIE']
+const TIMED_TTL_MS = 60 * 60 * 1000 // 1 hour
 
-function hasAccess(): boolean {
+/** Returns true if a permanent code is active. */
+function hasPermanentAccess(): boolean {
+  return !!localStorage.getItem('vv_dharma_pass')
+}
+
+/** Returns ms remaining for a timed session, or 0 if expired/absent. */
+function timedAccessRemaining(): number {
   try {
-    const r = localStorage.getItem(ACCESS_KEY)
-    if (!r) return false
-    const { expires } = JSON.parse(r)
-    return Date.now() < expires
-  } catch { return false }
+    const r = localStorage.getItem(TIMED_KEY)
+    if (!r) return 0
+    const { expiry } = JSON.parse(r)
+    return Math.max(0, expiry - Date.now())
+  } catch { return 0 }
+}
+
+/** Returns true if any valid access exists (permanent or unexpired timed). */
+function hasAccess(): boolean {
+  if (hasPermanentAccess()) return true
+  return timedAccessRemaining() > 0
 }
 
 function grantAccess(code: string): void {
-  localStorage.setItem(ACCESS_KEY, JSON.stringify({ code, activatedAt: Date.now(), expires: Date.now() + 30*24*60*60*1000 }))
-  localStorage.setItem('vv_dharma_pass', '1')
-  ;(window as any).showToast?.('✦ Dharma Pass activated — full access granted', 'success')
+  if (TIMED_CODES.includes(code)) {
+    // 1-hour timed session — stored separately, no permanent flag
+    localStorage.setItem(TIMED_KEY, JSON.stringify({ code, expiry: Date.now() + TIMED_TTL_MS }))
+    ;(window as any).showToast?.('✦ Dharma Pass activated — access valid for 1 hour', 'success')
+  } else {
+    // Permanent codes
+    localStorage.setItem(ACCESS_KEY, JSON.stringify({ code, activatedAt: Date.now() }))
+    localStorage.setItem('vv_dharma_pass', '1')
+    ;(window as any).showToast?.('✦ Dharma Pass activated — full access granted', 'success')
+  }
 }
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
-const card: React.CSSProperties = { background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:20 }
+const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20 }
 
 const FEATURES = [
   { icon:'☽', label:'Extended Daśā Commentary', desc:'Deeper thematic interpretation of your current and upcoming planetary periods.' },
@@ -49,13 +71,26 @@ function formatCountdown(ms: number): string {
   return [h,m,sec].map(v => String(v).padStart(2,'0')).join(':')
 }
 
+// ─── Razorpay key (env var with test fallback) ────────────────────────────────
+// TODO: Replace with live key from dashboard.razorpay.com
+const RAZORPAY_KEY: string = (import.meta as any).env?.VITE_RAZORPAY_KEY || 'rzp_test_YOUR_KEY_HERE'
+
 // ─── Waitlist helpers ─────────────────────────────────────────────────────────
-function saveWaitlist(email: string, name: string) {
+async function saveWaitlist(email: string, name: string): Promise<void> {
+  // Always persist to localStorage first so it works offline
   try {
     const existing = JSON.parse(localStorage.getItem('vv_dharma_waitlist') || '[]')
     existing.push({ email, name, joinedAt: Date.now() })
     localStorage.setItem('vv_dharma_waitlist', JSON.stringify(existing))
   } catch {}
+  // Attempt server-side save (fire-and-forget)
+  try {
+    await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+  } catch { /* offline — localStorage fallback already saved */ }
 }
 
 // ─── Unlocked state ───────────────────────────────────────────────────────────
@@ -64,12 +99,7 @@ function UnlockedView() {
 
   useEffect(() => {
     function calcTime() {
-      try {
-        const r = localStorage.getItem(ACCESS_KEY)
-        if (!r) return
-        const { expires } = JSON.parse(r)
-        setTimeLeft(Math.max(0, expires - Date.now()))
-      } catch {}
+      setTimeLeft(timedAccessRemaining())
     }
     calcTime()
     const id = setInterval(calcTime, 1000)
@@ -82,7 +112,7 @@ function UnlockedView() {
       {timeLeft > 0 && (
         <div style={{ textAlign:'center' }}>
           <span style={{ display:'inline-block', padding:'4px 16px', borderRadius:999, background:'rgba(212,184,112,0.12)', border:'1px solid rgba(212,184,112,0.3)', fontSize:12, color:'#D4B870', fontFamily:'Syne,sans-serif', letterSpacing:'0.08em' }}>
-            Access expires in {formatCountdown(timeLeft)}
+            Timed session — expires in {formatCountdown(timeLeft)}
           </span>
         </div>
       )}
@@ -122,7 +152,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
       return
     }
     const rzp = new Rp({
-      key: 'rzp_test_YOUR_KEY_HERE',
+      key: RAZORPAY_KEY,
       amount: amount * 100,
       currency: 'INR',
       name: 'Celestial Noir',
@@ -134,12 +164,12 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
     rzp.open()
   }
 
-  function submitWaitlist() {
+  async function submitWaitlist() {
     if (!waitlistEmail.includes('@')) {
       ;(window as any).showToast?.('Please enter a valid email address', 'error')
       return
     }
-    saveWaitlist(waitlistEmail, waitlistName)
+    await saveWaitlist(waitlistEmail, waitlistName)
     ;(window as any).showToast?.("You're on the waitlist", 'success')
     setWaitlistDone(true)
     setWaitlistEmail(''); setWaitlistName('')
@@ -147,14 +177,14 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
 
   const inputStyle: React.CSSProperties = {
     width:'100%', padding:'12px 14px', borderRadius:10,
-    border:'1px solid rgba(255,255,255,0.1)', background:'rgba(255,255,255,0.04)',
+    border:'1px solid rgba(114,166,183,0.2)', background:'rgba(8,4,22,0.72)',
     color:'#F0EBF4', fontSize:13, fontFamily:'Outfit,sans-serif', boxSizing:'border-box',
     outline:'none',
   }
   const dividerStyle: React.CSSProperties = {
     display:'flex', alignItems:'center', gap:10, margin:'4px 0',
   }
-  const dividerLine: React.CSSProperties = { flex:1, height:1, background:'rgba(255,255,255,0.07)' }
+  const dividerLine: React.CSSProperties = { flex:1, height:1, background:'rgba(114,166,183,0.15)' }
   const dividerText: React.CSSProperties = { fontSize:11, color:'#4A3A6A', whiteSpace:'nowrap', fontFamily:'Outfit,sans-serif' }
 
   return (
@@ -169,7 +199,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
         {/* Feature list */}
         <div style={{ display:'flex', flexDirection:'column', gap:10, textAlign:'left', marginBottom:28 }}>
           {FEATURES.map(f => (
-            <div key={f.label} style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:12 }}>
+            <div key={f.label} style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(114,166,183,0.12)', borderRadius:12 }}>
               <span style={{ fontSize:20, flexShrink:0, color:'#D4B870' }}>{f.icon}</span>
               <div><p style={{ fontSize:13, color:'#F0EBF4', margin:'0 0 2px', fontFamily:'Outfit,sans-serif', fontWeight:500 }}>{f.label}</p><p style={{ fontSize:12, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{f.desc}</p></div>
             </div>
@@ -179,7 +209,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
         {/* Pricing */}
         <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
           {/* Monthly */}
-          <div style={{ flex:'1 1 180px', padding:'16px 12px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(212,184,112,0.2)', borderRadius:12, textAlign:'center' }}>
+          <div style={{ flex:'1 1 180px', padding:'16px 12px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(212,184,112,0.2)', borderRadius:12, textAlign:'center' }}>
             <p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Monthly</p>
             <p style={{ fontSize:24, color:'#D4B870', fontFamily:'Syne,sans-serif', fontWeight:700, margin:'0 0 12px' }}>₹499</p>
             <button
@@ -241,7 +271,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
             />
             <button
               onClick={submitWaitlist}
-              style={{ width:'100%', padding:'12px 0', borderRadius:12, border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.05)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
+              style={{ width:'100%', padding:'12px 0', borderRadius:12, border:'1px solid rgba(114,166,183,0.22)', background:'rgba(10,5,26,0.88)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
             >
               Join Waitlist →
             </button>
@@ -255,7 +285,21 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
 
 // ─── DharmaPassTab ────────────────────────────────────────────────────────────
 export default function DharmaPassTab({ unlocked, onOpenPasscode }: DharmaPassTabProps) {
-  const [localUnlocked] = useState(() => unlocked || hasAccess())
+  const [localUnlocked, setLocalUnlocked] = useState(() => unlocked || hasAccess())
+
+  // Re-check every second so timed sessions expire in real time
+  useEffect(() => {
+    if (!localUnlocked) return
+    if (hasPermanentAccess()) return // permanent — no polling needed
+    const id = setInterval(() => {
+      if (!hasAccess()) {
+        localStorage.removeItem(TIMED_KEY)
+        setLocalUnlocked(false)
+        ;(window as any).showToast?.('Timed access expired — please re-enter your code', 'info')
+      }
+    }, 5000)
+    return () => clearInterval(id)
+  }, [localUnlocked])
 
   if (!localUnlocked) return <LockedView onOpenPasscode={onOpenPasscode} />
   return <UnlockedView />
