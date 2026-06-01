@@ -1,14 +1,26 @@
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import type { ChartData } from '@/lib/chartTypes'
+
+// ─── Dharma Pass access helper ────────────────────────────────────────────────
+function hasAccess(): boolean {
+  if (typeof window === 'undefined') return false
+  if (localStorage.getItem('vv_dharma_pass')) return true
+  try {
+    const t = localStorage.getItem('vv_dharma_timed')
+    if (!t) return false
+    const { expiry } = JSON.parse(t)
+    return Date.now() < expiry
+  } catch { return false }
+}
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const T = {
   gold:    "#D4B870",
   violet:  "#8B7CC8",
   txt:     "#F0EBF4",
-  txt2:    "#B0A0C8",
-  txt3:    "#8090B5",
-  bgCard:  "rgba(8,4,22,0.92)",
+  txt2:    "#D0C8E0",
+  txt3:    "#9A90B8",
+  bgCard:  "rgba(8,4,22,0.75)",
   border:  "rgba(114,166,183,0.2)",
   radius:  16,
 }
@@ -325,9 +337,9 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
     : null
 
   const badgeStyle: React.CSSProperties = status === "current"
-    ? { background: `${T.gold}20`, color: T.gold,   border: `1px solid ${T.gold}55`,   fontSize: 10, padding: "2px 8px", borderRadius: 6, letterSpacing: "0.1em", fontWeight: 700 }
+    ? { background: `${T.gold}20`, color: T.gold,   border: `1px solid ${T.gold}55`,   fontSize: 12, padding: "2px 8px", borderRadius: 6, letterSpacing: "0.1em", fontWeight: 700 }
     : status === "upcoming"
-    ? { background: `${T.violet}18`, color: T.violet, border: `1px solid ${T.violet}44`, fontSize: 10, padding: "2px 8px", borderRadius: 6, letterSpacing: "0.1em", fontWeight: 600 }
+    ? { background: `${T.violet}18`, color: T.violet, border: `1px solid ${T.violet}44`, fontSize: 12, padding: "2px 8px", borderRadius: 6, letterSpacing: "0.1em", fontWeight: 600 }
     : { display: "none" }
 
   return (
@@ -341,7 +353,7 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
       <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
           <PlanetGlyph planet={planet} />
-          <span style={{ fontSize: 10, color: T.txt3, whiteSpace: "nowrap" }}>
+          <span style={{ fontSize: 12, color: T.txt3, whiteSpace: "nowrap" }}>
             {formatRange(start, end)}
           </span>
         </div>
@@ -350,7 +362,7 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
             <span style={{ fontFamily: "Syne, sans-serif", fontSize: 17, fontWeight: 700, color: theme.color }}>
               {planet}
             </span>
-            <span style={{ fontSize: 11, color: T.txt3, letterSpacing: "0.08em" }}>Mahādaśā</span>
+            <span style={{ fontSize: 13, color: T.txt3, letterSpacing: "0.08em" }}>Mahādaśā</span>
           </div>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: T.txt2, lineHeight: 1.6 }}>
             {theme.desc}
@@ -364,8 +376,8 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
       {pct !== null && (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-            <span style={{ fontSize: 10, color: T.txt3 }}>Period elapsed</span>
-            <span style={{ fontSize: 10, color: T.gold }}>{pct}%</span>
+            <span style={{ fontSize: 12, color: T.txt3 }}>Period elapsed</span>
+            <span style={{ fontSize: 12, color: T.gold }}>{pct}%</span>
           </div>
           <div style={{ height: 4, background: "rgba(114,166,183,0.15)", borderRadius: 2, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${T.gold}88, ${T.gold})`, borderRadius: 2, transition: "width 0.6s ease" }} />
@@ -373,7 +385,7 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
         </div>
       )}
 
-      <p style={{ margin: 0, fontSize: 10, color: T.txt3, fontStyle: "italic", letterSpacing: "0.03em" }}>
+      <p style={{ margin: 0, fontSize: 12, color: T.txt3, fontStyle: "italic", letterSpacing: "0.03em" }}>
         Reflection only — not a prediction of events
       </p>
     </div>
@@ -396,7 +408,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       {/* Section header */}
       <div style={{ marginBottom: 12 }}>
-        <span style={{ fontSize: 10, color: T.gold, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: "Outfit, sans-serif" }}>
+        <span style={{ fontSize: 12, color: T.gold, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: "Outfit, sans-serif" }}>
           Your Vimśottarī Sequence
         </span>
       </div>
@@ -413,8 +425,8 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
             : null
 
           const badgeStyle: React.CSSProperties = isCurrent
-            ? { background: `${T.gold}20`, color: T.gold, border: `1px solid ${T.gold}55`, fontSize: 10, padding: "1px 7px", borderRadius: 5, letterSpacing: "0.1em", fontWeight: 700, flexShrink: 0 }
-            : { background: `${T.violet}16`, color: T.violet, border: `1px solid ${T.violet}40`, fontSize: 10, padding: "1px 7px", borderRadius: 5, letterSpacing: "0.1em", fontWeight: 600, flexShrink: 0 }
+            ? { background: `${T.gold}20`, color: T.gold, border: `1px solid ${T.gold}55`, fontSize: 12, padding: "1px 7px", borderRadius: 5, letterSpacing: "0.1em", fontWeight: 700, flexShrink: 0 }
+            : { background: `${T.violet}16`, color: T.violet, border: `1px solid ${T.violet}40`, fontSize: 12, padding: "1px 7px", borderRadius: 5, letterSpacing: "0.1em", fontWeight: 600, flexShrink: 0 }
 
           return (
             <div
@@ -440,10 +452,10 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
                   <span style={{ fontSize: 14, fontWeight: isCurrent ? 700 : 500, color: theme.color, fontFamily: "Syne, sans-serif" }}>
                     {p.planet}
                   </span>
-                  <span style={{ fontSize: 11, color: T.txt3 }}>
+                  <span style={{ fontSize: 13, color: T.txt3 }}>
                     {startYear}–{endYear}
                   </span>
-                  <span style={{ fontSize: 10, color: T.txt3 }}>
+                  <span style={{ fontSize: 12, color: T.txt3 }}>
                     {p.years}y
                   </span>
                 </div>
@@ -454,7 +466,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
                     <div style={{ height: 3, background: "rgba(114,166,183,0.15)", borderRadius: 2, overflow: "hidden", width: "100%", maxWidth: 220 }}>
                       <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg,${theme.color}88,${theme.color})`, borderRadius: 2, transition: "width 0.6s ease" }} />
                     </div>
-                    <span style={{ fontSize: 10, color: T.gold, marginTop: 3, display: "inline-block" }}>{pct}% elapsed</span>
+                    <span style={{ fontSize: 12, color: T.gold, marginTop: 3, display: "inline-block" }}>{pct}% elapsed</span>
                   </div>
                 )}
               </div>
@@ -470,7 +482,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
 }
 
 // ─── Year card ────────────────────────────────────────────────────────────────
-function YearCard({ y }: { y: YearOutlook }) {
+function YearCard({ y, dharmaUnlocked }: { y: YearOutlook; dharmaUnlocked: boolean }) {
   const careerLocked = y.career.actions.slice(1)
   const wealthLocked = y.wealth.actions.slice(1)
 
@@ -480,8 +492,8 @@ function YearCard({ y }: { y: YearOutlook }) {
       <div style={{ ...glassCard, borderLeft: `3px solid ${y.dashaColor}` }}>
         {/* Score bar */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, alignItems: "center" }}>
-          <span style={{ fontSize: 10, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em" }}>Score</span>
-          <span style={{ fontSize: 11, color: y.dashaColor, fontWeight: 700 }}>{y.score}/100</span>
+          <span style={{ fontSize: 12, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em" }}>Score</span>
+          <span style={{ fontSize: 13, color: y.dashaColor, fontWeight: 700 }}>{y.score}/100</span>
         </div>
         <div style={{ height: 5, background: "rgba(114,166,183,0.15)", borderRadius: 3, overflow: "hidden", marginBottom: 12 }}>
           <div style={{ height: "100%", width: `${y.score}%`, background: y.dashaColor, borderRadius: 3, transition: "width 0.5s ease" }} />
@@ -489,7 +501,7 @@ function YearCard({ y }: { y: YearOutlook }) {
 
         {/* Signal + theme row */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
-          <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(114,166,183,0.12)", border: `1px solid ${y.dashaColor}55`, fontSize: 11, color: y.dashaColor, fontWeight: 600 }}>
+          <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(114,166,183,0.12)", border: `1px solid ${y.dashaColor}55`, fontSize: 13, color: y.dashaColor, fontWeight: 600 }}>
             {signalBadge(y.score)}
           </span>
           <span style={{ fontSize: 13, color: T.txt2, fontStyle: "italic", fontFamily: "Cormorant Garamond, serif" }}>
@@ -500,7 +512,7 @@ function YearCard({ y }: { y: YearOutlook }) {
         {/* Key months */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {y.keyMonths.map(m => (
-            <span key={m} style={{ padding: "2px 8px", borderRadius: 6, background: "rgba(10,5,26,0.90)", border: "1px solid rgba(114,166,183,0.2)", fontSize: 10, color: T.txt3 }}>{m}</span>
+            <span key={m} style={{ padding: "2px 8px", borderRadius: 6, background: "rgba(10,5,26,0.90)", border: "1px solid rgba(114,166,183,0.2)", fontSize: 12, color: T.txt3 }}>{m}</span>
           ))}
         </div>
       </div>
@@ -510,46 +522,73 @@ function YearCard({ y }: { y: YearOutlook }) {
         {/* Career */}
         <div style={{ ...glassCard, flex: "1 1 280px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Career Theme', 'करियर विषय')}</span>
+            <span style={{ fontSize: 13, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Career Theme', 'करियर विषय')}</span>
             <Stars count={y.career.stars} />
           </div>
           <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.career.narrative}</p>
           {/* Hard Truth */}
           <div style={{ padding: "10px 12px", background: "rgba(212,184,112,0.08)", borderLeft: "3px solid #D4B870", borderRadius: "0 8px 8px 0", marginBottom: 12 }}>
-            <span style={{ fontSize: 9, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
-            <p style={{ fontSize: 12, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.career.hardTruth}</p>
+            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
+            <p style={{ fontSize: 14, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.career.hardTruth}</p>
           </div>
-          {/* First action free */}
-          <p style={{ fontSize: 12, color: T.txt2, margin: "0 0 6px" }}>→ {y.career.actions[0]}</p>
-          {careerLocked.length > 0 && (
-            <button
-              onClick={() => (window as any).openPasscodeModal?.()}
-              style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 11, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
-            >
-              🔒 +{careerLocked.length} more actions — unlock with Dharma Pass
-            </button>
+          {/* Actions */}
+          {dharmaUnlocked ? (
+            <>
+              {y.career.actions.map(a => (
+                <p key={a} style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>• {a}</p>
+              ))}
+              <div style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,106,0.12)", border: "1px solid rgba(76,175,106,0.3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 13, color: "#4CAF6A", fontWeight: 600 }}>✦ Dharma Pass Active</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <p style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>→ {y.career.actions[0]}</p>
+              {careerLocked.length > 0 && (
+                <button
+                  onClick={() => (window as any).openPasscodeModal?.()}
+                  style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 13, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
+                >
+                  🔒 +{careerLocked.length} more actions — unlock with Dharma Pass
+                </button>
+              )}
+            </>
           )}
         </div>
 
         {/* Wealth */}
         <div style={{ ...glassCard, flex: "1 1 280px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Wealth Pattern', 'धन पैटर्न')}</span>
+            <span style={{ fontSize: 13, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Wealth Pattern', 'धन पैटर्न')}</span>
             <Stars count={y.wealth.stars} />
           </div>
           <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.wealth.narrative}</p>
           <div style={{ padding: "10px 12px", background: "rgba(212,184,112,0.08)", borderLeft: "3px solid #D4B870", borderRadius: "0 8px 8px 0", marginBottom: 12 }}>
-            <span style={{ fontSize: 9, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
-            <p style={{ fontSize: 12, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.wealth.hardTruth}</p>
+            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
+            <p style={{ fontSize: 14, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.wealth.hardTruth}</p>
           </div>
-          <p style={{ fontSize: 12, color: T.txt2, margin: "0 0 6px" }}>→ {y.wealth.actions[0]}</p>
-          {wealthLocked.length > 0 && (
-            <button
-              onClick={() => (window as any).openPasscodeModal?.()}
-              style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 11, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
-            >
-              🔒 +{wealthLocked.length} more actions — unlock with Dharma Pass
-            </button>
+          {/* Actions */}
+          {dharmaUnlocked ? (
+            <>
+              {y.wealth.actions.map(a => (
+                <p key={a} style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>• {a}</p>
+              ))}
+              <div style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,106,0.12)", border: "1px solid rgba(76,175,106,0.3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 13, color: "#4CAF6A", fontWeight: 600 }}>✦ Dharma Pass Active</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <p style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>→ {y.wealth.actions[0]}</p>
+              {wealthLocked.length > 0 && (
+                <button
+                  onClick={() => (window as any).openPasscodeModal?.()}
+                  style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 13, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
+                >
+                  🔒 +{wealthLocked.length} more actions — unlock with Dharma Pass
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -557,17 +596,17 @@ function YearCard({ y }: { y: YearOutlook }) {
       {/* Do / Don't */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
         <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(110,201,122,0.06)", border: "1px solid rgba(110,201,122,0.2)", borderRadius: 10 }}>
-          <p style={{ fontSize: 10, color: "#6EC97A", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>✅ Do</p>
-          {y.do.map(d => <p key={d} style={{ fontSize: 12, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
+          <p style={{ fontSize: 12, color: "#6EC97A", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>✅ Do</p>
+          {y.do.map(d => <p key={d} style={{ fontSize: 14, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
         </div>
         <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(224,80,80,0.06)", border: "1px solid rgba(224,80,80,0.2)", borderRadius: 10 }}>
-          <p style={{ fontSize: 10, color: "#E05050", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>❌ Avoid</p>
-          {y.dont.map(d => <p key={d} style={{ fontSize: 12, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
+          <p style={{ fontSize: 12, color: "#E05050", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>❌ Avoid</p>
+          {y.dont.map(d => <p key={d} style={{ fontSize: 14, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
         </div>
       </div>
 
       {/* Health */}
-      <p style={{ margin: 0, fontSize: 12, color: T.txt3, fontFamily: "Outfit,sans-serif" }}>
+      <p style={{ margin: 0, fontSize: 14, color: T.txt3, fontFamily: "Outfit,sans-serif" }}>
         ❤ Health: {y.health}
       </p>
     </div>
@@ -587,6 +626,13 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
   const now = new Date()
   const currentYear = now.getFullYear()
   const [activeYear, setActiveYear] = useState(currentYear)
+  const [dharmaUnlocked, setDharmaUnlocked] = useState(hasAccess)
+  useEffect(() => {
+    const id = setInterval(() => setDharmaUnlocked(hasAccess()), 5000)
+    const onStorage = () => setDharmaUnlocked(hasAccess())
+    window.addEventListener('storage', onStorage)
+    return () => { clearInterval(id); window.removeEventListener('storage', onStorage) }
+  }, [])
 
   // Full sequence for the Vimśottarī section (current + up to 4 upcoming)
   const dashaSequence = useMemo(() => {
@@ -678,7 +724,7 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
       {/* ── Section divider ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0 0" }}>
         <div style={{ flex: 1, height: 1, background: "rgba(114,166,183,0.15)" }} />
-        <span style={{ fontSize: 10, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
+        <span style={{ fontSize: 12, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
           5-Year Thematic Outlook
         </span>
         <div style={{ flex: 1, height: 1, background: "rgba(114,166,183,0.15)" }} />
@@ -691,7 +737,7 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
           <p style={{ margin: 0, color: T.txt2, fontSize: 14 }}>
             Birth data required for a personalised 5-year forecast
           </p>
-          <p style={{ margin: "8px 0 0", color: T.txt3, fontSize: 12 }}>
+          <p style={{ margin: "8px 0 0", color: T.txt3, fontSize: 14 }}>
             Cast your chart above to generate your Daśā-based outlook
           </p>
         </div>
@@ -701,7 +747,7 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
         border:       "1px solid rgba(240,168,48,0.25)",
         borderRadius: 10,
         padding:      "12px 16px",
-        fontSize:     12,
+        fontSize: 14,
         color:        "#F0A830",
         lineHeight:   1.6,
       }}>
@@ -725,7 +771,7 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
                     borderRadius: 8,
                     border: active ? "1px solid #D4B870" : "1px solid rgba(114,166,183,0.2)",
                     background: active ? "rgba(212,184,112,0.12)" : "transparent",
-                    color: active ? "#D4B870" : "#8090B5",
+                    color: active ? "#D4B870" : "#9A90B8",
                     fontSize: 13,
                     fontFamily: "Syne,sans-serif",
                     fontWeight: active ? 700 : 400,
@@ -740,12 +786,12 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
           </div>
 
           {/* Active year card */}
-          <YearCard y={activeOutlook} />
+          <YearCard y={activeOutlook} dharmaUnlocked={dharmaUnlocked} />
         </>
       )}
 
       {/* Disclaimer */}
-      <p style={{ margin: 0, fontSize: 11, color: T.txt3, fontStyle: "italic", textAlign: "center", letterSpacing: "0.03em" }}>
+      <p style={{ margin: 0, fontSize: 13, color: T.txt3, fontStyle: "italic", textAlign: "center", letterSpacing: "0.03em" }}>
         Thematic windows for reflection — not predictions of events
       </p>
     </div>

@@ -39,16 +39,16 @@ const T = {
 // ── Sidebar nav config ─────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { id: 'overview',  icon: '◈', label: 'Overview' },
-  { id: 'chart',     icon: '⬡', label: 'Natal Chart' },
-  { id: 'forecast',  icon: '↗', label: '5-Year Forecast' },
-  { id: 'calendar',  icon: '◷', label: 'Green/Red Days' },
-  { id: 'slider',    icon: '⊕', label: 'Time-Slider' },
-  { id: 'altar',     icon: '✦', label: 'Digital Altar' },
-  { id: 'remedies',  icon: '◫', label: 'Remedies' },
-  { id: 'compat',    icon: '⚭', label: 'Compatibility' },
-  { id: 'insights',  icon: '◉', label: 'Insights' },
-  { id: 'dharma',    icon: '✧', label: 'Dharma Pass', special: true },
+  { id: 'overview',  icon: '◈', label: 'Overview',        abbr: 'OVR' },
+  { id: 'chart',     icon: '⬡', label: 'Natal Chart',     abbr: 'NAT' },
+  { id: 'forecast',  icon: '↗', label: '5-Year Forecast', abbr: '5YR' },
+  { id: 'calendar',  icon: '◷', label: 'Green/Red Days',  abbr: 'CAL' },
+  { id: 'slider',    icon: '⊕', label: 'Time-Slider',     abbr: 'SLD' },
+  { id: 'altar',     icon: '✦', label: 'Digital Altar',   abbr: 'ALT' },
+  { id: 'remedies',  icon: '◫', label: 'Remedies',        abbr: 'REM' },
+  { id: 'compat',    icon: '⚭', label: 'Compatibility',   abbr: 'COM' },
+  { id: 'insights',  icon: '◉', label: 'Insights',        abbr: 'INS' },
+  { id: 'dharma',    icon: '✧', label: 'Dharma Pass',     abbr: 'DHP', special: true },
 ] as const;
 
 // Bottom tab bar tabs for mobile (5 primary)
@@ -100,7 +100,7 @@ function SummaryChip({ label, value }: ChipProps) {
         flexShrink: 0,
       }}
     >
-      <span style={{ fontSize: 9, letterSpacing: '0.1em', color: T.txt3, fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'uppercase' }}>
+      <span style={{ fontSize: 11, letterSpacing: '0.1em', color: T.txt3, fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'uppercase' }}>
         {label}
       </span>
       <span style={{ fontSize: 12, color: T.txt, fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 500 }}>
@@ -377,7 +377,7 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
     <motion.nav
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      animate={{ width: expanded ? 220 : 48 }}
+      animate={{ width: expanded ? 220 : 56 }}
       transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
       style={{
         flexShrink: 0,
@@ -438,7 +438,7 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
                 justifyContent: expanded ? 'flex-start' : 'center',
                 gap: expanded ? 12 : 2,
                 width: '100%',
-                padding: expanded ? '0 16px' : '6px 0',
+                padding: expanded ? '0 16px' : '4px 0',
                 height: 44,
                 background: isActive
                   ? (isDharma ? 'rgba(212,184,112,0.08)' : 'rgba(114,166,183,0.08)')
@@ -468,14 +468,14 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
               {/* Icon */}
               <span
                 style={{
-                  fontSize: 18,
+                  fontSize: expanded ? 18 : 20,
                   flexShrink: 0,
                   width: expanded ? 20 : undefined,
                   textAlign: 'center',
                   color: isActive
                     ? (isDharma ? T.gold : T.teal)
                     : isDharma ? T.gold : T.txt3,
-                  fontFamily: 'system-ui, sans-serif',
+                  fontFamily: 'Segoe UI Symbol, Apple Color Emoji, system-ui, sans-serif',
                   lineHeight: 1,
                 }}
               >
@@ -486,19 +486,19 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
               {!expanded && (
                 <span
                   style={{
-                    fontSize: 8,
+                    fontSize: 10,
                     fontFamily: 'Inter, system-ui, sans-serif',
                     color: isActive
                       ? (isDharma ? T.gold : T.teal)
                       : isDharma ? T.gold : '#9A90B8',
                     textAlign: 'center',
                     lineHeight: 1,
-                    letterSpacing: '0.03em',
+                    letterSpacing: '0.05em',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  {item.label.slice(0, 3).toUpperCase()}
+                  {item.abbr}
                 </span>
               )}
 
@@ -521,14 +521,8 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
               </motion.span>
 
               {/* Lock icon for dharma */}
-              {isLocked && (
-                <motion.span
-                  animate={{ opacity: expanded ? 1 : 0 }}
-                  transition={{ duration: 0.15 }}
-                  style={{ fontSize: 11, flexShrink: 0, color: T.txt3 }}
-                >
-                  🔒
-                </motion.span>
+              {isLocked && expanded && (
+                <motion.span style={{ fontSize: 11, flexShrink: 0, color: T.txt3 }}>🔒</motion.span>
               )}
             </button>
           );
@@ -671,7 +665,7 @@ export default function AppShell({
           width: '100%',
           height: '100%',
           zIndex: 0,
-          opacity: 0.55,
+          opacity: 0.68,
           pointerEvents: 'none',
           display: 'block',
         }}

@@ -32,7 +32,7 @@ void main(void){
     col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
     col=mix(col,vec3(bg*.25,bg*.137,bg*.05),d);
   }
-  col=col*vec3(0.55,0.35,1.3)+vec3(0.04,0.01,0.09);
+  col=col*vec3(0.80,0.55,1.65)+vec3(0.10,0.04,0.18);
   col=clamp(col,0.0,1.0);
   O=vec4(col,1);
 }`

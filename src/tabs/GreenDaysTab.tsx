@@ -13,9 +13,9 @@ const T = {
   gold:   "#D4B870",
   violet: "#8B7CC8",
   txt:    "#F0EBF4",
-  txt2:   "#B0A0C8",
-  txt3:   "#8090B5",
-  bgCard: "rgba(8,4,22,0.92)",
+  txt2:   "#D0C8E0",
+  txt3:   "#9A90B8",
+  bgCard: "rgba(8,4,22,0.75)",
   border: "rgba(114,166,183,0.2)",
   radius: 16,
 }
@@ -138,7 +138,7 @@ function firstDayOfWeek(year: number, month: number): number {
 
 function weekScoreColor(avg: number): string {
   if (avg >= 70) return T.gold
-  if (avg >= 50) return "#B0A0C8"
+  if (avg >= 50) return "#D0C8E0"
   return "#E05050"
 }
 
@@ -286,7 +286,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
             borderRadius: 10,
             padding:      "12px 16px",
           }}>
-            <div style={{ fontSize: 10, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
               Calendar scoring based on
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -295,7 +295,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                 {dashaPlanet} Mahādaśā
               </span>
             </div>
-            <p style={{ margin: "6px 0 0", fontSize: 11, color: T.txt3, lineHeight: 1.5 }}>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: T.txt3, lineHeight: 1.5 }}>
               {secondNote}
             </p>
           </div>
@@ -307,7 +307,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
         {/* Day-of-week headers */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3, marginBottom: 6 }}>
           {DOW.map(d => (
-            <div key={d} style={{ textAlign: "center", fontSize: 10, color: T.txt3, letterSpacing: "0.08em", paddingBottom: 4 }}>
+            <div key={d} style={{ textAlign: "center", fontSize: 12, color: T.txt3, letterSpacing: "0.08em", paddingBottom: 4 }}>
               {d}
             </div>
           ))}
@@ -348,7 +348,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                   minHeight:    48,
                 }}
               >
-                <span style={{ fontSize: 12, color: isTod ? T.gold : isSelect ? T.gold : T.txt, fontWeight: isTod ? 700 : 400 }}>
+                <span style={{ fontSize: 14, color: isTod ? T.gold : isSelect ? T.gold : T.txt, fontWeight: isTod ? 700 : 400 }}>
                   {day}
                 </span>
                 {(score >= 70 || score < 30) && (
@@ -371,8 +371,8 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
             { color: T.txt3,   label: "Neutral"   },
             { color: "#D95F5F", label: "Caution"   },
           ].map(({ color, label }) => (
-            <span key={label} style={{ fontSize: 11, color: T.txt3, display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ color, fontSize: 9 }}>●</span> {label}
+            <span key={label} style={{ fontSize: 13, color: T.txt3, display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color, fontSize: 11 }}>●</span> {label}
             </span>
           ))}
         </div>
@@ -386,7 +386,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
               {selected} {MONTHS[month]}
             </span>
             <span style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+              fontSize: 13, fontWeight: 700, letterSpacing: "0.1em",
               color: energyColor(selectedScore),
               background: `${energyColor(selectedScore)}18`,
               border: `1px solid ${energyColor(selectedScore)}44`,
@@ -410,16 +410,16 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
 
           {selectedDay?.nakshatra && (
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, color: T.txt3 }}>
+              <span style={{ fontSize: 13, color: T.txt3 }}>
                 Nakṣatra: <span style={{ color: T.txt2, fontWeight: 600 }}>{selectedDay.nakshatra}</span>
               </span>
-              <span style={{ fontSize: 11, color: T.txt3 }}>
+              <span style={{ fontSize: 13, color: T.txt3 }}>
                 Tithi: <span style={{ color: T.txt2, fontWeight: 600 }}>{selectedDay.tithi}</span>
               </span>
             </div>
           )}
 
-          <p style={{ margin: 0, fontSize: 10, color: T.txt3, fontStyle: "italic" }}>
+          <p style={{ margin: 0, fontSize: 12, color: T.txt3, fontStyle: "italic" }}>
             Nakṣatra & Tithi computed from Moon's sidereal longitude (Lahiri ayanamsa) · daśā rhythm applied
           </p>
         </div>
@@ -445,16 +445,16 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: T.txt2, letterSpacing: "0.05em" }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: T.txt2, letterSpacing: "0.05em" }}>
                     {label.toUpperCase()}
                   </span>
                   <span style={{ fontSize: 18, fontFamily: "Syne, sans-serif", fontWeight: 700, color }}>
                     {avg}
-                    <span style={{ fontSize: 10, color: T.txt3, fontWeight: 400 }}>/100</span>
+                    <span style={{ fontSize: 12, color: T.txt3, fontWeight: 400 }}>/100</span>
                   </span>
                 </div>
 
-                <div style={{ fontSize: 11, color: T.txt3, marginBottom: 10 }}>
+                <div style={{ fontSize: 13, color: T.txt3, marginBottom: 10 }}>
                   {green} green day{green !== 1 ? "s" : ""}
                 </div>
 
@@ -481,7 +481,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
         </h3>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <label style={{ fontSize: 11, color: T.txt3, letterSpacing: "0.07em" }}>ACTIVITY</label>
+          <label style={{ fontSize: 13, color: T.txt3, letterSpacing: "0.07em" }}>ACTIVITY</label>
           <select
             value={activity}
             onChange={e => {
@@ -561,7 +561,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                     <span style={{ fontSize: 13, fontWeight: 600, color: T.txt }}>
                       {formatDate(d.date)}
                     </span>
-                    <span style={{ fontSize: 11, color: T.txt3 }}>
+                    <span style={{ fontSize: 13, color: T.txt3 }}>
                       {auspiciousLabel(d.score)}
                       {d.nakshatra ? ` · ${d.nakshatra}` : ""}
                     </span>
@@ -577,7 +577,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                     <span style={{ fontSize: 15, fontWeight: 700, color: T.gold, fontFamily: "Syne, sans-serif" }}>
                       {d.score}
                     </span>
-                    <span style={{ fontSize: 10, color: T.txt3 }}>/100</span>
+                    <span style={{ fontSize: 12, color: T.txt3 }}>/100</span>
                   </div>
                 </div>
               ))
