@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useShaderBackground } from "@/lib/useShaderBackground";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ── Design tokens ──────────────────────────────────────────────────────────
@@ -460,6 +461,7 @@ function SignupForm({
 
 // ── Main Component ────────────────────────────────────────────────────────
 export default function AuthPage({ onEnter, onPreviewTour }: AuthPageProps) {
+  const canvasRef = useShaderBackground();
   const [tab, setTab] = useState<"login" | "signup">("login");
 
   const formVariants = {
@@ -489,6 +491,23 @@ export default function AuthPage({ onEnter, onPreviewTour }: AuthPageProps) {
         fontFamily: FONTS.body,
       }}
     >
+      {/* WebGL2 shader background */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          opacity: 0.45,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+
       {/* Background radial nebula */}
       <div
         style={{

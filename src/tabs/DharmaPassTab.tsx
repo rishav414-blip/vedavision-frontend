@@ -287,19 +287,25 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
 export default function DharmaPassTab({ unlocked, onOpenPasscode }: DharmaPassTabProps) {
   const [localUnlocked, setLocalUnlocked] = useState(() => unlocked || hasAccess())
 
-  // Re-check every second so timed sessions expire in real time
+  // Poll every 5 s: grant new access if key was written, or expire timed sessions
   useEffect(() => {
-    if (!localUnlocked) return
-    if (hasPermanentAccess()) return // permanent — no polling needed
     const id = setInterval(() => {
-      if (!hasAccess()) {
+      const access = hasAccess()
+      if (!access && localUnlocked) {
         localStorage.removeItem(TIMED_KEY)
-        setLocalUnlocked(false)
         ;(window as any).showToast?.('Timed access expired — please re-enter your code', 'info')
       }
+      setLocalUnlocked(access)
     }, 5000)
     return () => clearInterval(id)
   }, [localUnlocked])
+
+  // Instant response when the passcode modal writes to localStorage in the same tab
+  useEffect(() => {
+    const onStorage = () => setLocalUnlocked(hasAccess())
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   if (!localUnlocked) return <LockedView onOpenPasscode={onOpenPasscode} />
   return <UnlockedView />

@@ -47,7 +47,7 @@ function computeBNNTransits(chart: ChartData | null): BNNTransit[] {
 }
 
 const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
-const lbl: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
+const lbl: React.CSSProperties = { fontSize:12, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
 
 const ARCHETYPES = {
   Commander: { name:'Commander', icon:'⚔', color:'#E05050', description:'Mars and Sun energies mark your chart with directional force. You are drawn toward leadership through decisive action and structural authority.', strengths:['Strategic clarity','Physical vitality','Mobilising others','Tolerance for difficulty'] },
@@ -137,7 +137,7 @@ function DignityBadge({ dignity }: { dignity: string }) {
   else if (d.includes('own')) { bg = 'rgba(80,140,224,0.12)'; color = '#7AABF0'; border = 'rgba(80,140,224,0.3)' }
   else if (d.includes('debil')) { bg = 'rgba(224,80,80,0.12)'; color = '#E05050'; border = 'rgba(224,80,80,0.3)' }
   return (
-    <span style={{ padding: '2px 9px', borderRadius: 999, background: bg, border: `1px solid ${border}`, color, fontSize: 11, fontFamily: 'Outfit,sans-serif', whiteSpace: 'nowrap' as const }}>
+    <span style={{ padding: '2px 9px', borderRadius: 999, background: bg, border: `1px solid ${border}`, color, fontSize: 13, fontFamily: 'Outfit,sans-serif', whiteSpace: 'nowrap' as const }}>
       {dignity || '—'}
     </span>
   )
@@ -155,13 +155,13 @@ function EphemerisTable({ chart }: { chart: ChartData | null }) {
   const weak = rows.filter(r => r.dignity.toLowerCase().includes('debil'))
 
   const thStyle: React.CSSProperties = {
-    fontSize: 9, fontFamily: 'Outfit,sans-serif', fontWeight: 700,
+    fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700,
     letterSpacing: '0.10em', textTransform: 'uppercase' as const,
     color: '#D4B870', padding: '6px 10px', textAlign: 'left' as const,
     borderBottom: '1px solid rgba(114,166,183,0.2)',
   }
   const tdStyle: React.CSSProperties = {
-    padding: '10px 12px', fontSize: 12, fontFamily: 'Outfit,sans-serif',
+    padding: '10px 12px', fontSize: 14, fontFamily: 'Outfit,sans-serif',
     color: '#B0A0C8', verticalAlign: 'middle' as const,
   }
 
@@ -172,9 +172,9 @@ function EphemerisTable({ chart }: { chart: ChartData | null }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 14 }}>
           {strong.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.10em', color: '#6EC97A', fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Strong Planets</span>
+              <span style={{ fontSize: 12, textTransform: 'uppercase' as const, letterSpacing: '0.10em', color: '#6EC97A', fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Strong Planets</span>
               {strong.map(r => (
-                <span key={r.planet} style={{ padding: '3px 12px', borderRadius: 999, background: 'rgba(110,201,122,0.10)', border: '1px solid rgba(110,201,122,0.3)', color: '#6EC97A', fontSize: 12, fontFamily: 'Outfit,sans-serif' }}>
+                <span key={r.planet} style={{ padding: '3px 12px', borderRadius: 999, background: 'rgba(110,201,122,0.10)', border: '1px solid rgba(110,201,122,0.3)', color: '#6EC97A', fontSize: 14, fontFamily: 'Outfit,sans-serif' }}>
                   {r.glyph} {r.planet}
                 </span>
               ))}
@@ -182,9 +182,9 @@ function EphemerisTable({ chart }: { chart: ChartData | null }) {
           )}
           {weak.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.10em', color: '#E05050', fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Needs Support</span>
+              <span style={{ fontSize: 12, textTransform: 'uppercase' as const, letterSpacing: '0.10em', color: '#E05050', fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Needs Support</span>
               {weak.map(r => (
-                <span key={r.planet} style={{ padding: '3px 12px', borderRadius: 999, background: 'rgba(224,80,80,0.10)', border: '1px solid rgba(224,80,80,0.3)', color: '#E05050', fontSize: 12, fontFamily: 'Outfit,sans-serif' }}>
+                <span key={r.planet} style={{ padding: '3px 12px', borderRadius: 999, background: 'rgba(224,80,80,0.10)', border: '1px solid rgba(224,80,80,0.3)', color: '#E05050', fontSize: 14, fontFamily: 'Outfit,sans-serif' }}>
                   {r.glyph} {r.planet}
                 </span>
               ))}
@@ -223,7 +223,7 @@ function EphemerisTable({ chart }: { chart: ChartData | null }) {
                   <td style={{ ...tdStyle, color, fontWeight: 600, whiteSpace: 'nowrap' as const }}>
                     <span style={{ fontSize: 15, marginRight: 6 }}>{r.glyph}</span>{r.planet}
                     {r.skt && r.skt !== r.planet && (
-                      <span style={{ fontSize: 10, color: '#7A6A9A', marginLeft: 4, fontFamily: '"Cormorant Garamond",serif', fontStyle: 'italic' }}>{r.skt}</span>
+                      <span style={{ fontSize: 12, color: '#9A90B8', marginLeft: 4, fontFamily: '"Cormorant Garamond",serif', fontStyle: 'italic' }}>{r.skt}</span>
                     )}
                   </td>
                   {/* Sign */}
@@ -233,7 +233,7 @@ function EphemerisTable({ chart }: { chart: ChartData | null }) {
                   {/* Dignity */}
                   <td style={{ ...tdStyle }}><DignityBadge dignity={r.dignity} /></td>
                   {/* Notes */}
-                  <td style={{ ...tdStyle, fontFamily: '"Courier New",Courier,monospace', fontSize: 11, color: '#7A6A9A' }} className="col-notes">
+                  <td style={{ ...tdStyle, fontFamily: '"Courier New",Courier,monospace', fontSize: 13, color: '#9A90B8' }} className="col-notes">
                     {r.notes}
                     {isRetrograde && !r.notes?.includes('℞') && <span style={{ color: '#E05050', marginLeft: 4 }}>℞</span>}
                   </td>
@@ -259,18 +259,18 @@ function TarotCard({ planet, roleLabel }: { planet?: string; roleLabel: string }
   const t = planet ? (TAROT_MAP[planet] ?? null) : null
   if (!t) return (
     <div style={{ flex:'1 1 180px', background:'rgba(8,4,22,0.92)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, display:'flex', flexDirection:'column', gap:8 }}>
-      <span style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif' }}>{roleLabel}</span>
+      <span style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif' }}>{roleLabel}</span>
       <p style={{ fontSize:13, color:'#8090B5', fontFamily:'Outfit,sans-serif', fontStyle:'italic', margin:0 }}>Data unavailable</p>
     </div>
   )
   return (
     <div style={{ flex:'1 1 180px', background:'rgba(8,4,22,0.92)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, display:'flex', flexDirection:'column', gap:10 }}>
-      <span style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif' }}>{roleLabel}</span>
-      <div style={{ fontSize:28, color:'#4A3A6A', fontFamily:'"Cormorant Garamond",serif', fontWeight:300, lineHeight:1 }}>{t.num}</div>
+      <span style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif' }}>{roleLabel}</span>
+      <div style={{ fontSize:28, color:'#6A5A8A', fontFamily:'"Cormorant Garamond",serif', fontWeight:300, lineHeight:1 }}>{t.num}</div>
       <div style={{ fontSize:20, color:'#F0EBF4', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', lineHeight:1.3 }}>{t.name}</div>
       <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.65, margin:0, fontFamily:'Outfit,sans-serif' }}>{t.meaning}</p>
       <div style={{ padding:'8px 12px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:10 }}>
-        <p style={{ fontSize:12, color:'#B0A0C8', fontStyle:'italic', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.55 }}>{t.prompt}</p>
+        <p style={{ fontSize:14, color:'#B0A0C8', fontStyle:'italic', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.55 }}>{t.prompt}</p>
       </div>
     </div>
   )
@@ -305,12 +305,12 @@ export default function InsightsTab({ chart, lang = 'en' }: { chart: ChartData |
           <div style={{ width:64, height:64, borderRadius:'50%', border:`2px solid ${arch.color}`, background:'rgba(0,0,0,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28, flexShrink:0 }}>{arch.icon}</div>
           <div>
             <p style={{ fontSize:22, color:arch.color, fontFamily:'"Cormorant Garamond",serif', fontWeight:600, margin:'0 0 3px', fontStyle:'italic' }}>{arch.name}</p>
-            <p style={{ fontSize:11, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif' }}>Lagna lord: {lord ?? '—'} · Daśā: {planet ?? '—'}</p>
+            <p style={{ fontSize:13, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif' }}>Lagna lord: {lord ?? '—'} · Daśā: {planet ?? '—'}</p>
           </div>
         </div>
         <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.7, margin:'0 0 14px', fontFamily:'Outfit,sans-serif' }}>{arch.description}</p>
         <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-          {arch.strengths.map(s => <span key={s} style={{ padding:'4px 12px', borderRadius:999, background:'rgba(0,0,0,0.2)', border:`1px solid ${arch.color}40`, color:arch.color, fontSize:12, fontFamily:'Outfit,sans-serif' }}>{s}</span>)}
+          {arch.strengths.map(s => <span key={s} style={{ padding:'4px 12px', borderRadius:999, background:'rgba(0,0,0,0.2)', border:`1px solid ${arch.color}40`, color:arch.color, fontSize:14, fontFamily:'Outfit,sans-serif' }}>{s}</span>)}
         </div>
       </div>
 
@@ -330,7 +330,7 @@ export default function InsightsTab({ chart, lang = 'en' }: { chart: ChartData |
         <p style={{ fontSize:18, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:'0 0 10px' }}>{wealth.title}</p>
         <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.7, margin:'0 0 12px', fontFamily:'Outfit,sans-serif' }}>{wealth.description}</p>
         <div style={{ padding:'10px 12px', background:'rgba(212,184,112,0.06)', borderRadius:10, borderLeft:'2px solid rgba(212,184,112,0.4)' }}>
-          <p style={{ fontSize:12, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif' }}>Primary artha houses — 2nd (Dhana), 10th (Karma), 11th (Labha) — are the core lens for wealth pattern analysis.</p>
+          <p style={{ fontSize:14, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif' }}>Primary artha houses — 2nd (Dhana), 10th (Karma), 11th (Labha) — are the core lens for wealth pattern analysis.</p>
         </div>
       </div>
 
@@ -346,9 +346,9 @@ export default function InsightsTab({ chart, lang = 'en' }: { chart: ChartData |
               <div key={key} style={{ background:'rgba(8,4,22,0.88)', border:`1px solid rgba(${gold ? '212,184,112' : '139,124,200'},${borderOpacity})`, borderRadius:12, padding:'12px 10px', display:'flex', flexDirection:'column', gap:4 }}>
                 <span style={{ fontSize:20, lineHeight:1 }}>{emoji}</span>
                 <p style={{ fontSize:13, color: gold ? borderColor : '#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:600, margin:0, marginTop:2 }}>{k?.planet_name ?? '—'}</p>
-                {k?.sign && <p style={{ fontSize:11, color:'#8090B5', fontFamily:'Outfit,sans-serif', margin:0 }}>{k.sign}</p>}
-                <p style={{ fontSize:11, color: gold ? '#D4B870' : '#8B7CC8', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:0, lineHeight:1.3 }}>{label}</p>
-                <p style={{ fontSize:10, color:'#7A6A9A', fontFamily:'Outfit,sans-serif', margin:0 }}>{sub}</p>
+                {k?.sign && <p style={{ fontSize:13, color:'#8090B5', fontFamily:'Outfit,sans-serif', margin:0 }}>{k.sign}</p>}
+                <p style={{ fontSize:13, color: gold ? '#D4B870' : '#8B7CC8', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:0, lineHeight:1.3 }}>{label}</p>
+                <p style={{ fontSize:12, color:'#9A90B8', fontFamily:'Outfit,sans-serif', margin:0 }}>{sub}</p>
               </div>
             )
           })}
@@ -365,7 +365,7 @@ export default function InsightsTab({ chart, lang = 'en' }: { chart: ChartData |
               <div key={i} style={{ padding:'12px 14px', background:'rgba(8,4,22,0.88)', borderRadius:12, borderLeft:`3px solid ${pc}` }}>
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
                   <span style={{ fontSize:13, color:pc, fontFamily:'Outfit,sans-serif', fontWeight:600 }}>{t.transit}</span>
-                  <span style={{ fontSize:12, color:'#8090B5', fontFamily:'Outfit,sans-serif' }}>transiting {t.transitSign} → {t.natalContact}</span>
+                  <span style={{ fontSize:14, color:'#8090B5', fontFamily:'Outfit,sans-serif' }}>transiting {t.transitSign} → {t.natalContact}</span>
                 </div>
                 <p style={{ fontSize:13, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>{t.theme}</p>
               </div>
@@ -384,7 +384,7 @@ export default function InsightsTab({ chart, lang = 'en' }: { chart: ChartData |
         </div>
       </div>
 
-      <p style={{ fontSize:11, color:'#8090B5', textAlign:'center', fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>These reflections surface symbolic patterns — not deterministic outcomes. The chart is a map; you are the territory.</p>
+      <p style={{ fontSize:13, color:'#8090B5', textAlign:'center', fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>These reflections surface symbolic patterns — not deterministic outcomes. The chart is a map; you are the territory.</p>
     </div>
   )
 }

@@ -29,8 +29,8 @@ const T = {
   violet: '#72A6B7',
   violetBg: 'rgba(114,166,183,0.12)',
   txt: '#E8E0F0',
-  txt2: '#B8B0C8',
-  txt3: '#7A6A9A',
+  txt2: '#D0C8E0',
+  txt3: '#9A90B8',
   summaryBg: 'rgba(8,4,22,0.78)',
   sidebarBg: 'rgba(6,2,16,0.82)',
   hoverBg: 'rgba(8,4,22,0.92)',
@@ -398,10 +398,10 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
         transition={{ duration: 0.15, delay: expanded ? 0.08 : 0 }}
         style={{
           padding: '14px 16px 8px',
-          fontSize: 9,
+          fontSize: 11,
           letterSpacing: '0.14em',
           textTransform: 'uppercase',
-          color: '#4A3A6A',
+          color: '#9A90B8',
           fontFamily: 'Inter, system-ui, sans-serif',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
@@ -431,13 +431,14 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
                   onTabChange(item.id);
                 }
               }}
-              title={!expanded ? item.label : undefined}
               style={{
                 display: 'flex',
-                alignItems: 'center',
-                gap: 12,
+                alignItems: expanded ? 'center' : 'center',
+                flexDirection: expanded ? 'row' : 'column',
+                justifyContent: expanded ? 'flex-start' : 'center',
+                gap: expanded ? 12 : 2,
                 width: '100%',
-                padding: '0 16px',
+                padding: expanded ? '0 16px' : '6px 0',
                 height: 44,
                 background: isActive
                   ? (isDharma ? 'rgba(212,184,112,0.08)' : 'rgba(114,166,183,0.08)')
@@ -469,18 +470,39 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
                 style={{
                   fontSize: 18,
                   flexShrink: 0,
-                  width: 20,
+                  width: expanded ? 20 : undefined,
                   textAlign: 'center',
                   color: isActive
                     ? (isDharma ? T.gold : T.teal)
                     : isDharma ? T.gold : T.txt3,
                   fontFamily: 'system-ui, sans-serif',
+                  lineHeight: 1,
                 }}
               >
                 {item.icon}
               </span>
 
-              {/* Label */}
+              {/* Abbreviated label — shown only when collapsed */}
+              {!expanded && (
+                <span
+                  style={{
+                    fontSize: 8,
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    color: isActive
+                      ? (isDharma ? T.gold : T.teal)
+                      : isDharma ? T.gold : '#9A90B8',
+                    textAlign: 'center',
+                    lineHeight: 1,
+                    letterSpacing: '0.03em',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {item.label.slice(0, 3).toUpperCase()}
+                </span>
+              )}
+
+              {/* Full label — shown when expanded */}
               <motion.span
                 animate={{ opacity: expanded ? 1 : 0, x: expanded ? 0 : -4 }}
                 transition={{ duration: 0.15, delay: expanded ? 0.06 : 0 }}
@@ -491,6 +513,8 @@ function Sidebar({ activeTab, onTabChange, onPasscode }: SidebarProps) {
                   fontWeight: isActive ? 500 : 400,
                   flex: 1,
                   pointerEvents: 'none',
+                  position: expanded ? 'static' : 'absolute',
+                  visibility: expanded ? 'visible' : 'hidden',
                 }}
               >
                 {item.label}
@@ -647,7 +671,7 @@ export default function AppShell({
           width: '100%',
           height: '100%',
           zIndex: 0,
-          opacity: 0.40,
+          opacity: 0.55,
           pointerEvents: 'none',
           display: 'block',
         }}

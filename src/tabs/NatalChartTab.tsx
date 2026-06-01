@@ -564,7 +564,7 @@ function HouseCell({ houseId, sign, planets, isLagna, selected, onSelect }: Hous
     >
       {/* House number */}
       <span style={{
-        fontSize:    9,
+        fontSize:    11,
         fontWeight:  700,
         color:       T.gold,
         lineHeight:  1,
@@ -576,7 +576,7 @@ function HouseCell({ houseId, sign, planets, isLagna, selected, onSelect }: Hous
 
       {/* Sign name */}
       <span style={{
-        fontSize:   9,
+        fontSize:   11,
         color:      T.txt3,
         fontFamily: 'Inter, system-ui, sans-serif',
         lineHeight: 1,
@@ -587,7 +587,7 @@ function HouseCell({ houseId, sign, planets, isLagna, selected, onSelect }: Hous
       {/* Lagna marker */}
       {isLagna && (
         <span style={{
-          fontSize:    9,
+          fontSize:    11,
           color:       PLANET_COLORS.Lg,
           fontFamily:  'Inter, system-ui, sans-serif',
           fontWeight:  700,
@@ -601,7 +601,7 @@ function HouseCell({ houseId, sign, planets, isLagna, selected, onSelect }: Hous
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 1 }}>
         {planets.map(p => (
           <span key={p} style={{
-            fontSize:   9,
+            fontSize:   11,
             color:      planetColor(p),
             fontFamily: 'Inter, system-ui, sans-serif',
             fontWeight: 600,
@@ -627,7 +627,7 @@ interface HousePanelProps {
 
 const SECTION_LABEL: React.CSSProperties = {
   fontFamily:    'Inter, system-ui, sans-serif',
-  fontSize:      9,
+  fontSize:      11,
   fontWeight:    700,
   color:         'rgba(192,168,96,0.55)',
   letterSpacing: '0.15em',
@@ -733,7 +733,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
           </span>
           <span style={{
             fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize:   11,
+            fontSize:   13,
             color:      T.txt3,
           }}>
             — House {houseId}
@@ -744,7 +744,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
         {theme && (
           <p style={{
             fontFamily:    'Inter, system-ui, sans-serif',
-            fontSize:      11,
+            fontSize:      13,
             color:         '#C0A860',
             letterSpacing: '0.07em',
             margin:        '0 0 8px',
@@ -757,7 +757,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
         {/* Sign of this house */}
         <p style={{
           fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize:   12,
+          fontSize:   14,
           color:      T.txt3,
           margin:     '0 0 8px',
           letterSpacing: '0.03em',
@@ -782,7 +782,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
         {/* House type classification */}
         <p style={{
           fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize:   11,
+          fontSize:   13,
           color:      T.txt3,
           margin:     0,
           fontStyle:  'italic',
@@ -799,7 +799,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
                 border:       '1px solid rgba(139,124,200,0.22)',
                 borderRadius: 20,
                 padding:      '2px 9px',
-                fontSize:     10,
+                fontSize:     12,
                 color:        T.violet2,
                 fontFamily:   'Inter, system-ui, sans-serif',
               }}>
@@ -870,7 +870,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
                         {pSign && (
                           <span style={{
                             fontFamily: 'Inter, system-ui, sans-serif',
-                            fontSize:   11,
+                            fontSize:   13,
                             color:      T.txt3,
                           }}>
                             in {pSign}{degStr ? ` · ${degStr}` : ''}
@@ -884,7 +884,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
                           {digDesc && (
                             <span style={{
                               fontFamily: 'Inter, system-ui, sans-serif',
-                              fontSize:   10,
+                              fontSize:   12,
                               color:      T.txt3,
                               fontStyle:  'italic',
                             }}>
@@ -949,12 +949,12 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
             </span>
             {lordHouseNum !== null && (
               <>
-                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: T.txt3 }}>
+                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, color: T.txt3 }}>
                   · currently in House {lordHouseNum}
                 </span>
                 <span style={{
                   fontFamily:   'Inter, system-ui, sans-serif',
-                  fontSize:     10,
+                  fontSize:     12,
                   color:        T.txt3,
                   fontStyle:    'italic',
                   marginLeft:   4,
@@ -985,7 +985,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
                 <span style={{ fontSize: 13, color: planetColor(ap) }}>{glyph(ap)}</span>
                 <span style={{
                   fontFamily: 'Inter, system-ui, sans-serif',
-                  fontSize:   11,
+                  fontSize:   13,
                   color:      planetColor(ap),
                   fontWeight: 600,
                 }}>
@@ -997,7 +997,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
         ) : (
           <p style={{
             fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize:   12,
+            fontSize:   14,
             color:      T.txt3,
             fontStyle:  'italic',
             margin:     0,
@@ -1045,7 +1045,7 @@ interface PlanetRow {
 function PlanetTable({ rows }: { rows: PlanetRow[] }) {
   const thStyle: React.CSSProperties = {
     fontFamily:    'Inter, system-ui, sans-serif',
-    fontSize:      10,
+    fontSize:      12,
     fontWeight:    600,
     color:         T.txt3,
     letterSpacing: '0.1em',
@@ -1092,7 +1092,7 @@ function PlanetTable({ rows }: { rows: PlanetRow[] }) {
                 <td style={tdStyle}>{row.sign}</td>
                 <td style={{ ...tdStyle, color: T.txt3 }}>{row.house}</td>
                 <td style={tdStyle}><DignityBadge dignity={row.dignity} /></td>
-                <td style={{ ...tdStyle, color: T.txt3, fontSize: 11, fontStyle: 'italic' }}>
+                <td style={{ ...tdStyle, color: T.txt3, fontSize: 13, fontStyle: 'italic' }}>
                   {row.notes ?? '—'}
                 </td>
               </tr>
@@ -1148,7 +1148,7 @@ function DivChart({ houses, centerLabel, selected, onSelect }: DivChartProps) {
             }}
           >
             <span style={{
-              fontSize:    9,
+              fontSize:    11,
               fontWeight:  700,
               color:       T.gold,
               lineHeight:  1,
@@ -1158,7 +1158,7 @@ function DivChart({ houses, centerLabel, selected, onSelect }: DivChartProps) {
               {id}
             </span>
             <span style={{
-              fontSize:   9,
+              fontSize:   11,
               color:      T.txt3,
               fontFamily: 'Inter, system-ui, sans-serif',
               lineHeight: 1,
@@ -1168,7 +1168,7 @@ function DivChart({ houses, centerLabel, selected, onSelect }: DivChartProps) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 1 }}>
               {house.planets.map(p => (
                 <span key={p} style={{
-                  fontSize:   9,
+                  fontSize:   11,
                   color:      ABBR_COLORS[p] ?? planetColor(p),
                   fontFamily: 'Inter, system-ui, sans-serif',
                   fontWeight: 600,
@@ -1262,7 +1262,7 @@ function DivHousePanel({ houseId, sign, planets, onClose }: DivHousePanelProps) 
       </p>
       <p style={{
         fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize:   12,
+        fontSize:   14,
         color:      T.txt3,
         margin:     '0 0 10px',
       }}>
@@ -1277,7 +1277,7 @@ function DivHousePanel({ houseId, sign, planets, onClose }: DivHousePanelProps) 
               border:       '1px solid rgba(139,124,200,0.25)',
               borderRadius: 20,
               padding:      '2px 10px',
-              fontSize:     11,
+              fontSize:     13,
               color:        T.violet2,
               fontFamily:   'Inter, system-ui, sans-serif',
             }}>
@@ -1306,7 +1306,7 @@ function DivHousePanel({ houseId, sign, planets, onClose }: DivHousePanelProps) 
                 <span style={{ fontSize: 16, color: col }}>{glyphCh}</span>
                 <span style={{
                   fontFamily: 'Inter, system-ui, sans-serif',
-                  fontSize:   12,
+                  fontSize:   14,
                   color:      col,
                   fontWeight: 600,
                 }}>
@@ -1361,14 +1361,14 @@ function PlanetInsightRow({ row }: PlanetInsightRowProps) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, color: col, fontWeight: 700 }}>{full}</span>
-            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: T.txt3 }}>
+            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3 }}>
               in {row.sign} · House {row.house}{row.degree ? ` · ${Number(row.degree).toFixed ? Number(row.degree).toFixed(1) + '°' : row.degree}` : ''}
             </span>
           </div>
           {row.dignity && (
             <div style={{ marginTop: 3 }}>
               <DignityBadge dignity={row.dignity} />
-              {digDesc && <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.txt3, fontStyle: 'italic', marginLeft: 6 }}>{digDesc}</span>}
+              {digDesc && <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: T.txt3, fontStyle: 'italic', marginLeft: 6 }}>{digDesc}</span>}
             </div>
           )}
         </div>
@@ -1389,7 +1389,7 @@ function PlanetInsightRow({ row }: PlanetInsightRowProps) {
             {interp}
           </p>
           {row.notes && row.notes !== '—' && (
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: T.txt3, margin: '6px 0 0', fontStyle: 'italic' }}>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3, margin: '6px 0 0', fontStyle: 'italic' }}>
               Note: {row.notes}
             </p>
           )}
@@ -1413,7 +1413,7 @@ function PlanetInsightsSection({ planetTable }: { planetTable: { planet: string;
         <p style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: T.txt, margin: '0 0 4px' }}>
           Planet Interpretations
         </p>
-        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: T.txt3, margin: 0, fontStyle: 'italic' }}>
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3, margin: 0, fontStyle: 'italic' }}>
           Tap each planet to reveal its house placement reading
         </p>
       </div>
@@ -1466,7 +1466,7 @@ function ChartTabBar({ active, hasD9, hasD10, onChange }: ChartTabBarProps) {
               background:   isActive ? 'rgba(212,184,112,0.08)' : 'transparent',
               color:        tab.disabled ? T.txt3 : isActive ? T.gold : T.txt2,
               fontFamily:   'Inter, system-ui, sans-serif',
-              fontSize:     11,
+              fontSize:     13,
               fontWeight:   isActive ? 600 : 400,
               cursor:       tab.disabled ? 'not-allowed' : 'pointer',
               transition:   'all 0.18s',
@@ -1560,7 +1560,7 @@ export default function NatalChartTab({ chart }: Props) {
         {/* Sub-label */}
         <p style={{
           fontFamily:    'Inter, system-ui, sans-serif',
-          fontSize:      11,
+          fontSize:      13,
           color:         T.txt3,
           letterSpacing: '0.04em',
           textAlign:     'center',

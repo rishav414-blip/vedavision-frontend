@@ -6,6 +6,34 @@ import { YOGA_DESCRIPTIONS, YOGA_PLANET_MAP } from '@/lib/yogaData'
 import { t } from '@/lib/i18n'
 import { dayScore, dayLabel, dayColor, dayBorder } from '@/lib/panchang'
 
+// ── InfoTip tooltip component ─────────────────────────────────────────────────
+function InfoTip({ text }: { text: string }) {
+  const [show, setShow] = React.useState(false)
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 4, verticalAlign: 'middle' }}>
+      <span
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(s => !s)}
+        style={{ fontSize: 11, color: '#72A6B7', cursor: 'pointer', lineHeight: 1, userSelect: 'none' }}
+        aria-label={text}
+      >ⓘ</span>
+      {show && (
+        <span style={{
+          position: 'absolute', bottom: '120%', left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(8,4,22,0.97)', border: '1px solid rgba(114,166,183,0.3)',
+          borderRadius: 8, padding: '6px 10px', fontSize: 11, color: '#D0C8E0',
+          whiteSpace: 'normal' as const, zIndex: 100, boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          fontFamily: 'Inter, system-ui, sans-serif', fontStyle: 'normal', lineHeight: 1.4,
+          pointerEvents: 'none', maxWidth: 220,
+        }}>
+          {text}
+        </span>
+      )}
+    </span>
+  )
+}
+
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
   gold:     '#C0A860',
@@ -14,9 +42,9 @@ const T = {
   violet:   '#8B7CC8',
   violet2:  '#A99BD9',
   txt:      '#E8E0F0',
-  txt2:     '#B8B0C8',
-  txt3:     '#7A6A9A',
-  ghost:    '#4A3A6A',
+  txt2:     '#D0C8E0',
+  txt3:     '#9A90B8',
+  ghost:    '#6A5A8A',
   surface:  'rgba(8,4,22,0.72)',
   surfEl:   'rgba(12,6,28,0.72)',
   bdrSub:   'rgba(114,166,183,0.15)',
@@ -65,7 +93,7 @@ function SectionHeader({ label }: { label: string }) {
       <div style={{ height: 1, background: `linear-gradient(90deg, ${T.gold}55 0%, transparent 80%)`, marginBottom: 10 }} />
       <span style={{
         fontFamily: 'Cormorant Garamond, serif',
-        fontSize: 11,
+        fontSize: 13,
         fontVariant: 'small-caps',
         letterSpacing: '3px',
         textTransform: 'uppercase',
@@ -171,36 +199,38 @@ function IdentitySection({ chart, lang = 'en' }: { chart: ChartData | null; lang
         {name}
       </h2>
       {(dob || pob) && (
-        <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, color: T.txt3, margin: '0 0 16px', letterSpacing: '0.06em' }}>
+        <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, color: T.txt3, margin: '0 0 16px', letterSpacing: '0.06em' }}>
           {[dob, pob].filter(Boolean).join(' · ')}
         </p>
       )}
 
       {/* Key identity grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '14px 20px' }}>
-        <IdentityPill label={t('Lagna', 'लग्न', lang)} value={lagna} sub={lagnaLord ? `Lord: ${lagnaLord}` : undefined} color={T.gold} />
-        <IdentityPill label={t('Birth Nakṣatra', 'जन्म नक्षत्र', lang)} value={nakName} sub={nakLord ? `Lord: ${nakLord}${nakPada ? ` · Pāda ${nakPada}` : ''}` : undefined} color={T.goldBrt} />
+        <IdentityPill label={t('Lagna', 'लग्न', lang)} value={lagna} sub={lagnaLord ? `Lord: ${lagnaLord}` : undefined} color={T.gold} tip="Your rising sign — the zodiac sign on the eastern horizon at birth. Shapes your personality and physical appearance." />
+        <IdentityPill label={t('Birth Nakṣatra', 'जन्म नक्षत्र', lang)} value={nakName} sub={nakLord ? `Lord: ${nakLord}${nakPada ? ` · Pāda ${nakPada}` : ''}` : undefined} color={T.goldBrt} tip="Your Moon's star cluster at birth (1 of 27). Defines your instinctive emotional nature and life themes." />
         <IdentityPill label={t('Moon Sign', 'चंद्र राशि', lang)} value={moon} color='#D0D8F0' />
-        {ak  && <IdentityPill label={t('Ātmakāraka', 'आत्मकारक', lang)} value={ak} color={T.gold} />}
-        {amk && <IdentityPill label={t('Amatyakāraka', 'अमात्यकारक', lang)} value={amk} color={T.violet2} />}
+        {ak  && <IdentityPill label={t('Ātmakāraka', 'आत्मकारक', lang)} value={ak} color={T.gold} tip="Soul indicator — the planet with the highest degree in your chart. Points to your core life lesson and deepest purpose." />}
+        {amk && <IdentityPill label={t('Amatyakāraka', 'अमात्यकारक', lang)} value={amk} color={T.violet2} tip="Career/advisor indicator — the second-highest degree planet. Shows your natural professional strengths and ideal mentors." />}
       </div>
     </motion.div>
   )
 }
 
-function IdentityPill({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
+function IdentityPill({ label, value, sub, color, tip }: { label: string; value: string; sub?: string; color: string; tip?: string }) {
   return (
     <div>
-      <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.txt3, fontFamily: 'Outfit, sans-serif', marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.txt3, fontFamily: 'Outfit, sans-serif', marginBottom: 3 }}>
+        {label}{tip && <InfoTip text={tip} />}
+      </div>
       <div style={{ fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: 20, color, lineHeight: 1.1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit, sans-serif', marginTop: 2 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif', marginTop: 2 }}>{sub}</div>}
     </div>
   )
 }
 
 // ── Dasha KPI pair ────────────────────────────────────────────────────────────
-function DashaKPICard({ planet, label, start, end, pctVal, lang = 'en' }: {
-  planet?: string; label: string; start?: string; end?: string; pctVal?: number; lang?: string
+function DashaKPICard({ planet, label, start, end, pctVal, lang = 'en', tip }: {
+  planet?: string; label: string; start?: string; end?: string; pctVal?: number; lang?: string; tip?: string
 }) {
   const color = PLANET_COLORS[planet ?? ''] ?? T.gold
   const glyph = PLANET_GLYPHS[planet ?? ''] ?? '✦'
@@ -210,7 +240,7 @@ function DashaKPICard({ planet, label, start, end, pctVal, lang = 'en' }: {
   return (
     <div style={{ flex: 1, minWidth: 0, background: `rgba(6,2,18,0.75)`, border: `1px solid ${color}45`, borderRadius: 16, padding: '18px 16px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 80, background: `radial-gradient(circle at 80% 0%,${color}18,transparent 70%)`, pointerEvents: 'none' }} />
-      <span style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color, fontFamily: 'Outfit, sans-serif', fontWeight: 600, opacity: 0.85 }}>{label}</span>
+      <span style={{ fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color, fontFamily: 'Outfit, sans-serif', fontWeight: 600, opacity: 0.85 }}>{label}{tip && <InfoTip text={tip} />}</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, marginBottom: 8 }}>
         <span style={{ fontSize: 34, color, lineHeight: 1, fontFamily: 'serif' }}>{glyph}</span>
         <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 28, fontWeight: 600, color, letterSpacing: '0.01em' }}>{planet ?? '—'}</span>
@@ -220,7 +250,7 @@ function DashaKPICard({ planet, label, start, end, pctVal, lang = 'en' }: {
           <div style={{ height: 3, background: 'rgba(114,166,183,0.12)', borderRadius: 99, overflow: 'hidden', marginBottom: 5 }}>
             <div style={{ width: `${disp}%`, height: '100%', background: color, borderRadius: 99, transition: 'width 0.8s cubic-bezier(0.4,0,0.2,1)' }} />
           </div>
-          <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{yr(start)} – {yr(end)} · {(pctVal ?? 0).toFixed(0)}% {t('elapsed', 'बीत गया', lang)}</span>
+          <span style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{yr(start)} – {yr(end)} · {(pctVal ?? 0).toFixed(0)}% {t('elapsed', 'बीत गया', lang)}</span>
         </>
       )}
     </div>
@@ -242,9 +272,9 @@ function DailySignalCard({ chart, lang = 'en' }: { chart: ChartData | null; lang
     <motion.div variants={item} style={{ ...card, borderLeft: `3px solid ${border.replace('0.3)', '0.8)')}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.txt3, fontFamily: 'Outfit, sans-serif', marginBottom: 4 }}>{t('Today', 'आज', lang)} · {dateStr}</div>
+          <div style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.txt3, fontFamily: 'Outfit, sans-serif', marginBottom: 4 }}>{t('Today', 'आज', lang)} · {dateStr}</div>
           <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 22, fontStyle: 'italic', color, margin: '0 0 4px', lineHeight: 1.2 }}>{label}</p>
-          <p style={{ fontSize: 11, color: T.txt3, margin: 0, fontFamily: 'Outfit, sans-serif' }}>{t('Score based on active daśā period and lunar cycle', 'सक्रिय दशा और चंद्र चक्र पर आधारित स्कोर', lang)}</p>
+          <p style={{ fontSize: 13, color: T.txt3, margin: 0, fontFamily: 'Outfit, sans-serif' }}>{t('Score based on active daśā period and lunar cycle', 'सक्रिय दशा और चंद्र चक्र पर आधारित स्कोर', lang)}</p>
         </div>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
           <div style={{ width: 60, height: 60, borderRadius: '50%', background: `${color}15`, border: `2px solid ${color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
@@ -263,7 +293,7 @@ function PlanetStrengthGrid({ chart, lang = 'en' }: { chart: ChartData | null; l
   const table = chart?.planetTable ?? []
   return (
     <motion.div variants={item} style={card}>
-      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, display: 'block', marginBottom: 14 }}>{t('Nine Grahas', 'नवग्रह', lang)}</span>
+      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, display: 'block', marginBottom: 14 }}>{t('Nine Grahas', 'नवग्रह', lang)}</span>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(54px, 1fr))', gap: 10 }}>
         {PLANETS.map(p => {
           const row = table.find(r => r.planet === p)
@@ -294,7 +324,7 @@ function PlanetStrengthGrid({ chart, lang = 'en' }: { chart: ChartData | null; l
                 {isExalted && <span style={{ position: 'absolute', bottom: -2, right: -2, fontSize: 8, background: '#6EC97A', borderRadius: '50%', width: 13, height: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>↑</span>}
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 9, color: T.txt3, fontFamily: 'Outfit, sans-serif', lineHeight: 1.2 }}>{p.slice(0, 3)}</div>
+                <div style={{ fontSize: 11, color: T.txt3, fontFamily: 'Outfit, sans-serif', lineHeight: 1.2 }}>{p.slice(0, 3)}</div>
                 <div style={{ fontSize: 8, color: isExalted ? '#6EC97A' : isDeb ? '#E05050' : T.ghost, fontFamily: 'Outfit, sans-serif', lineHeight: 1.2 }}>{row?.sign?.slice(0, 3) ?? '—'}</div>
               </div>
             </div>
@@ -340,7 +370,7 @@ function WealthStrengthCard({ chart, lang = 'en' }: { chart: ChartData | null; l
         {/* Wealth */}
         {ws != null && (
           <div style={{ flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{t('Wealth Score', 'धन स्कोर', lang)}</div>
+            <div style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{t('Wealth Score', 'धन स्कोर', lang)}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
               <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 40, fontWeight: 800, color: T.gold, lineHeight: 1 }}>{total}</span>
               <span style={{ fontSize: 13, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>/ 100</span>
@@ -349,15 +379,15 @@ function WealthStrengthCard({ chart, lang = 'en' }: { chart: ChartData | null; l
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: T.txt2, fontFamily: 'Outfit, sans-serif' }}>{t('Parashari', 'पाराशरी', lang)}</span>
-                  <span style={{ fontSize: 11, color: T.gold, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{parashari}</span>
+                  <span style={{ fontSize: 13, color: T.txt2, fontFamily: 'Outfit, sans-serif' }}>{t('Parashari', 'पाराशरी', lang)}</span>
+                  <span style={{ fontSize: 13, color: T.gold, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{parashari}</span>
                 </div>
                 <Bar value={parashari} max={60} color={T.gold} />
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: T.txt2, fontFamily: 'Outfit, sans-serif' }}>{t('BNN Bonus', 'BNN बोनस', lang)}</span>
-                  <span style={{ fontSize: 11, color: T.goldDim, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{bnn}</span>
+                  <span style={{ fontSize: 13, color: T.txt2, fontFamily: 'Outfit, sans-serif' }}>{t('BNN Bonus', 'BNN बोनस', lang)}</span>
+                  <span style={{ fontSize: 13, color: T.goldDim, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{bnn}</span>
                 </div>
                 <Bar value={bnn} max={40} color={T.goldDim} />
               </div>
@@ -372,7 +402,7 @@ function WealthStrengthCard({ chart, lang = 'en' }: { chart: ChartData | null; l
         {/* Chart Strength */}
         {strength != null && (
           <div style={{ flex: '1 1 120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-            <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, fontFamily: 'Outfit, sans-serif', textAlign: 'center' }}>{t('Chart Strength', 'कुंडली बल', lang)}</div>
+            <div style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, fontFamily: 'Outfit, sans-serif', textAlign: 'center' }}>{t('Chart Strength', 'कुंडली बल', lang)}</div>
             <div style={{ position: 'relative', width: 66, height: 66 }}>
               <svg width={66} height={66} style={{ transform: 'rotate(-90deg)' }}>
                 <circle cx={33} cy={33} r={R} fill="none" stroke="rgba(114,166,183,0.15)" strokeWidth={6} />
@@ -405,14 +435,14 @@ function DashaSection({ chart, lang = 'en' }: { chart: ChartData | null; lang?: 
     <>
       {/* KPI pair */}
       <motion.div variants={item} style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <DashaKPICard planet={current?.planet} label={t('Mahādaśā', 'महादशा', lang)} start={current?.start} end={current?.end} pctVal={mdPct} lang={lang} />
-        <DashaKPICard planet={antardasha?.planet} label={t('Antardaśā', 'अंतर्दशा', lang)} end={antardasha?.end} lang={lang} />
+        <DashaKPICard planet={current?.planet} label={t('Mahādaśā', 'महादशा', lang)} start={current?.start} end={current?.end} pctVal={mdPct} lang={lang} tip="Major planetary period (6–20 year cycle). The ruling planet colors all experiences during this time." />
+        <DashaKPICard planet={antardasha?.planet} label={t('Antardaśā', 'अंतर्दशा', lang)} end={antardasha?.end} lang={lang} tip="Sub-period within the major cycle (months to a year). A secondary planetary influence running alongside the main period." />
       </motion.div>
 
       {/* Timeline rail */}
       {seq.length > 0 && (
         <motion.div variants={item} style={card}>
-          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, display: 'block', marginBottom: 12 }}>{t('Vimśottarī Timeline', 'विंशोत्तरी दशा', lang)}</span>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, display: 'block', marginBottom: 12 }}>{t('Vimśottarī Timeline', 'विंशोत्तरी दशा', lang)}</span>
           <div style={{ overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' as const }}>
             <div style={{ display: 'flex', minWidth: 'max-content', borderRadius: 8, overflow: 'hidden', height: 38, border: `1px solid rgba(114,166,183,0.2)` }}>
               {seq.map((p, i) => {
@@ -429,7 +459,7 @@ function DashaSection({ chart, lang = 'en' }: { chart: ChartData | null; lang?: 
                       borderRight: i < seq.length - 1 ? `1px solid rgba(114,166,183,0.2)` : 'none',
                       borderTop: isCur ? `2px solid ${color}` : '2px solid transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, color: isCur ? color : isPast ? 'rgba(255,255,255,0.2)' : T.txt3,
+                      fontSize: 12, color: isCur ? color : isPast ? 'rgba(255,255,255,0.2)' : T.txt3,
                       fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' as const,
                       fontWeight: isCur ? 700 : 400, cursor: 'default',
                     }}>
@@ -439,9 +469,9 @@ function DashaSection({ chart, lang = 'en' }: { chart: ChartData | null; lang?: 
               })}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
-              <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{yr(seq[0]?.start)}</span>
-              <span style={{ fontSize: 10, color: T.gold, fontFamily: 'Outfit, sans-serif' }}>{t('Current', 'वर्तमान', lang)}: {current?.planet} MD</span>
-              <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{yr(seq[seq.length - 1]?.end)}</span>
+              <span style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{yr(seq[0]?.start)}</span>
+              <span style={{ fontSize: 12, color: T.gold, fontFamily: 'Outfit, sans-serif' }}>{t('Current', 'वर्तमान', lang)}: {current?.planet} MD</span>
+              <span style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{yr(seq[seq.length - 1]?.end)}</span>
             </div>
           </div>
         </motion.div>
@@ -463,8 +493,8 @@ function YogasCard({ chart, lang = 'en' }: { chart: ChartData | null; lang?: str
         onClick={() => setOpen(o => !o)}
         style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: 0 }}
       >
-        <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3 }}>
-          {t('Active Yogas', 'सक्रिय योग', lang)} · {yogas.length} {t('detected', 'पाए गए', lang)}
+        <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3 }}>
+          {t('Active Yogas', 'सक्रिय योग', lang)} · {yogas.length} {t('detected', 'पाए गए', lang)}<InfoTip text="Yogas are special planetary combinations that create distinct life patterns or strengths. Like talent signatures in the chart." />
         </span>
         <span style={{ color: T.txt3, fontSize: 14, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▾</span>
       </button>
@@ -473,7 +503,7 @@ function YogasCard({ chart, lang = 'en' }: { chart: ChartData | null; lang?: str
       {!open && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
           {yogas.map(y => (
-            <span key={y} style={{ background: 'rgba(139,124,200,0.12)', border: `1px solid rgba(139,124,200,0.35)`, borderRadius: 20, padding: '3px 12px', fontSize: 11, color: T.txt2, fontFamily: 'Outfit, sans-serif' }}>{y}</span>
+            <span key={y} style={{ background: 'rgba(139,124,200,0.12)', border: `1px solid rgba(139,124,200,0.35)`, borderRadius: 20, padding: '3px 12px', fontSize: 13, color: T.txt2, fontFamily: 'Outfit, sans-serif' }}>{y}</span>
           ))}
         </div>
       )}
@@ -489,9 +519,9 @@ function YogasCard({ chart, lang = 'en' }: { chart: ChartData | null; lang?: str
             const desc = YOGA_DESCRIPTIONS[y]
             return (
               <div key={y} style={{ paddingBottom: 10, borderBottom: `1px solid rgba(114,166,183,0.15)` }}>
-                <span style={{ background: 'rgba(139,124,200,0.12)', border: `1px solid rgba(139,124,200,0.35)`, borderRadius: 20, padding: '4px 14px', fontSize: 12, color: T.txt2, fontFamily: 'Outfit, sans-serif', display: 'inline-block' }}>{y}</span>
-                {desc && <div style={{ color: T.txt2, fontSize: 12, marginTop: 5, marginLeft: 2, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>{desc}</div>}
-                {activationText && <div style={{ color: T.txt3, fontSize: 11, marginTop: 3, marginLeft: 2, fontFamily: 'Outfit, sans-serif' }}>{activationText}</div>}
+                <span style={{ background: 'rgba(139,124,200,0.12)', border: `1px solid rgba(139,124,200,0.35)`, borderRadius: 20, padding: '4px 14px', fontSize: 14, color: T.txt2, fontFamily: 'Outfit, sans-serif', display: 'inline-block' }}>{y}</span>
+                {desc && <div style={{ color: T.txt2, fontSize: 14, marginTop: 5, marginLeft: 2, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>{desc}</div>}
+                {activationText && <div style={{ color: T.txt3, fontSize: 13, marginTop: 3, marginLeft: 2, fontFamily: 'Outfit, sans-serif' }}>{activationText}</div>}
               </div>
             )
           })}
@@ -514,10 +544,10 @@ function CelestialEchoesCard({ chart, lang = 'en' }: { chart: ChartData | null; 
 
   return (
     <motion.div variants={item} style={{ ...card, borderColor: `${T.gold}30` }}>
-      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, display: 'block', marginBottom: 4 }}>
+      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: T.txt3, display: 'block', marginBottom: 4 }}>
         {t('Celestial Echoes', 'दिव्य प्रतिध्वनि', lang)}
       </span>
-      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, color: T.txt3, margin: '0 0 16px', lineHeight: 1.5, fontStyle: 'italic' }}>
+      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, color: T.txt3, margin: '0 0 16px', lineHeight: 1.5, fontStyle: 'italic' }}>
         {t('Chart patterns that share thematic resonance with known lives — for reflection, not comparison.', 'चिंतन के लिए — तुलना के लिए नहीं।', lang)}
       </p>
 
@@ -533,12 +563,12 @@ function CelestialEchoesCard({ chart, lang = 'en' }: { chart: ChartData | null; 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
                   <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 18, fontStyle: 'italic', color: T.txt, lineHeight: 1.1 }}>{f.name}</span>
-                  <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase' as const, fontFamily: 'Outfit, sans-serif', color: domColor, background: `${domColor}15`, border: `1px solid ${domColor}40`, borderRadius: 20, padding: '2px 9px' }}>{f.domain}</span>
+                  <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' as const, fontFamily: 'Outfit, sans-serif', color: domColor, background: `${domColor}15`, border: `1px solid ${domColor}40`, borderRadius: 20, padding: '2px 9px' }}>{f.domain}</span>
                 </div>
-                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: T.txt2, margin: 0, lineHeight: 1.6 }}>{f.note}</p>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, color: T.txt2, margin: 0, lineHeight: 1.6 }}>{f.note}</p>
                 <div style={{ marginTop: 5, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>Lagna: <span style={{ color: T.gold }}>{f.lagnaSign}</span></span>
-                  <span style={{ fontSize: 10, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>Nakṣatra: <span style={{ color: T.goldDim }}>{f.nakshatra}</span></span>
+                  <span style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>Lagna: <span style={{ color: T.gold }}>{f.lagnaSign}</span></span>
+                  <span style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>Nakṣatra: <span style={{ color: T.goldDim }}>{f.nakshatra}</span></span>
                 </div>
               </div>
             </div>
@@ -546,7 +576,7 @@ function CelestialEchoesCard({ chart, lang = 'en' }: { chart: ChartData | null; 
         })}
       </div>
 
-      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 10, color: T.ghost, margin: '14px 0 0', lineHeight: 1.5, fontStyle: 'italic' }}>
+      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: T.ghost, margin: '14px 0 0', lineHeight: 1.5, fontStyle: 'italic' }}>
         {t('These resonances are symbolic — astrological patterns, not destinies shared.', 'ये संकेत प्रतीकात्मक हैं — नियति नहीं।', lang)}
       </p>
     </motion.div>
@@ -606,7 +636,7 @@ export default function OverviewTab({ chart, lang = 'en' }: { chart: ChartData |
           await navigator.clipboard.writeText(text).catch(() => {})
           window.showToast?.(t('Chart summary copied to clipboard', 'कुंडली सारांश कॉपी हुआ', lang), 'success')
         }}
-        style={{ background: 'rgba(10,5,26,0.88)', border: `1px solid ${T.bdrAcc}`, borderRadius: 10, padding: '12px 0', width: '100%', color: T.txt3, fontSize: 12, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, letterSpacing: '0.06em' }}
+        style={{ background: 'rgba(10,5,26,0.88)', border: `1px solid ${T.bdrAcc}`, borderRadius: 10, padding: '12px 0', width: '100%', color: T.txt3, fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, letterSpacing: '0.06em' }}
       >
         📤 {t('Share Summary', 'सारांश साझा करें', lang)}
       </motion.button>
