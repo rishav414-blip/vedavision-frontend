@@ -22,10 +22,11 @@ function InfoTip({ text }: { text: string }) {
         <span style={{
           position: 'absolute', bottom: '120%', left: '50%', transform: 'translateX(-50%)',
           background: 'rgba(8,4,22,0.97)', border: '1px solid rgba(114,166,183,0.3)',
-          borderRadius: 8, padding: '6px 10px', fontSize: 11, color: '#D0C8E0',
+          borderRadius: 8, padding: '6px 10px', fontSize: 12, color: '#D0C8E0',
           whiteSpace: 'normal' as const, zIndex: 100, boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-          fontFamily: 'Inter, system-ui, sans-serif', fontStyle: 'normal', lineHeight: 1.4,
-          pointerEvents: 'none', maxWidth: 220,
+          fontFamily: 'Inter, system-ui, sans-serif', fontStyle: 'normal', lineHeight: 1.5,
+          pointerEvents: 'none', maxWidth: 240,
+          textTransform: 'none' as const, letterSpacing: 'normal', fontWeight: 400,
         }}>
           {text}
         </span>

@@ -413,7 +413,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
         </span>
       </div>
 
-      <div style={{ ...glassCard, padding: 0, overflow: "hidden" }}>
+      <div style={{ ...glassCard, padding: 0, overflow: "visible" }}>
         {sequence.map((p, i) => {
           const theme      = PLANET_THEMES[p.planet] ?? FALLBACK_THEME
           const glyph      = PLANET_GLYPHS[p.planet] ?? p.planet.charAt(0)
@@ -435,7 +435,7 @@ function DashaSequenceSection({ sequence }: { sequence: SequenceEntry[] }) {
                 display:       "flex",
                 alignItems:    "center",
                 gap:           12,
-                padding:       "14px 16px",
+                padding:       "14px 20px 14px 16px",
                 borderTop:     i > 0 ? "1px solid rgba(114,166,183,0.12)" : undefined,
                 background:    isCurrent ? `${theme.color}08` : "transparent",
                 borderLeft:    isCurrent ? `3px solid ${theme.color}66` : "3px solid transparent",

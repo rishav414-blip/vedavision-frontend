@@ -363,15 +363,14 @@ function NISvgChart({ houseMap, selected, onSelect, nativeName }: NISvgChartProp
     const isCorner = [2, 4, 6, 8, 10, 12].includes(id)
     const isWide   = [1, 7].includes(id)   // top and bottom large triangles
 
-    // Font sizes
-    const hNumSz  = isCorner ? 8  : 9
-    const signSz  = isCorner ? 7  : 8
-    const planSz  = isCorner ? 8  : 9
-    const lagSz   = isCorner ? 7  : 8
+    // Font sizes — bumped for legibility (SVG viewBox 420×420)
+    const hNumSz  = isCorner ? 10 : 12
+    const signSz  = isCorner ?  9 : 11
+    const planSz  = isCorner ? 10 : 12
+    const lagSz   = isCorner ?  9 : 11
 
     // Layout: arrange items vertically around cx,cy
-    // Each item is a text line; we compute y offsets
-    const lineH   = isCorner ? 10 : 11
+    const lineH   = isCorner ? 13 : 14
     const items: { text: string; color: string; fontSize: number; fontWeight?: string; fontStyle?: string }[] = []
 
     // House number (tiny, gold)
@@ -420,7 +419,7 @@ function NISvgChart({ houseMap, selected, onSelect, nativeName }: NISvgChartProp
           const yPos = startY + (items.length + ri) * lineH
           // Render each planet glyph in its own color, spaced apart
           const glyphStrs = row.text.split(' ')
-          const spacing   = isCorner ? 11 : 13
+          const spacing   = isCorner ? 13 : 15
           const totalW    = (glyphStrs.length - 1) * spacing
           return glyphStrs.map((g2, gi) => (
             <text

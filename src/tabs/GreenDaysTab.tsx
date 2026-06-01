@@ -352,10 +352,10 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                   {day}
                 </span>
                 {(score >= 70 || score < 30) && (
-                  <span style={{ fontSize: 7, color: dotColor, lineHeight: 1 }}>●</span>
+                  <span style={{ fontSize: 9, color: dotColor, lineHeight: 1 }}>●</span>
                 )}
                 {nakName && (
-                  <span style={{ fontSize: 8, color: T.txt3, lineHeight: 1, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingInline: 1 }}>
+                  <span style={{ fontSize: 10, color: T.txt3, lineHeight: 1.2, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingInline: 1 }}>
                     {nakName.slice(0, 5)}
                   </span>
                 )}
