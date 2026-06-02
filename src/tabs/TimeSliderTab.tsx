@@ -6,9 +6,9 @@ const T = {
   gold:   "#D4B870",
   violet: "#8B7CC8",
   txt:    "#F0EBF4",
-  txt2:   "#B0A0C8",
-  txt3:   "#8090B5",
-  bgCard: "rgba(8,4,22,0.92)",
+  txt2:   "#D0C8E0",
+  txt3:   "#A0A8C8",
+  bgCard: "rgba(8,4,22,0.75)",
   border: "rgba(114,166,183,0.2)",
   radius: 16,
 }
@@ -175,7 +175,7 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
           {/* Year range selector */}
           <div style={glassCard}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
-              <span style={{ fontSize: 12, color: T.txt3, letterSpacing: "0.08em" }}>
+              <span style={{ fontSize: 14, color: T.txt3, letterSpacing: "0.08em" }}>
                 {minYear} — {maxYear}
               </span>
               <span style={{
@@ -206,8 +206,8 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
             />
 
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-              <span style={{ fontSize: 10, color: T.txt3 }}>Birth year</span>
-              <span style={{ fontSize: 10, color: T.txt3 }}>+120 yrs</span>
+              <span style={{ fontSize: 12, color: T.txt3 }}>Birth year</span>
+              <span style={{ fontSize: 12, color: T.txt3 }}>+120 yrs</span>
             </div>
           </div>
 
@@ -228,9 +228,9 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
                       <span style={{ fontFamily: "Syne, sans-serif", fontSize: 24, fontWeight: 700, color: planetColor }}>
                         {active.planet}
                       </span>
-                      <span style={{ fontSize: 12, color: T.txt3, letterSpacing: "0.07em" }}>Mahādaśā</span>
+                      <span style={{ fontSize: 14, color: T.txt3, letterSpacing: "0.07em" }}>Mahādaśā</span>
                     </div>
-                    <span style={{ fontSize: 12, color: T.txt2 }}>
+                    <span style={{ fontSize: 14, color: T.txt2 }}>
                       {formatShort(active.start)} – {formatShort(active.end)}
                     </span>
                   </div>
@@ -238,7 +238,7 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
                 <p style={{ margin: 0, fontSize: 13, color: T.txt2, lineHeight: 1.65 }}>
                   {planetTheme}
                 </p>
-                <p style={{ margin: 0, fontSize: 10, color: T.txt3, fontStyle: "italic" }}>
+                <p style={{ margin: 0, fontSize: 12, color: T.txt3, fontStyle: "italic" }}>
                   Reflection only — not a prediction of events in {selectedYear}
                 </p>
               </>
@@ -251,7 +251,7 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
 
           {/* Period timeline bar */}
           <div style={glassCard}>
-            <p style={{ margin: "0 0 12px", fontSize: 11, color: T.txt3, letterSpacing: "0.07em" }}>
+            <p style={{ margin: "0 0 12px", fontSize: 13, color: T.txt3, letterSpacing: "0.07em" }}>
               PERIOD TIMELINE
             </p>
             <div
@@ -284,10 +284,10 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
                         position:       "relative",
                       }}
                     >
-                      <span style={{ fontSize: 11, color, fontWeight: isActive ? 700 : 400, whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: 13, color, fontWeight: isActive ? 700 : 400, whiteSpace: "nowrap" }}>
                         {seg.planet}
                       </span>
-                      <span style={{ fontSize: 9, color: T.txt3, whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: 11, color: T.txt3, whiteSpace: "nowrap" }}>
                         {seg.totalYears}y
                       </span>
                     </div>
@@ -333,7 +333,7 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
                       style={{
                         position:  "absolute",
                         left:      `${leftPct}%`,
-                        fontSize:  9,
+                        fontSize:  11,
                         color:     T.txt3,
                         transform: "translateX(-50%)",
                         whiteSpace:"nowrap",

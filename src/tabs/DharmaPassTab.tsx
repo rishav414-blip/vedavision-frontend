@@ -111,7 +111,7 @@ function UnlockedView() {
       {/* Expiry countdown */}
       {timeLeft > 0 && (
         <div style={{ textAlign:'center' }}>
-          <span style={{ display:'inline-block', padding:'4px 16px', borderRadius:999, background:'rgba(212,184,112,0.12)', border:'1px solid rgba(212,184,112,0.3)', fontSize:12, color:'#D4B870', fontFamily:'Syne,sans-serif', letterSpacing:'0.08em' }}>
+          <span style={{ display:'inline-block', padding:'4px 16px', borderRadius:999, background:'rgba(212,184,112,0.12)', border:'1px solid rgba(212,184,112,0.3)', fontSize:14, color:'#D4B870', fontFamily:'Syne,sans-serif', letterSpacing:'0.08em' }}>
             Timed session — expires in {formatCountdown(timeLeft)}
           </span>
         </div>
@@ -127,11 +127,11 @@ function UnlockedView() {
           <div style={{ display:'flex', gap:10, alignItems:'center', marginBottom:10 }}>
             <span style={{ fontSize:20, color:'#D4B870' }}>{c.icon}</span>
             <p style={{ flex:1, fontSize:15, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif', fontWeight:500 }}>{c.title}</p>
-            <span style={{ padding:'3px 10px', borderRadius:999, background:'rgba(212,184,112,0.1)', border:'1px solid rgba(212,184,112,0.25)', color:'#D4B870', fontSize:10, fontFamily:'Outfit,sans-serif', letterSpacing:'0.08em', textTransform:'uppercase' as const, whiteSpace:'nowrap' as const }}>{c.tag}</span>
+            <span style={{ padding:'3px 10px', borderRadius:999, background:'rgba(212,184,112,0.1)', border:'1px solid rgba(212,184,112,0.25)', color:'#D4B870', fontSize:12, fontFamily:'Outfit,sans-serif', letterSpacing:'0.08em', textTransform:'uppercase' as const, whiteSpace:'nowrap' as const }}>{c.tag}</span>
           </div>
           {(c as any).isPriority
-            ? <div style={{ padding:'12px 14px', background:'rgba(139,124,200,0.1)', border:'1px solid rgba(139,124,200,0.2)', borderRadius:10 }}><p style={{ fontSize:13, color:'#8B7CC8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>Your questions to Jyoti are prioritised. Jyoti will provide extended responses with more contextual depth for Dharma Pass holders.</p></div>
-            : <p style={{ fontSize:13, color:'#B0A0C8', lineHeight:1.7, margin:0, fontFamily:'Outfit,sans-serif' }}>{c.content}</p>
+            ? <div style={{ padding:'12px 14px', background:'rgba(139,124,200,0.1)', border:'1px solid rgba(139,124,200,0.2)', borderRadius:10 }}><p style={{ fontSize:15, color:'#A99BD9', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>Your questions to Jyoti are prioritised. Jyoti will provide extended responses with more contextual depth for Dharma Pass holders.</p></div>
+            : <p style={{ fontSize:15, color:'#D0C8E0', lineHeight:1.7, margin:0, fontFamily:'Outfit,sans-serif' }}>{c.content}</p>
           }
         </div>
       ))}
@@ -185,7 +185,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
     display:'flex', alignItems:'center', gap:10, margin:'4px 0',
   }
   const dividerLine: React.CSSProperties = { flex:1, height:1, background:'rgba(114,166,183,0.15)' }
-  const dividerText: React.CSSProperties = { fontSize:11, color:'#4A3A6A', whiteSpace:'nowrap', fontFamily:'Outfit,sans-serif' }
+  const dividerText: React.CSSProperties = { fontSize:13, color:'#8A80AA', whiteSpace:'nowrap', fontFamily:'Outfit,sans-serif' }
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:480, margin:'0 auto', alignItems:'center' }}>
@@ -194,14 +194,14 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
         {/* Lock icon + title */}
         <div style={{ width:80, height:80, borderRadius:'50%', border:'2px solid rgba(212,184,112,0.5)', boxShadow:'0 0 40px rgba(212,184,112,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:36, margin:'0 auto 20px', background:'radial-gradient(circle, rgba(212,184,112,0.08) 0%, transparent 70%)' }}>🔐</div>
         <p style={{ fontSize:26, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:'0 0 6px' }}>Dharma Pass</p>
-        <p style={{ fontSize:13, color:'#B0A0C8', margin:'0 0 28px', fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>Extended readings and practice protocols for deeper inquiry.</p>
+        <p style={{ fontSize:15, color:'#D0C8E0', margin:'0 0 28px', fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>Extended readings and practice protocols for deeper inquiry.</p>
 
         {/* Feature list */}
         <div style={{ display:'flex', flexDirection:'column', gap:10, textAlign:'left', marginBottom:28 }}>
           {FEATURES.map(f => (
             <div key={f.label} style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(114,166,183,0.12)', borderRadius:12 }}>
               <span style={{ fontSize:20, flexShrink:0, color:'#D4B870' }}>{f.icon}</span>
-              <div><p style={{ fontSize:13, color:'#F0EBF4', margin:'0 0 2px', fontFamily:'Outfit,sans-serif', fontWeight:500 }}>{f.label}</p><p style={{ fontSize:12, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{f.desc}</p></div>
+              <div><p style={{ fontSize:15, color:'#F0EBF4', margin:'0 0 2px', fontFamily:'Outfit,sans-serif', fontWeight:500 }}>{f.label}</p><p style={{ fontSize:14, color:'#A0A8C8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{f.desc}</p></div>
             </div>
           ))}
         </div>
@@ -210,11 +210,11 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
         <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
           {/* Monthly */}
           <div style={{ flex:'1 1 180px', padding:'16px 12px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(212,184,112,0.2)', borderRadius:12, textAlign:'center' }}>
-            <p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Monthly</p>
+            <p style={{ fontSize:13, color:'#A0A8C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Monthly</p>
             <p style={{ fontSize:24, color:'#D4B870', fontFamily:'Syne,sans-serif', fontWeight:700, margin:'0 0 12px' }}>₹499</p>
             <button
               onClick={() => openRazorpay(499, 'Dharma Pass — Monthly')}
-              style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'none', background:'linear-gradient(135deg,#C0A860,#D4B870)', color:'#0A0618', fontSize:12, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor:'pointer' }}
+              style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'none', background:'linear-gradient(135deg,#C0A860,#D4B870)', color:'#0A0618', fontSize:14, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor:'pointer' }}
             >
               Get Monthly Access ₹499
             </button>
@@ -222,11 +222,11 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
 
           {/* Annual */}
           <div style={{ flex:'1 1 180px', padding:'16px 12px', background:'rgba(123,106,184,0.08)', border:'1px solid rgba(139,124,200,0.3)', borderRadius:12, textAlign:'center' }}>
-            <p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Annual <span style={{ color:'#6EC97A' }}>Save 33%</span></p>
+            <p style={{ fontSize:13, color:'#A0A8C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Annual <span style={{ color:'#6EC97A' }}>Save 33%</span></p>
             <p style={{ fontSize:24, color:'#9B8DD4', fontFamily:'Syne,sans-serif', fontWeight:700, margin:'0 0 12px' }}>₹3,999</p>
             <button
               onClick={() => openRazorpay(3999, 'Dharma Pass — Annual')}
-              style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'none', background:'linear-gradient(135deg,#7B6AB8,#9B8DD4)', color:'#fff', fontSize:12, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor:'pointer' }}
+              style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'none', background:'linear-gradient(135deg,#7B6AB8,#9B8DD4)', color:'#fff', fontSize:14, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor:'pointer' }}
             >
               Get Annual Access ₹3,999
             </button>
@@ -271,7 +271,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
             />
             <button
               onClick={submitWaitlist}
-              style={{ width:'100%', padding:'12px 0', borderRadius:12, border:'1px solid rgba(114,166,183,0.22)', background:'rgba(10,5,26,0.88)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
+              style={{ width:'100%', padding:'12px 0', borderRadius:12, border:'1px solid rgba(114,166,183,0.22)', background:'rgba(10,5,26,0.88)', color:'#D0C8E0', fontSize:15, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
             >
               Join Waitlist →
             </button>

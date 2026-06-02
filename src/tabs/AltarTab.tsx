@@ -48,7 +48,7 @@ const PLANET_FREQ: Record<string,number> = {
 }
 
 const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
-const lbl: React.CSSProperties = { fontSize:10, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
+const lbl: React.CSSProperties = { fontSize:12, textTransform:'uppercase' as const, letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', marginBottom:12, display:'block' }
 
 export default function AltarTab({ chart }: AltarTabProps) {
   const activePlanet = chart?.dasha?.current?.planet ?? 'Sun'
@@ -148,11 +148,11 @@ export default function AltarTab({ chart }: AltarTabProps) {
         <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
           <div>
             <p style={{ fontSize:28, fontFamily:'Syne,sans-serif', fontWeight:700, color:horaColor, margin:'0 0 2px', lineHeight:1 }}>{hora.planet}</p>
-            <p style={{ fontSize:11, color:'#8090B5', margin:0, fontFamily:'Outfit,sans-serif' }}>Hour {hora.horaNum + 1} of the day</p>
+            <p style={{ fontSize:13, color:'#A0A8C8', margin:0, fontFamily:'Outfit,sans-serif' }}>Hour {hora.horaNum + 1} of the day</p>
           </div>
           <div style={{ flex:1, padding:'10px 14px', background:'rgba(8,4,22,0.88)', border:'1px solid rgba(114,166,183,0.15)', borderRadius:10 }}>
-            <p style={{ fontSize:10, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Today — {todayRuler}'s day</p>
-            <p style={{ fontSize:12, color:'#B0A0C8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{FASTING[todayRuler]}</p>
+            <p style={{ fontSize:12, color:'#A0A8C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 4px', fontFamily:'Outfit,sans-serif' }}>Today — {todayRuler}'s day</p>
+            <p style={{ fontSize:14, color:'#D0C8E0', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.5 }}>{FASTING[todayRuler]}</p>
           </div>
         </div>
       </div>
@@ -162,14 +162,14 @@ export default function AltarTab({ chart }: AltarTabProps) {
         <span style={lbl}>Digital Altar</span>
         <div style={{ width:96, height:96, borderRadius:'50%', border:`2px solid ${data.color}`, boxShadow:`0 0 32px ${data.glowColor}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:44, color:data.color, margin:'0 auto 16px', background:`radial-gradient(circle, ${data.glowColor} 0%, transparent 70%)` }}>{data.symbol}</div>
         <p style={{ fontSize:18, color:'#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:500, margin:'0 0 2px' }}>{activePlanet}</p>
-        <p style={{ fontSize:11, color:'#B0A0C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 20px', fontFamily:'Outfit,sans-serif' }}>Mahādaśā</p>
+        <p style={{ fontSize:13, color:'#D0C8E0', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 20px', fontFamily:'Outfit,sans-serif' }}>Mahādaśā</p>
         <p style={{ fontSize:28, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', lineHeight:1.5, margin:'0 0 8px' }}>{data.devanagari}</p>
-        <p style={{ fontSize:13, color:'#B0A0C8', fontFamily:'Outfit,sans-serif', margin:'0 0 16px' }}>{data.romanised}</p>
+        <p style={{ fontSize:13, color:'#D0C8E0', fontFamily:'Outfit,sans-serif', margin:'0 0 16px' }}>{data.romanised}</p>
 
         {/* Audio toggle */}
         <button
           onClick={toggleAudio}
-          style={{ padding:'8px 20px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(114,166,183,0.22)'}`, background: audioPlaying ? `${data.color}15` : 'transparent', color: audioPlaying ? data.color : '#8090B5', fontSize:12, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
+          style={{ padding:'8px 20px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(114,166,183,0.22)'}`, background: audioPlaying ? `${data.color}15` : 'transparent', color: audioPlaying ? data.color : '#A0A8C8', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
         >
           {audioPlaying ? `⏸ Stop ${freq}Hz` : `🔊 Play ${freq}Hz`}
         </button>
@@ -205,7 +205,7 @@ export default function AltarTab({ chart }: AltarTabProps) {
 
         <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
           <button onClick={increment} disabled={beadCount>=108} style={{ padding:'12px 32px', borderRadius:999, border:`1.5px solid ${beadCount>=108?'rgba(212,184,112,0.3)':'#D4B870'}`, background:'transparent', color:beadCount>=108?'rgba(212,184,112,0.4)':'#D4B870', fontSize:18, fontFamily:'Outfit,sans-serif', cursor:beadCount>=108?'default':'pointer' }}>+ 1</button>
-          <button onClick={reset} style={{ padding:'8px 16px', borderRadius:8, border:'1px solid rgba(128,144,181,0.3)', background:'transparent', color:'#8090B5', fontSize:12, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}>Reset</button>
+          <button onClick={reset} style={{ padding:'8px 16px', borderRadius:8, border:'1px solid rgba(128,144,181,0.3)', background:'transparent', color:'#A0A8C8', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}>Reset</button>
         </div>
       </div>
 
@@ -213,10 +213,10 @@ export default function AltarTab({ chart }: AltarTabProps) {
       <div style={card}>
         <span style={lbl}>Practice Guidance</span>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>📅</span><div><p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Auspicious Day</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.day}</p></div></div>
-          <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>🤲</span><div><p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Dāna</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.dana}</p></div></div>
+          <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>📅</span><div><p style={{ fontSize:13, color:'#A0A8C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Auspicious Day</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.day}</p></div></div>
+          <div style={{ display:'flex', gap:12 }}><span style={{ fontSize:18 }}>🤲</span><div><p style={{ fontSize:13, color:'#A0A8C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 2px', fontFamily:'Outfit,sans-serif' }}>Dāna</p><p style={{ fontSize:14, color:'#F0EBF4', margin:0, fontFamily:'Outfit,sans-serif' }}>{data.dana}</p></div></div>
         </div>
-        <p style={{ fontSize:11, color:'#8090B5', fontStyle:'italic', marginTop:16, paddingTop:12, borderTop:'1px solid rgba(114,166,183,0.12)', fontFamily:'Outfit,sans-serif' }}>Traditional suggestions — adapt to your constitution.</p>
+        <p style={{ fontSize:13, color:'#A0A8C8', fontStyle:'italic', marginTop:16, paddingTop:12, borderTop:'1px solid rgba(114,166,183,0.12)', fontFamily:'Outfit,sans-serif' }}>Traditional suggestions — adapt to your constitution.</p>
       </div>
 
     </div>

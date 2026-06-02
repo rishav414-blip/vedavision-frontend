@@ -154,7 +154,7 @@ function severityStyle(sev: DoshaSeverity): { bg: string; border: string; icon: 
   switch (sev) {
     case 'high':    return { bg:'rgba(224,80,80,0.08)',    border:'rgba(224,80,80,0.25)',    icon:'✕', color:'#E05050' }
     case 'medium':  return { bg:'rgba(240,168,48,0.08)',   border:'rgba(240,168,48,0.25)',   icon:'⚠', color:'#F0A830' }
-    case 'neutral': return { bg:'rgba(139,124,200,0.08)',  border:'rgba(139,124,200,0.25)',  icon:'~', color:'#8B7CC8' }
+    case 'neutral': return { bg:'rgba(139,124,200,0.08)',  border:'rgba(139,124,200,0.25)',  icon:'~', color:'#A99BD9' }
     case 'ok':      return { bg:'rgba(110,201,122,0.08)',  border:'rgba(110,201,122,0.25)',  icon:'✓', color:'#6EC97A' }
   }
 }
@@ -162,7 +162,7 @@ function severityStyle(sev: DoshaSeverity): { bg: string; border: string; icon: 
 const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
 const sel:  React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.22)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', outline:'none' }
 const inputStyle: React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.22)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', outline:'none', boxSizing:'border-box' }
-const lbl: React.CSSProperties = { fontSize:11, color:'#8090B5', display:'block', marginBottom:6, fontFamily:'Outfit,sans-serif', textTransform:'uppercase', letterSpacing:'0.08em' }
+const lbl: React.CSSProperties = { fontSize:13, color:'#A0A8C8', display:'block', marginBottom:6, fontFamily:'Outfit,sans-serif', textTransform:'uppercase', letterSpacing:'0.08em' }
 
 export default function CompatibilityTab({ chart }: { chart: ChartData | null }) {
   const [partnerName,   setPartnerName]   = useState('')
@@ -218,19 +218,19 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
 
       {/* ── Intro card ── */}
       <div style={card}>
-        <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 8px' }}>Ashtakoot Milan</p>
+        <p style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 8px' }}>Ashtakoot Milan</p>
         <p style={{ fontSize:15, color:'#F0EBF4', margin:'0 0 6px', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic' }}>36-Point Vedic Compatibility System</p>
-        <p style={{ fontSize:13, color:'#B0A0C8', margin:0, lineHeight:1.6, fontFamily:'Outfit,sans-serif' }}>Evaluates eight dimensions of resonance based on Moon signs and nakshatras. A reflective overview, not a verdict.</p>
+        <p style={{ fontSize:13, color:'#D0C8E0', margin:0, lineHeight:1.6, fontFamily:'Outfit,sans-serif' }}>Evaluates eight dimensions of resonance based on Moon signs and nakshatras. A reflective overview, not a verdict.</p>
       </div>
 
       {/* ── Input card ── */}
       <div style={card}>
-        <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 12px' }}>Partner Details</p>
+        <p style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 12px' }}>Partner Details</p>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
 
           {/* Partner Name */}
           <div>
-            <label style={lbl}>Partner Name <span style={{ color:'#5A6A8A', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
+            <label style={lbl}>Partner Name <span style={{ color:'#8A8EAA', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
             <input
               type="text"
               placeholder="Partner's name…"
@@ -242,7 +242,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
 
           {/* Date of Birth */}
           <div>
-            <label style={lbl}>Date of Birth <span style={{ color:'#5A6A8A', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
+            <label style={lbl}>Date of Birth <span style={{ color:'#8A8EAA', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
             <input
               type="date"
               value={partnerDob}
@@ -271,7 +271,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
 
           {/* Lagna */}
           <div>
-            <label style={lbl}>Lagna <span style={{ color:'#5A6A8A', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
+            <label style={lbl}>Lagna <span style={{ color:'#8A8EAA', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
             <select value={partnerLagna} onChange={e => setPartnerLagna(e.target.value)} style={sel}>
               <option value="">Select rising sign…</option>
               {RASHIS.map(r => <option key={r} value={r}>{r}</option>)}
@@ -280,7 +280,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
 
           {/* Active Mahadasha */}
           <div>
-            <label style={lbl}>Active Mahadasha <span style={{ color:'#5A6A8A', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
+            <label style={lbl}>Active Mahadasha <span style={{ color:'#8A8EAA', fontStyle:'italic', textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
             <select value={partnerDasha} onChange={e => setPartnerDasha(e.target.value)} style={sel}>
               <option value="">Select planet…</option>
               {PLANETS.map(p => <option key={p} value={p}>{p}</option>)}
@@ -307,7 +307,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
                 background:'#fff', transition:'left 0.2s',
               }} />
             </button>
-            <span style={{ fontFamily:'Outfit,sans-serif', fontSize:13, color:'#B0A0C8' }}>
+            <span style={{ fontFamily:'Outfit,sans-serif', fontSize:13, color:'#D0C8E0' }}>
               Mangal Dosha — Mars in 1st/2nd/4th/7th/8th/12th house
             </span>
           </div>
@@ -315,7 +315,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
           <button
             onClick={check}
             disabled={!moonSign || !nakshatra}
-            style={{ padding:'12px 0', borderRadius:12, border:'none', background: moonSign && nakshatra ? 'linear-gradient(135deg,#C0A860,#D4B870)' : 'rgba(114,166,183,0.12)', color: moonSign && nakshatra ? '#0A0618' : '#8090B5', fontSize:14, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor: moonSign && nakshatra ? 'pointer' : 'default' }}
+            style={{ padding:'12px 0', borderRadius:12, border:'none', background: moonSign && nakshatra ? 'linear-gradient(135deg,#C0A860,#D4B870)' : 'rgba(114,166,183,0.12)', color: moonSign && nakshatra ? '#0A0618' : '#A0A8C8', fontSize:14, fontFamily:'Outfit,sans-serif', fontWeight:600, cursor: moonSign && nakshatra ? 'pointer' : 'default' }}
           >
             Check Compatibility
           </button>
@@ -327,17 +327,17 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
           {/* ── Score summary ── */}
           <div style={{ ...card, textAlign:'center', padding:'24px 20px' }}>
             {resultHeader && (
-              <p style={{ fontSize:12, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:'0 0 12px', letterSpacing:'0.04em' }}>{resultHeader}</p>
+              <p style={{ fontSize:14, color:'#D4B870', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:'0 0 12px', letterSpacing:'0.04em' }}>{resultHeader}</p>
             )}
-            <p style={{ fontSize:11, color:'#8090B5', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 8px', fontFamily:'Outfit,sans-serif' }}>Total Score</p>
+            <p style={{ fontSize:13, color:'#A0A8C8', textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 8px', fontFamily:'Outfit,sans-serif' }}>Total Score</p>
             <p style={{ fontSize:52, fontFamily:'Syne,sans-serif', fontWeight:700, color:r.color, margin:'0 0 4px', lineHeight:1 }}>{total}</p>
-            <p style={{ fontSize:14, color:'#B0A0C8', margin:'0 0 12px', fontFamily:'Outfit,sans-serif' }}>out of 36</p>
+            <p style={{ fontSize:14, color:'#D0C8E0', margin:'0 0 12px', fontFamily:'Outfit,sans-serif' }}>out of 36</p>
             <span style={{ display:'inline-block', padding:'5px 18px', borderRadius:999, border:`1px solid ${r.color}`, color:r.color, fontSize:13, fontFamily:'Outfit,sans-serif' }}>{r.label}</span>
           </div>
 
           {/* ── Koot breakdown ── */}
           <div style={card}>
-            <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 12px' }}>Koot Breakdown</p>
+            <p style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 12px' }}>Koot Breakdown</p>
             {KOOTS.map((k, i) => {
               const s = results[i], pct = s / k.max
               const bc = pct >= 0.8 ? '#6EC97A' : pct >= 0.5 ? '#D4B870' : '#E05050'
@@ -346,7 +346,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
                     <div>
                       <span style={{ fontSize:13, color:'#F0EBF4', fontFamily:'Outfit,sans-serif', marginRight:8 }}>{k.name}</span>
-                      <span style={{ fontSize:11, color:'#8090B5', fontFamily:'Outfit,sans-serif' }}>{k.desc}</span>
+                      <span style={{ fontSize:13, color:'#A0A8C8', fontFamily:'Outfit,sans-serif' }}>{k.desc}</span>
                     </div>
                     <span style={{ fontSize:13, color:bc, fontFamily:'Syne,sans-serif', fontWeight:600 }}>{s} / {k.max}</span>
                   </div>
@@ -361,19 +361,19 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
           {/* ── Dasha Alignment ── */}
           {dashaNarrative && (
             <div style={card}>
-              <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 10px' }}>Dasha Alignment</p>
-              <p style={{ fontSize:12, color:'#8090B5', fontFamily:'Outfit,sans-serif', margin:'0 0 10px' }}>
+              <p style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 10px' }}>Dasha Alignment</p>
+              <p style={{ fontSize:14, color:'#A0A8C8', fontFamily:'Outfit,sans-serif', margin:'0 0 10px' }}>
                 {userDasha && <span style={{ color:'#F0EBF4' }}>{userDasha} MD</span>} {userDasha && partnerDasha ? '×' : ''} {partnerDasha && <span style={{ color:'#F0EBF4' }}>{partnerDasha} MD</span>}
               </p>
               <div style={{ padding:'10px 14px', background:'rgba(139,124,200,0.08)', borderRadius:10, borderLeft:'2px solid rgba(139,124,200,0.4)' }}>
-                <p style={{ fontSize:13, color:'#B0A0C8', margin:0, lineHeight:1.6, fontFamily:'Outfit,sans-serif' }}>{dashaNarrative}</p>
+                <p style={{ fontSize:13, color:'#D0C8E0', margin:0, lineHeight:1.6, fontFamily:'Outfit,sans-serif' }}>{dashaNarrative}</p>
               </div>
             </div>
           )}
 
           {/* ── Dosha Analysis ── */}
           <div style={card}>
-            <p style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 14px' }}>Dosha Analysis</p>
+            <p style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', margin:'0 0 14px' }}>Dosha Analysis</p>
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
               {(() => {
                 const doshas: { sev: DoshaSeverity; name: string; desc: string }[] = [
@@ -396,7 +396,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
                       <span style={{ fontSize:16, color:st.color, flexShrink:0, marginTop:1 }}>{st.icon}</span>
                       <div>
                         <p style={{ fontSize:13, color:'#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:600, margin:'0 0 3px' }}>{name}</p>
-                        <p style={{ fontSize:12, color:'#B0A0C8', fontFamily:'Outfit,sans-serif', margin:0, lineHeight:1.55 }}>{desc}</p>
+                        <p style={{ fontSize:14, color:'#D0C8E0', fontFamily:'Outfit,sans-serif', margin:0, lineHeight:1.55 }}>{desc}</p>
                       </div>
                     </div>
                   )
@@ -407,7 +407,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
 
           {/* ── Disclaimer ── */}
           <div style={{ padding:'12px 16px', background:'rgba(139,124,200,0.08)', border:'1px solid rgba(139,124,200,0.2)', borderRadius:12 }}>
-            <p style={{ fontSize:12, color:'#8B7CC8', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>This is a general reflection. A full reading considers lagna, navamsha, Venus, and many additional factors — consult a qualified Jyotishi for comprehensive analysis.</p>
+            <p style={{ fontSize:14, color:'#A99BD9', margin:0, fontFamily:'Outfit,sans-serif', lineHeight:1.6 }}>This is a general reflection. A full reading considers lagna, navamsha, Venus, and many additional factors — consult a qualified Jyotishi for comprehensive analysis.</p>
           </div>
 
           {/* ── Share button ── */}
@@ -419,7 +419,7 @@ export default function CompatibilityTab({ chart }: { chart: ChartData | null })
               await navigator.clipboard.writeText(text).catch(() => {})
               window.showToast?.('Compatibility result copied', 'success')
             }}
-            style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'1px solid rgba(114,166,183,0.22)', background:'rgba(114,166,183,0.12)', color:'#B0A0C8', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
+            style={{ width:'100%', padding:'10px 0', borderRadius:10, border:'1px solid rgba(114,166,183,0.22)', background:'rgba(114,166,183,0.12)', color:'#D0C8E0', fontSize:13, fontFamily:'Outfit,sans-serif', cursor:'pointer' }}
           >
             📱 Share Result
           </button>
