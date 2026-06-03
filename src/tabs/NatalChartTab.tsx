@@ -229,6 +229,118 @@ const PLANET_IN_HOUSE: Record<string, string> = {
   Ketu_12: 'One of Ketu\'s most natural placements — solitude, spiritual practice, and the dissolution of the ego find a natural home in the twelfth house. There may be a quality of profound inner liberation available to the native who attends to the domain of retreat and contemplative life.',
 }
 
+// ── Plain-English one-liner per planet-in-house (shown as the lead takeaway) ──
+const PLANET_IN_HOUSE_BRIEF: Record<string, string> = {
+  Sun_1:'Your confidence shines naturally — people notice your presence and sense of purpose.',
+  Sun_2:'Your identity is tied to what you earn and own — family pride and financial self-worth matter to you.',
+  Sun_3:'You are bold, self-starting, and driven to make things happen through your own effort.',
+  Sun_4:'You take deep pride in your home and roots — private life is your anchor.',
+  Sun_5:'You have a flair for creative self-expression — your work or children carry your personal signature.',
+  Sun_6:'You find your strength through discipline and solving problems others shy away from.',
+  Sun_7:'Your closest relationships tend to involve strong, driven people — you seek a partner who matches your energy.',
+  Sun_8:'You are drawn to what is hidden — research, psychology, and understanding deep change come naturally.',
+  Sun_9:'You have a strong personal philosophy and often feel guided by a higher purpose.',
+  Sun_10:'Career is central to your identity — you want to be recognised as capable and respected.',
+  Sun_11:'You think big — your ambitions involve influencing communities or leading large groups.',
+  Sun_12:'Your greatest work may happen quietly or behind the scenes — spiritual depth and privacy matter deeply.',
+  Moon_1:'Your emotions show openly — sensitive and naturally caring, your mood shifts with your surroundings.',
+  Moon_2:'Emotional safety comes from financial stability and family warmth — money and home are tied to your feelings.',
+  Moon_3:'You communicate with emotional intelligence — your words have a way of moving people.',
+  Moon_4:'Home is everything to you — you feel most yourself when you have a safe, nurturing base to return to.',
+  Moon_5:'You pour your heart into creative projects and feel deeply connected to children.',
+  Moon_6:'You find comfort in being useful — helping others gives you a real sense of purpose day to day.',
+  Moon_7:'You deeply need emotional connection in relationships — you want a partner who truly understands you.',
+  Moon_8:'You pick up on things others miss — a natural emotional depth and intuition about what lies beneath.',
+  Moon_9:'Your sense of meaning comes from searching for something bigger — wisdom, travel, and philosophy nourish you.',
+  Moon_10:'Your career is emotionally driven — you often succeed by reading what people need before they ask.',
+  Moon_11:'Friends and community are where you recharge — belonging to a group matters deeply to you.',
+  Moon_12:'You need solitude to recharge — a rich inner world that sometimes keeps you to yourself.',
+  Mars_1:'You have strong physical energy and a direct presence — people notice your drive and vitality.',
+  Mars_2:'You speak your mind plainly and work hard to build your financial security.',
+  Mars_3:'Bold, decisive, and competitive — you thrive when there is a real challenge to tackle head-on.',
+  Mars_4:'You have restless energy at home — a constant urge to improve or transform your living situation.',
+  Mars_5:'Your creative energy is fierce — passionate, athletic, or intensely expressive in whatever you make.',
+  Mars_6:'You excel at overcoming obstacles — competition and demanding environments bring out your best.',
+  Mars_7:'Relationships have a passionate edge — you are attracted to strong-willed partners and need your independence.',
+  Mars_8:'Crises tend to reveal your inner strength — you have a remarkable ability to recover and come back stronger.',
+  Mars_9:'You pursue your beliefs with fire — a passionate seeker who challenges received wisdom and tests everything.',
+  Mars_10:'Bold career moves and taking initiative define your professional life — you lead from the front.',
+  Mars_11:'Your ambitions are fierce — you pursue goals relentlessly and earn through active, sustained effort.',
+  Mars_12:'Your energy is directed inward or toward hidden work — you can accomplish quietly what others cannot openly.',
+  Mercury_1:'You come across as sharp, curious, and articulate — you think and speak with clarity and ease.',
+  Mercury_2:'Your mind is drawn to money, practical knowledge, and value — a natural business sense.',
+  Mercury_3:'Writing, speaking, and learning are where you shine — naturally communicative and endlessly curious.',
+  Mercury_4:'You think best in private, comfortable settings — a home full of books and conversation suits you perfectly.',
+  Mercury_5:'Quick creative thinking, a love of games and language, and a genuine talent for teaching.',
+  Mercury_6:'You solve problems precisely and efficiently — a strong analytical mind well-suited to technical fields.',
+  Mercury_7:'You need intellectual connection in relationships — partnerships work best when you can talk things through.',
+  Mercury_8:'You have a penetrating, investigative mind — drawn to research, hidden knowledge, or deep psychology.',
+  Mercury_9:'A natural student and teacher — wisdom traditions and big ideas captivate your thinking and drive your growth.',
+  Mercury_10:'Your career is built on communication, analysis, or information — words and ideas are your primary tools.',
+  Mercury_11:'You connect people and ideas naturally — a social intelligence that turns networks into real results.',
+  Mercury_12:'You do your best thinking in private — writing, research, or work behind the scenes suits your mind well.',
+  Jupiter_1:'You come across as generous, wise, and optimistic — people trust you and are drawn to your presence.',
+  Jupiter_2:'Money, family, and values tend to expand and improve over time — a positive sign for financial wellbeing.',
+  Jupiter_3:'Teaching, inspiring, or mentoring through your words comes naturally and effortlessly to you.',
+  Jupiter_4:'Home life is warm, expansive, and filled with learning — a rich sense of gratitude for your roots.',
+  Jupiter_5:'Creative, wise, and gifted with children or teaching — your best work carries a genuine quality of insight.',
+  Jupiter_6:'You overcome obstacles through understanding and right action rather than force or aggression.',
+  Jupiter_7:'Partnerships are growth-oriented and enriching — you often attract a wise or spiritually inclined partner.',
+  Jupiter_8:'Crises carry an unexpected grace for you — hidden resources tend to emerge when you need them most.',
+  Jupiter_9:'Philosophy, purpose, and wisdom traditions are at the heart of your life — fortune follows your alignment.',
+  Jupiter_10:'Ethical leadership and wisdom earn you public trust — success often comes through law, education, or guiding others.',
+  Jupiter_11:'Large networks, generous friends, and optimistic goals — gains flow naturally through goodwill and growth.',
+  Jupiter_12:'A deep spiritual richness and love of solitude — good karma from the past is available as an inner resource.',
+  Venus_1:'You come across as charming and graceful — others sense your warmth, refinement, and aesthetic sensibility.',
+  Venus_2:'You appreciate the finer things in life — comfort, beauty, and family warmth matter to you deeply.',
+  Venus_3:'Creative, artistic expression through communication comes naturally — music, writing, or design suits you.',
+  Venus_4:'You create a beautiful, harmonious home — domestic comfort and beauty are genuine sources of joy for you.',
+  Venus_5:'Romance, creativity, and pleasure are your themes — you attract joy and naturally delight in life.',
+  Venus_6:'You bring grace to your work — a healer, beautifier, or someone who makes daily service feel pleasant.',
+  Venus_7:'Partnership is where you truly flourish — you attract refined, warm, or artistically inclined people.',
+  Venus_8:'Deep intimate connection draws you — the transformative side of love and shared resources fascinates you.',
+  Venus_9:'Beauty and devotion are your spiritual path — art, travel, and gracious teachers enrich your journey.',
+  Venus_10:'Your public life carries artistry, charm, or aesthetic appeal — you succeed through beauty or diplomacy.',
+  Venus_11:'Your friendships are warm and pleasurable — gains often come through creative or socially oriented work.',
+  Venus_12:'A deep inner sense of beauty and the capacity for spiritual love — beauty found in solitude and quiet reflection.',
+  Saturn_1:'You carry a serious, disciplined quality — slow to shine early in life, but deeply resilient over the long run.',
+  Saturn_2:'Building financial security takes steady, patient effort — consistency and discipline are ultimately rewarded.',
+  Saturn_3:'Communication takes practice rather than coming naturally — over time you become a careful, trusted voice.',
+  Saturn_4:'Home and family may feel like a responsibility — inner peace is earned through sustained inner work.',
+  Saturn_5:'Creative work develops slowly but with real depth — patience with yourself and your process is key.',
+  Saturn_6:'Discipline, endurance, and methodical effort in work make you formidable — one of Saturn\'s strongest positions.',
+  Saturn_7:'Relationships deepen over time through genuine commitment and patience — you attract stable, serious partners.',
+  Saturn_8:'You have an unusual capacity to endure and come out stronger from difficult or transformative periods.',
+  Saturn_9:'Your worldview is hard-won and rigorously tested — you earn wisdom through direct personal experience.',
+  Saturn_10:'Long-term career effort brings lasting recognition and authority — you are built for sustained achievement.',
+  Saturn_11:'Fewer but deeply loyal friendships — aspirations are achieved slowly and through consistent, patient effort.',
+  Saturn_12:'Solitude and spiritual practice give you power — discipline in private yields unexpected inner freedom.',
+  Rahu_1:'You have a magnetic, unconventional quality — intensely ambitious for recognition and self-expansion.',
+  Rahu_2:'An amplified focus on money and accumulation — persuasive speech and unconventional ways of earning are themes.',
+  Rahu_3:'An intense, sometimes restless drive to communicate and promote yourself — ambition through every channel.',
+  Rahu_4:'Restlessness at home — you may be drawn toward foreign places or unconventional living arrangements.',
+  Rahu_5:'An intense, sometimes obsessive creative energy — a strong desire for recognition through self-expression.',
+  Rahu_6:'A powerful ability to handle competition, foreign work, or obstacles that overwhelm most other people.',
+  Rahu_7:'You are attracted to unusual or foreign partners — karmic intensity tends to run through your closest bonds.',
+  Rahu_8:'A powerful pull toward hidden knowledge, research, and deep transformation — investigative domains suit you.',
+  Rahu_9:'You question orthodox beliefs and seek wisdom through unconventional or cross-cultural paths.',
+  Rahu_10:'An intense drive for career success through innovation or unconventional means — rapid rise is possible.',
+  Rahu_11:'Large ambitions, international or diverse networks — gains often come through innovative, unexpected channels.',
+  Rahu_12:'A strong pull toward foreign lands, spiritual exploration, or the otherworldly — a vivid and active inner life.',
+  Ketu_1:'A quietly confident, spiritually deep quality — less concerned with ego, more with inner development.',
+  Ketu_2:'A complex relationship with money — you may feel curiously indifferent to wealth or already at peace with it.',
+  Ketu_3:'Your communication is subtle and precise — you prefer depth and meaning over volume and performance.',
+  Ketu_4:'A sense of detachment from place or family roots — inner peace comes through spirit rather than belonging.',
+  Ketu_5:'Creativity is spiritually oriented — you may be drawn to mantra, meditation, or devotional arts.',
+  Ketu_6:'Spiritual practice is a powerful tool for managing health challenges and daily obstacles.',
+  Ketu_7:'You seek deep or spiritual companionship — ordinary relationship expectations may feel limiting to you.',
+  Ketu_8:'A deep comfort with life\'s hidden mysteries — you face crisis and shadow with unusual equanimity.',
+  Ketu_9:'Your wisdom comes from direct personal experience, not received teachings — an original thinker in matters of belief.',
+  Ketu_10:'Career is less central to your identity than for most — your greatest contributions may come quietly or late.',
+  Ketu_11:'Shifting friendships and released attachment to ambition — spiritual goals gradually replace material ones.',
+  Ketu_12:'Liberation, solitude, and spiritual depth are your natural domain — one of Ketu\'s most powerful placements.',
+}
+
 // ── Graha drishti (aspects) ───────────────────────────────────────────────────
 // Returns list of planet names that aspect a given house number.
 // All planets aspect the 7th from their house; Mars also 4th+8th; Jupiter 5th+9th; Saturn 3rd+10th.
@@ -1330,7 +1442,7 @@ function DivHousePanel({ houseId, sign, planets, onClose }: DivHousePanelProps) 
   )
 }
 
-// ── Simplify helper — converts scholarly "native" phrasing to second-person ────
+// ── Simplify helper — converts scholarly phrasing to plain second-person ─────
 function simplify(text: string): string {
   return text
     .replace(/\bthe native\b/gi, 'you')
@@ -1343,6 +1455,32 @@ function simplify(text: string): string {
     .replace(/\bthe natal\b/gi, 'your')
     .replace(/\bone's\b/gi, 'your')
     .replace(/\bOne's\b/gi, 'Your')
+    .replace(/\billuminate[sd]?\b/gi, m => m[0] === m[0].toUpperCase() ? 'Highlights' : 'highlights')
+    .replace(/\bthis placement\b/gi, 'this position in your chart')
+    .replace(/\bthe domain[s]? of\b/gi, 'the area of')
+    .replace(/\bin the domain[s]?\b/gi, 'in the area')
+    .replace(/\btends toward\b/gi, 'often leans toward')
+    .replace(/\btends to be\b/gi, 'is often')
+    .replace(/\binvites mindful attention\b/gi, 'is worth watching')
+    .replace(/\bwarrant[s]? mindful channelling\b/gi, 'is worth managing thoughtfully')
+    .replace(/\bthe native's\b/gi, 'your')
+    .replace(/\bsignifications\b/gi, 'qualities')
+    .replace(/\bsignification\b/gi, 'quality')
+    .replace(/\bViparita\b/g, 'hidden strength')
+    .replace(/\bascetic\b/gi, 'deeply disciplined')
+    .replace(/\bcontemplative practice\b/gi, 'quiet reflection')
+    .replace(/\bprimary mode\b/gi, 'main way')
+    .replace(/\borienting values\b/gi, 'guiding values')
+    .replace(/\binterwoven\b/gi, 'tied up')
+    .replace(/\bsovereign self-becoming\b/gi, 'becoming fully yourself')
+    .replace(/\blatent\b/gi, 'hidden')
+    .replace(/\bphilosophical\b/gi, 'thoughtful')
+    .replace(/\boccult\b/gi, 'mystical or hidden')
+    .replace(/\bunfolds\b/gi, 'develops')
+    .replace(/\binstinctive\b/gi, 'natural')
+    .replace(/\bperseverance\b/gi, 'persistence')
+    .replace(/\bkenotes\b/gi, 'themes')
+    .replace(/\bdharmic\b/gi, 'purpose-driven')
 }
 
 // ── Planet Insights Section (always-visible accordion) ───────────────────────
@@ -1390,29 +1528,55 @@ function PlanetInsightRow({ row }: PlanetInsightRowProps) {
       </button>
 
       {/* Expanded interpretation */}
-      {open && interp && (
+      {open && (
         <div style={{ paddingBottom: 14, paddingLeft: 38 }}>
-          <p style={{
-            fontFamily:    'Inter, system-ui, sans-serif',
-            fontSize:      12,
-            color:         T.txt3,
-            margin:        '0 0 6px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}>
-            What this means for you
-          </p>
-          <p style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize:   14,
-            color:      T.txt2,
-            margin:     0,
-            lineHeight: 1.7,
-          }}>
-            {simplify(interp)}
-          </p>
+          {/* Plain-English brief — highlighted callout */}
+          {PLANET_IN_HOUSE_BRIEF[interpKey] && (
+            <div style={{
+              background:   `${col}12`,
+              border:       `1px solid ${col}33`,
+              borderRadius: 8,
+              padding:      '10px 14px',
+              marginBottom: 10,
+            }}>
+              <p style={{
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize:   14,
+                color:      T.txt,
+                margin:     0,
+                lineHeight: 1.6,
+                fontWeight: 500,
+              }}>
+                {PLANET_IN_HOUSE_BRIEF[interpKey]}
+              </p>
+            </div>
+          )}
+          {/* Full scholarly text — dimmer, for deeper reading */}
+          {interp && (
+            <>
+              <p style={{
+                fontFamily:    'Inter, system-ui, sans-serif',
+                fontSize:      11,
+                color:         T.txt3,
+                margin:        '0 0 6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+              }}>
+                In more detail
+              </p>
+              <p style={{
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize:   13,
+                color:      T.txt2,
+                margin:     0,
+                lineHeight: 1.7,
+              }}>
+                {simplify(interp)}
+              </p>
+            </>
+          )}
           {row.notes && row.notes !== '—' && (
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3, margin: '6px 0 0', fontStyle: 'italic' }}>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3, margin: '8px 0 0', fontStyle: 'italic' }}>
               Note: {row.notes}
             </p>
           )}

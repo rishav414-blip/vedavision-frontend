@@ -4,7 +4,7 @@ import type { ChartData } from '@/lib/chartTypes'
 import { getSignStr } from '@/lib/chartTypes'
 import { YOGA_DESCRIPTIONS, YOGA_PLANET_MAP } from '@/lib/yogaData'
 import { t } from '@/lib/i18n'
-import { dayScore, dayLabel, dayColor, dayBorder } from '@/lib/panchang'
+import { dayScore, dayLabel, dayColor, dayBorder, getTithi, AUSPICIOUS_TITHIS, INAUSPICIOUS_TITHIS } from '@/lib/panchang'
 
 // ── InfoTip tooltip component ─────────────────────────────────────────────────
 function InfoTip({ text }: { text: string }) {
@@ -48,6 +48,46 @@ function InfoTip({ text }: { text: string }) {
       )}
     </span>
   )
+}
+
+// ── Tithi (lunar day) names 1–30 ─────────────────────────────────────────────
+const TITHI_NAMES: Record<number, { name: string; meaning: string }> = {
+  1:  { name: 'Pratipada',   meaning: 'New Beginning' },
+  2:  { name: 'Dwitiya',     meaning: 'Growth' },
+  3:  { name: 'Tritiya',     meaning: 'Vitality' },
+  4:  { name: 'Chaturthi',   meaning: 'Obstacles & Victory' },
+  5:  { name: 'Panchami',    meaning: 'Knowledge' },
+  6:  { name: 'Shashthi',    meaning: 'Courage' },
+  7:  { name: 'Saptami',     meaning: 'Balance' },
+  8:  { name: 'Ashtami',     meaning: 'Tension & Power' },
+  9:  { name: 'Navami',      meaning: 'Completion' },
+  10: { name: 'Dashami',     meaning: 'Strength' },
+  11: { name: 'Ekadashi',    meaning: 'Devotion & Clarity' },
+  12: { name: 'Dwadashi',    meaning: 'Merit & Charity' },
+  13: { name: 'Trayodashi',  meaning: 'Auspiciousness' },
+  14: { name: 'Chaturdashi', meaning: 'Fierce Energy' },
+  15: { name: 'Purnima',     meaning: 'Full Moon · Fulfilment' },
+  16: { name: 'Pratipada',   meaning: 'New Beginning (waning)' },
+  17: { name: 'Dwitiya',     meaning: 'Growth (waning)' },
+  18: { name: 'Tritiya',     meaning: 'Vitality (waning)' },
+  19: { name: 'Chaturthi',   meaning: 'Obstacles (waning)' },
+  20: { name: 'Panchami',    meaning: 'Knowledge (waning)' },
+  21: { name: 'Shashthi',    meaning: 'Courage (waning)' },
+  22: { name: 'Saptami',     meaning: 'Balance (waning)' },
+  23: { name: 'Ashtami',     meaning: 'Tension (waning)' },
+  24: { name: 'Navami',      meaning: 'Completion (waning)' },
+  25: { name: 'Dashami',     meaning: 'Strength (waning)' },
+  26: { name: 'Ekadashi',    meaning: 'Devotion (waning)' },
+  27: { name: 'Dwadashi',    meaning: 'Merit (waning)' },
+  28: { name: 'Trayodashi',  meaning: 'Auspiciousness (waning)' },
+  29: { name: 'Chaturdashi', meaning: 'Fierce Energy (waning)' },
+  30: { name: 'Amavasya',    meaning: 'New Moon · Deep Stillness' },
+}
+
+function getTithiQuality(tithi: number): { label: string; color: string } {
+  if (AUSPICIOUS_TITHIS.includes(tithi))   return { label: 'Auspicious', color: '#6EC97A' }
+  if (INAUSPICIOUS_TITHIS.includes(tithi)) return { label: 'Inauspicious', color: '#E05050' }
+  return { label: 'Neutral', color: '#F0A830' }
 }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -252,6 +292,44 @@ function IdentitySection({ chart, lang = 'en' }: { chart: ChartData | null; lang
           </span>
         </div>
       )}
+
+      {/* Birth Panchang — Tithi */}
+      {dob && (() => {
+        try {
+          const birthDate = new Date(dob)
+          if (isNaN(birthDate.getTime())) return null
+          const tithi    = getTithi(birthDate)
+          const paksha   = tithi <= 15 ? 'Shukla Paksha' : 'Krishna Paksha'
+          const pakshaEn = tithi <= 15 ? 'Waxing moon' : 'Waning moon'
+          const info     = TITHI_NAMES[tithi] ?? { name: `Tithi ${tithi}`, meaning: '' }
+          const quality  = getTithiQuality(tithi)
+          return (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid rgba(114,166,183,0.12)` }}>
+              <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.txt3, fontFamily: 'Outfit, sans-serif', marginBottom: 8 }}>
+                Birth Pañcāṅga
+                <InfoTip text="The tithi (lunar day) at the time of your birth. Each tithi has a distinct energy and quality in Vedic tradition." />
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: 20, color: T.goldBrt }}>{info.name}</span>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3, marginLeft: 6 }}>Tithi {tithi}</span>
+                </div>
+                <span style={{ fontSize: 12, color: T.txt3, fontFamily: 'Outfit, sans-serif' }}>{paksha} · {pakshaEn}</span>
+                {info.meaning && (
+                  <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: T.txt3, fontStyle: 'italic' }}>{info.meaning}</span>
+                )}
+                <span style={{
+                  fontSize: 11, padding: '2px 8px', borderRadius: 20,
+                  background: `${quality.color}18`, border: `1px solid ${quality.color}44`,
+                  color: quality.color, fontFamily: 'Outfit, sans-serif', letterSpacing: '0.05em',
+                }}>
+                  {quality.label}
+                </span>
+              </div>
+            </div>
+          )
+        } catch { return null }
+      })()}
     </motion.div>
   )
 }

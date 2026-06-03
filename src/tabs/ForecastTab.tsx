@@ -47,6 +47,19 @@ const PLANET_THEMES: Record<string, { color: string; desc: string }> = {
 
 const FALLBACK_THEME = { color: T.violet, desc: "A period of planetary transition inviting reflection on patterns, cycles and the quality of attention you bring to daily life." }
 
+// ─── Plain-English one-liner per planet period ────────────────────────────────
+const DASHA_PLAIN_TERMS: Record<string, string> = {
+  Sun:     "Think of this as a phase where your sense of self and what you stand for gets a spotlight. Great time to step up, be visible, and lead — but watch the ego.",
+  Moon:    "This is an emotionally sensitive chapter. Your feelings and gut instincts are louder than usual — listen to them. Home, family, and inner peace matter most now.",
+  Mars:    "A high-energy, action-forward phase. You have more drive and ambition than usual — use it to start things, compete, and push through obstacles. Stay patient under pressure.",
+  Mercury: "A sharp, busy period focused on communication, learning, and building practical skills. Good for networking, studying, writing, and upgrading how you work and think.",
+  Jupiter: "One of the more expansive phases in the cycle. Wisdom, growth, and good fortune flow more freely. Align with your deeper purpose and watch things open up.",
+  Venus:   "A period of creativity, beauty, and relationships. Connections deepen, pleasures increase, and creative work can flourish. Good time to invest in what you value.",
+  Saturn:  "A serious, grounding phase that rewards consistency and hard work. Shortcuts get exposed. Slow, steady effort builds real results — patience is the strategy.",
+  Rahu:    "An intense, restless, and ambitious phase. You may be pulled toward something new, foreign, or unconventional. Exciting but needs direction — curiosity over obsession.",
+  Ketu:    "A quieter, more inward phase. Attachment to outcomes loosens. Old skills resurface, spiritual depth grows, and wisdom comes through letting go rather than grasping.",
+}
+
 // ─── 5-Year Thematic Outlook data ────────────────────────────────────────────
 interface YearOutlook {
   year: number
@@ -367,6 +380,14 @@ function PeriodCard({ planet, start, end, status }: PeriodCardProps) {
           <p style={{ margin: "6px 0 0", fontSize: 13, color: T.txt2, lineHeight: 1.6 }}>
             {theme.desc}
           </p>
+          {/* Plain-English takeaway */}
+          {DASHA_PLAIN_TERMS[planet] && (
+            <div style={{ marginTop: 10, padding: "10px 12px", background: "rgba(212,184,112,0.07)", border: "1px solid rgba(212,184,112,0.2)", borderRadius: 8 }}>
+              <p style={{ margin: 0, fontSize: 13, color: T.txt, lineHeight: 1.6 }}>
+                💡 {DASHA_PLAIN_TERMS[planet]}
+              </p>
+            </div>
+          )}
         </div>
         <div style={{ flexShrink: 0, paddingTop: 2 }}>
           {status !== "past" && <span style={badgeStyle}>{status === "current" ? "CURRENT" : "UPCOMING"}</span>}
@@ -613,6 +634,60 @@ function YearCard({ y, dharmaUnlocked }: { y: YearOutlook; dharmaUnlocked: boole
   )
 }
 
+// ─── Vimśottarī Daśā explainer card ──────────────────────────────────────────
+function DashaExplainerCard() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ ...glassCard, padding: "14px 18px" }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 18, color: T.gold }}>☿</span>
+          <span style={{ fontFamily: "Outfit, sans-serif", fontSize: 14, color: T.txt2, fontWeight: 600 }}>
+            What is Vimśottarī Daśā? How does this work?
+          </span>
+        </div>
+        <span style={{ fontSize: 14, color: T.txt3, transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "none" }}>▾</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={{ margin: 0, fontSize: 14, color: T.txt2, lineHeight: 1.7 }}>
+            <strong style={{ color: T.txt }}>Vimśottarī Daśā</strong> is a 120-year planetary cycle system from Vedic astrology. Your life is divided into chapters, each ruled by a different planet. The chapter you are in right now is called your <strong style={{ color: T.gold }}>Mahadasha</strong> (main period), and within it there are shorter sub-periods called <strong style={{ color: T.gold }}>Antardasha</strong>.
+          </p>
+          <p style={{ margin: 0, fontSize: 14, color: T.txt2, lineHeight: 1.7 }}>
+            Think of it like weather seasons for your life. Just as summer brings heat and winter brings cold — each planetary period brings its own themes, energy, and opportunities. You don't fight the season; you prepare for it and work with it.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+            {[
+              { planet: "Sun", years: 6, emoji: "☉" },
+              { planet: "Moon", years: 10, emoji: "☽" },
+              { planet: "Mars", years: 7, emoji: "♂" },
+              { planet: "Rahu", years: 18, emoji: "☊" },
+              { planet: "Jupiter", years: 16, emoji: "♃" },
+              { planet: "Saturn", years: 19, emoji: "♄" },
+              { planet: "Mercury", years: 17, emoji: "☿" },
+              { planet: "Ketu", years: 7, emoji: "☋" },
+              { planet: "Venus", years: 20, emoji: "♀" },
+            ].map(({ planet, years, emoji }) => {
+              const color = (PLANET_THEMES[planet] ?? FALLBACK_THEME).color
+              return (
+                <span key={planet} style={{ fontSize: 12, padding: "3px 10px", borderRadius: 20, background: `${color}12`, border: `1px solid ${color}33`, color, fontFamily: "Outfit, sans-serif" }}>
+                  {emoji} {planet} · {years}y
+                </span>
+              )
+            })}
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: T.txt3, fontStyle: "italic", lineHeight: 1.6 }}>
+            Important: These are themes for reflection, not predictions of what will happen. The planet ruling your period doesn't control your life — it colours the lens through which patterns become visible.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── i18n helper ─────────────────────────────────────────────────────────────
 // Module-level lang ref so sub-components can access it without prop drilling
 let _lang = 'en'
@@ -693,6 +768,9 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
           {t('Thematic Daśā windows — reflection, not prediction', 'दाशा आधारित विषय — चिंतन, भविष्यवाणी नहीं')}
         </p>
       </div>
+
+      {/* ── What is Vimśottarī Daśā? ── */}
+      <DashaExplainerCard />
 
       {/* ── YOUR VIMŚOTTARĪ SEQUENCE ── */}
       {chart && dashaSequence.length > 0 ? (
