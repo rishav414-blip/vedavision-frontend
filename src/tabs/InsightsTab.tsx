@@ -345,10 +345,10 @@ export default function InsightsTab({ chart, lang = 'en' }: { chart: ChartData |
             return (
               <div key={key} style={{ background:'rgba(8,4,22,0.88)', border:`1px solid rgba(${gold ? '212,184,112' : '139,124,200'},${borderOpacity})`, borderRadius:12, padding:'12px 10px', display:'flex', flexDirection:'column', gap:4 }}>
                 <span style={{ fontSize:20, lineHeight:1 }}>{emoji}</span>
-                <p style={{ fontSize:13, color: gold ? borderColor : '#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:600, margin:0, marginTop:2 }}>{k?.planet_name ?? '—'}</p>
-                {k?.sign && <p style={{ fontSize:13, color:'#A0A8C8', fontFamily:'Outfit,sans-serif', margin:0 }}>{k.sign}</p>}
-                <p style={{ fontSize:13, color: gold ? '#D4B870' : '#A99BD9', fontFamily:'"Cormorant Garamond",serif', fontStyle:'italic', margin:0, lineHeight:1.3 }}>{label}</p>
-                <p style={{ fontSize:14, color:'#B0A8CC', fontFamily:'Outfit,sans-serif', margin:0 }}>{sub}</p>
+                <p style={{ fontSize:14, color: gold ? borderColor : '#F0EBF4', fontFamily:'Outfit,sans-serif', fontWeight:600, margin:0, marginTop:2 }}>{k?.planet_name ?? '—'}</p>
+                {k?.sign && <p style={{ fontSize:13, color:'#B0A8CC', fontFamily:'Outfit,sans-serif', margin:0 }}>{k.sign}</p>}
+                <p style={{ fontSize:13, color: gold ? '#D4B870' : '#C4B8E0', fontFamily:'Outfit,sans-serif', margin:0, lineHeight:1.3 }}>{label}</p>
+                <p style={{ fontSize:13, color:'#C0B8D8', fontFamily:'Outfit,sans-serif', margin:0 }}>{sub}</p>
               </div>
             )
           })}

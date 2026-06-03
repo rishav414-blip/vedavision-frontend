@@ -169,7 +169,7 @@ export default function AltarTab({ chart }: AltarTabProps) {
         {/* Audio toggle */}
         <button
           onClick={toggleAudio}
-          style={{ padding:'8px 20px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(114,166,183,0.22)'}`, background: audioPlaying ? `${data.color}15` : 'transparent', color: audioPlaying ? data.color : '#A0A8C8', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
+          style={{ padding:'8px 22px', borderRadius:999, border:`1px solid ${audioPlaying ? data.color+'88' : 'rgba(114,166,183,0.5)'}`, background: audioPlaying ? `${data.color}18` : 'rgba(10,5,26,0.6)', color: audioPlaying ? data.color : '#D0C8E0', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', transition:'all 0.2s' }}
         >
           {audioPlaying ? `⏸ Stop ${freq}Hz` : `🔊 Play ${freq}Hz`}
         </button>

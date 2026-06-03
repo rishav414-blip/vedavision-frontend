@@ -21,10 +21,12 @@ const T = {
 }
 
 const glassCard: React.CSSProperties = {
-  background:   T.bgCard,
-  border:       `1px solid ${T.border}`,
-  borderRadius: T.radius,
-  padding:      "20px",
+  background:           T.bgCard,
+  border:               `1px solid ${T.border}`,
+  borderRadius:         T.radius,
+  padding:              "20px",
+  backdropFilter:       "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
 }
 
 // ─── Planet-day affinity ──────────────────────────────────────────────────────
@@ -102,9 +104,9 @@ function energyColor(score: number): string {
 }
 
 function energyBg(score: number): string {
-  if (score >= 70) return "rgba(76,175,106,0.15)"
+  if (score >= 70) return "rgba(76,175,106,0.22)"
   if (score >= 30) return "transparent"
-  return "rgba(217,95,95,0.12)"
+  return "rgba(217,95,95,0.20)"
 }
 
 function energyNote(score: number): string {
@@ -280,11 +282,13 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
           : `${rulingDayName} score highest · other days follow base rhythm`
         return (
           <div style={{
-            borderLeft:   `3px solid ${pColor}`,
-            background:   "rgba(8,4,22,0.90)",
-            border:       `1px solid rgba(114,166,183,0.15)`,
-            borderRadius: 10,
-            padding:      "12px 16px",
+            borderLeft:           `3px solid ${pColor}`,
+            background:           "rgba(8,4,22,0.90)",
+            border:               `1px solid rgba(114,166,183,0.2)`,
+            borderRadius:         10,
+            padding:              "12px 16px",
+            backdropFilter:       "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
           }}>
             <div style={{ fontSize: 12, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
               Calendar scoring based on
@@ -352,7 +356,7 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                   {day}
                 </span>
                 {(score >= 70 || score < 30) && (
-                  <span style={{ fontSize: 9, color: dotColor, lineHeight: 1 }}>●</span>
+                  <span style={{ fontSize: 11, color: dotColor, lineHeight: 1, filter: score >= 70 ? 'drop-shadow(0 0 3px #4CAF6A)' : 'drop-shadow(0 0 3px #D95F5F)' }}>●</span>
                 )}
                 {nakName && (
                   <span style={{ fontSize: 10, color: T.txt3, lineHeight: 1.2, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingInline: 1 }}>
@@ -438,10 +442,12 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
               <div
                 key={label}
                 style={{
-                  background:   "rgba(8,4,22,0.90)",
-                  border:       "1px solid rgba(114,166,183,0.2)",
-                  borderRadius: 12,
-                  padding:      "14px 16px",
+                  background:           "rgba(8,4,22,0.90)",
+                  border:               "1px solid rgba(114,166,183,0.2)",
+                  borderRadius:         12,
+                  padding:              "14px 16px",
+                  backdropFilter:       "blur(8px)",
+                  WebkitBackdropFilter: "blur(8px)",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -546,13 +552,15 @@ export default function GreenDaysTab({ chart }: GreenDaysTabProps) {
                 <div
                   key={d.date}
                   style={{
-                    background:   "rgba(8,4,22,0.90)",
-                    border:       "1px solid rgba(114,166,183,0.2)",
-                    borderLeft:   "3px solid #4CAF6A",
-                    borderRadius: 10,
-                    padding:      "12px 14px",
-                    display:      "flex",
-                    justifyContent: "space-between",
+                    background:           "rgba(8,4,22,0.90)",
+                    border:               "1px solid rgba(114,166,183,0.2)",
+                    borderLeft:           "3px solid #4CAF6A",
+                    borderRadius:         10,
+                    padding:              "12px 14px",
+                    display:              "flex",
+                    justifyContent:       "space-between",
+                    backdropFilter:       "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
                     alignItems:   "center",
                     gap:          12,
                   }}

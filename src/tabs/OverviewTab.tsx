@@ -443,7 +443,7 @@ function PlanetStrengthGrid({ chart, lang = 'en' }: { chart: ChartData | null; l
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 11, color: T.txt3, fontFamily: 'Outfit, sans-serif', lineHeight: 1.2 }}>{p.slice(0, 3)}</div>
-                <div style={{ fontSize: 8, color: isExalted ? '#6EC97A' : isDeb ? '#E05050' : T.ghost, fontFamily: 'Outfit, sans-serif', lineHeight: 1.2 }}>{row?.sign?.slice(0, 3) ?? '—'}</div>
+                <div style={{ fontSize: 10, color: isExalted ? '#6EC97A' : isDeb ? '#E05050' : T.txt3, fontFamily: 'Outfit, sans-serif', lineHeight: 1.2 }}>{row?.sign?.slice(0, 3) ?? '—'}</div>
               </div>
             </div>
           )
@@ -577,7 +577,7 @@ function DashaSection({ chart, lang = 'en' }: { chart: ChartData | null; lang?: 
                       borderRight: i < seq.length - 1 ? `1px solid rgba(114,166,183,0.2)` : 'none',
                       borderTop: isCur ? `2px solid ${color}` : '2px solid transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, color: isCur ? color : isPast ? 'rgba(255,255,255,0.2)' : T.txt3,
+                      fontSize: 12, color: isCur ? color : isPast ? 'rgba(200,190,220,0.55)' : T.txt2,
                       fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' as const,
                       fontWeight: isCur ? 700 : 400, cursor: 'default',
                     }}>
@@ -694,7 +694,7 @@ function CelestialEchoesCard({ chart, lang = 'en' }: { chart: ChartData | null; 
         })}
       </div>
 
-      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: T.ghost, margin: '14px 0 0', lineHeight: 1.5, fontStyle: 'italic' }}>
+      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: T.txt3, margin: '14px 0 0', lineHeight: 1.5, fontStyle: 'italic' }}>
         {t('These resonances are symbolic — astrological patterns, not destinies shared.', 'ये संकेत प्रतीकात्मक हैं — नियति नहीं।', lang)}
       </p>
     </motion.div>

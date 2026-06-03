@@ -117,7 +117,7 @@ export default function RemediesTab({ chart, lang = 'en' }: { chart: ChartData |
             <thead>
               <tr>
                 {['Planet','Primary Stone','Substitute','Metal','Finger'].map(h => (
-                  <th key={h} style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.12em', color:'#D4B870', fontFamily:'Outfit,sans-serif', fontWeight:600, padding:'6px 10px', textAlign:'left', borderBottom:'1px solid rgba(114,166,183,0.2)' }}>{h}</th>
+                  <th key={h} style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em', color:'#D4B870', fontFamily:'Outfit,sans-serif', fontWeight:600, padding:'8px 10px', textAlign:'left', borderBottom:'1px solid rgba(114,166,183,0.2)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -129,7 +129,7 @@ export default function RemediesTab({ chart, lang = 'en' }: { chart: ChartData |
                   <tr
                     key={row.planet}
                     style={{
-                      background: i % 2 === 1 ? 'rgba(114,166,183,0.06)' : 'transparent',
+                      background: isActive ? `${pc}18` : i % 2 === 1 ? 'rgba(114,166,183,0.06)' : 'transparent',
                       borderLeft: isActive ? `3px solid ${pc}` : '3px solid transparent',
                     }}
                   >

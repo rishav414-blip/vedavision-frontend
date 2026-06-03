@@ -753,6 +753,8 @@ export default function AppShell({
             minWidth: 0,
             padding: isMobile ? '1.25rem' : '2rem',
             overflowY: 'auto',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           <AnimatePresence mode="wait">

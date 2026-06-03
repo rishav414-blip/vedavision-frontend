@@ -160,7 +160,7 @@ function severityStyle(sev: DoshaSeverity): { bg: string; border: string; icon: 
 }
 
 const card: React.CSSProperties = { background:'rgba(8,4,22,0.72)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', border:'1px solid rgba(114,166,183,0.2)', borderRadius:16, padding:20, boxShadow:'0 4px 30px rgba(0,0,0,0.55)' }
-const sel:  React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.22)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', outline:'none' }
+const sel:  React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.35)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', cursor:'pointer', outline:'none', colorScheme:'dark' }
 const inputStyle: React.CSSProperties = { width:'100%', padding:'10px 12px', background:'rgba(10,5,26,0.88)', border:'1px solid rgba(114,166,183,0.22)', borderRadius:10, color:'#F0EBF4', fontSize:14, fontFamily:'Outfit,sans-serif', outline:'none', boxSizing:'border-box' }
 const lbl: React.CSSProperties = { fontSize:13, color:'#A0A8C8', display:'block', marginBottom:6, fontFamily:'Outfit,sans-serif', textTransform:'uppercase', letterSpacing:'0.08em' }
 

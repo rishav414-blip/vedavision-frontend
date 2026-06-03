@@ -177,9 +177,9 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
 
   const inputStyle: React.CSSProperties = {
     width:'100%', padding:'12px 14px', borderRadius:10,
-    border:'1px solid rgba(114,166,183,0.2)', background:'rgba(8,4,22,0.72)',
+    border:'1px solid rgba(114,166,183,0.3)', background:'rgba(8,4,22,0.85)',
     color:'#F0EBF4', fontSize:13, fontFamily:'Outfit,sans-serif', boxSizing:'border-box',
-    outline:'none',
+    outline:'none', colorScheme:'dark',
   }
   const dividerStyle: React.CSSProperties = {
     display:'flex', alignItems:'center', gap:10, margin:'4px 0',
@@ -189,6 +189,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:20, maxWidth:480, margin:'0 auto', alignItems:'center' }}>
+      <style>{`.dharma-input::placeholder { color: #8A80AA !important; opacity: 1; }`}</style>
       <div style={{ ...card, textAlign:'center', width:'100%', padding:'40px 28px', boxSizing:'border-box' as const }}>
 
         {/* Lock icon + title */}
@@ -261,6 +262,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
               value={waitlistEmail}
               onChange={e => setWaitlistEmail(e.target.value)}
               style={inputStyle}
+              className="dharma-input"
             />
             <input
               type="text"
@@ -268,6 +270,7 @@ function LockedView({ onOpenPasscode }: { onOpenPasscode: () => void }) {
               value={waitlistName}
               onChange={e => setWaitlistName(e.target.value)}
               style={inputStyle}
+              className="dharma-input"
             />
             <button
               onClick={submitWaitlist}

@@ -14,10 +14,12 @@ const T = {
 }
 
 const glassCard: React.CSSProperties = {
-  background:   T.bgCard,
-  border:       `1px solid ${T.border}`,
-  borderRadius: T.radius,
-  padding:      "20px",
+  background:           T.bgCard,
+  border:               `1px solid ${T.border}`,
+  borderRadius:         T.radius,
+  padding:              "20px",
+  backdropFilter:       "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
 }
 
 // ─── Planet data ───────────────────────────────────────────────────────────────
@@ -191,18 +193,20 @@ export default function TimeSliderTab({ chart }: TimeSliderTabProps) {
             </div>
 
             {/* Styled range input */}
+            <style>{`
+              .ts-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 4px; background: rgba(114,166,183,0.25); outline: none; cursor: pointer; accent-color: #D4B870; }
+              .ts-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #D4B870; cursor: pointer; box-shadow: 0 0 8px rgba(212,184,112,0.6); }
+              .ts-slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #D4B870; cursor: pointer; border: none; box-shadow: 0 0 8px rgba(212,184,112,0.6); }
+              .ts-slider::-webkit-slider-runnable-track { height: 6px; border-radius: 4px; background: rgba(114,166,183,0.25); }
+            `}</style>
             <input
               type="range"
               min={minYear}
               max={maxYear}
               value={selectedYear}
               onChange={e => setSelectedYear(Number(e.target.value))}
-              style={{
-                width:       "100%",
-                accentColor: T.gold,
-                cursor:      "pointer",
-                height:      4,
-              }}
+              className="ts-slider"
+              style={{ width: "100%" }}
             />
 
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>

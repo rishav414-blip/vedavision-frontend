@@ -8,17 +8,19 @@ const T = {
   violet:  '#8B7CC8',
   violet2: '#A99BD9',
   txt:     '#F0EBF4',
-  txt2:    '#B0A0C8',
-  txt3:    '#8090B5',
-  cardBg:  'rgba(8,4,22,0.92)',
+  txt2:    '#D0C8E0',
+  txt3:    '#9A90B8',
+  cardBg:  'rgba(8,4,22,0.75)',
   cardBdr: 'rgba(114,166,183,0.2)',
 }
 
 const glass: React.CSSProperties = {
-  background:   T.cardBg,
-  border:       `1px solid ${T.cardBdr}`,
-  borderRadius: 16,
-  padding:      20,
+  background:        T.cardBg,
+  border:            `1px solid ${T.cardBdr}`,
+  borderRadius:      16,
+  padding:           20,
+  backdropFilter:    'blur(8px)',
+  WebkitBackdropFilter: 'blur(8px)',
 }
 
 // ── Planet colour palette ─────────────────────────────────────────────────────
@@ -462,12 +464,13 @@ function NISvgChart({ houseMap, selected, onSelect, nativeName }: NISvgChartProp
   const STROKE = '#4A3A6A'
   const STROKE_W = 1.5
   const SEL_FILL = 'rgba(192,168,96,0.13)'
-  const DEF_FILL = 'rgba(16,10,34,0.0)'
+  const DEF_FILL = '#0D0820'
 
   // For each house, decide whether to wrap planet glyphs across 2 rows
   function renderHouseContent(id: number, cx: number, cy: number) {
     const house   = houseMap[id] ?? { id, sign: '', planets: [] }
-    const planets = house.planets ?? []
+    // Filter out 'As'/'Lagna' abbreviations — the Lagna marker is rendered separately below
+    const planets = (house.planets ?? []).filter(p => p !== 'As' && p !== 'Lg' && p !== 'Lagna')
     const sign    = house.sign ?? ''
     const isLagna = id === 1
 
@@ -475,21 +478,21 @@ function NISvgChart({ houseMap, selected, onSelect, nativeName }: NISvgChartProp
     const isCorner = [2, 4, 6, 8, 10, 12].includes(id)
     const isWide   = [1, 7].includes(id)   // top and bottom large triangles
 
-    // Font sizes — bumped for legibility (SVG viewBox 420×420)
-    const hNumSz  = isCorner ? 10 : 12
-    const signSz  = isCorner ?  9 : 11
-    const planSz  = isCorner ? 10 : 12
-    const lagSz   = isCorner ?  9 : 11
+    // Font sizes — sized for legibility across viewBox 420×420 and narrow viewports
+    const hNumSz  = isCorner ? 12 : 14
+    const signSz  = isCorner ? 11 : 13
+    const planSz  = isCorner ? 12 : 14
+    const lagSz   = isCorner ? 11 : 13
 
     // Layout: arrange items vertically around cx,cy
-    const lineH   = isCorner ? 13 : 14
+    const lineH   = isCorner ? 15 : 16
     const items: { text: string; color: string; fontSize: number; fontWeight?: string; fontStyle?: string }[] = []
 
     // House number (tiny, gold)
     items.push({ text: String(id), color: '#C0A860', fontSize: hNumSz })
 
     // Sign abbreviation
-    if (sign) items.push({ text: sign.slice(0, 3), color: '#7A6A9A', fontSize: signSz })
+    if (sign) items.push({ text: sign.slice(0, 3), color: '#9A90B8', fontSize: signSz })
 
     // Lagna marker
     if (isLagna) items.push({ text: 'Lg ↑', color: '#AACCFF', fontSize: lagSz, fontWeight: '700' })
@@ -531,7 +534,7 @@ function NISvgChart({ houseMap, selected, onSelect, nativeName }: NISvgChartProp
           const yPos = startY + (items.length + ri) * lineH
           // Render each planet glyph in its own color, spaced apart
           const glyphStrs = row.text.split(' ')
-          const spacing   = isCorner ? 13 : 15
+          const spacing   = isCorner ? 15 : 17
           const totalW    = (glyphStrs.length - 1) * spacing
           return glyphStrs.map((g2, gi) => (
             <text
@@ -557,9 +560,11 @@ function NISvgChart({ houseMap, selected, onSelect, nativeName }: NISvgChartProp
     <svg
       viewBox="0 0 420 420"
       width="100%"
-      style={{ maxWidth: 420, display: 'block', margin: '0 auto' }}
+      style={{ maxWidth: 520, display: 'block', margin: '0 auto', background: '#0A0618', isolation: 'isolate' as const, position: 'relative' }}
     >
-      {/* Background */}
+      {/* Full-bleed solid background — blocks shader completely */}
+      <rect x={0} y={0} width={420} height={420} fill="#0A0618" />
+      {/* Chart area */}
       <rect x={SV} y={SV} width={EV - SV} height={EV - SV} fill="#100A22" stroke={STROKE} strokeWidth={STROKE_W} />
 
       {/* Clickable house polygons (filled, then stroked) */}
@@ -800,7 +805,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
       exit={{ opacity: 0, y: -6 }}
       transition={{ duration: 0.22 }}
       style={{
-        background:   'rgba(12,6,28,0.97)',
+        background:   'rgba(8,4,22,0.92)',
         border:       '1px solid rgba(192,168,96,0.22)',
         borderRadius: 16,
         padding:      20,
@@ -945,7 +950,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
                 <div key={p} style={{
                   borderRadius: 10,
                   border:       `1px solid rgba(255,255,255,0.06)`,
-                  background:   'rgba(10,5,25,0.88)',
+                  background:   'rgba(8,4,22,0.78)',
                   overflow:     'hidden',
                 }}>
                   {/* Planet header row */}
@@ -1042,7 +1047,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
             alignItems:   'center',
             gap:          8,
             padding:      '8px 12px',
-            background:   'rgba(10,5,25,0.88)',
+            background:   'rgba(8,4,22,0.78)',
             borderRadius: 8,
             border:       '1px solid rgba(255,255,255,0.06)',
             flexWrap:     'wrap',
@@ -1089,7 +1094,7 @@ function HousePanel({ houseId, sign, planets, planetTable, houseMap, onClose }: 
                 alignItems:   'center',
                 gap:          5,
                 padding:      '4px 10px',
-                background:   'rgba(10,5,25,0.88)',
+                background:   'rgba(8,4,22,0.78)',
                 borderRadius: 20,
                 border:       `1px solid rgba(255,255,255,0.07)`,
               }}>
@@ -1127,7 +1132,7 @@ const DIGNITY_COLORS: Record<string, { bg: string; color: string }> = {
   own:         { bg: 'rgba(212,184,112,0.15)', color: T.gold },
   moolatrikona:{ bg: 'rgba(212,184,112,0.10)', color: '#C8A850' },
   debilitated: { bg: 'rgba(224,80,80,0.15)',  color: '#E05050' },
-  neutral:     { bg: 'rgba(12,6,28,0.90)', color: T.txt3 },
+  neutral:     { bg: 'rgba(8,4,22,0.78)', color: T.txt3 },
 }
 
 function DignityBadge({ dignity }: { dignity: string }) {
@@ -1410,7 +1415,7 @@ function DivHousePanel({ houseId, sign, planets, onClose }: DivHousePanelProps) 
                 alignItems:   'center',
                 gap:          6,
                 padding:      '5px 10px',
-                background:   'rgba(10,5,25,0.88)',
+                background:   'rgba(8,4,22,0.78)',
                 borderRadius: 8,
                 border:       `1px solid rgba(255,255,255,0.06)`,
               }}>
@@ -1633,7 +1638,7 @@ function ChartTabBar({ active, hasD9, hasD10, onChange }: ChartTabBarProps) {
       display:      'flex',
       gap:          4,
       marginBottom: 14,
-      background:   'rgba(10,5,25,0.88)',
+      background:   'rgba(8,4,22,0.78)',
       borderRadius: 10,
       padding:      4,
       border:       `1px solid ${T.cardBdr}`,

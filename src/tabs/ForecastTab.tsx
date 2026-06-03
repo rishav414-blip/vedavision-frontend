@@ -26,10 +26,12 @@ const T = {
 }
 
 const glassCard: React.CSSProperties = {
-  background:   T.bgCard,
-  border:       `1px solid ${T.border}`,
-  borderRadius: T.radius,
-  padding:      "20px",
+  background:           T.bgCard,
+  border:               `1px solid ${T.border}`,
+  borderRadius:         T.radius,
+  padding:              "20px",
+  backdropFilter:       "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
 }
 
 // ─── Planet themes ────────────────────────────────────────────────────────────
@@ -758,11 +760,11 @@ function YearCard({ y, dharmaUnlocked }: { y: YearOutlook; dharmaUnlocked: boole
 
       {/* Do / Don't */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-        <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(110,201,122,0.06)", border: "1px solid rgba(110,201,122,0.2)", borderRadius: 10 }}>
+        <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(8,4,22,0.82)", border: "1px solid rgba(110,201,122,0.25)", borderRadius: 10, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           <p style={{ fontSize: 12, color: "#6EC97A", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>✅ Do</p>
           {y.do.map(d => <p key={d} style={{ fontSize: 14, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
         </div>
-        <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(224,80,80,0.06)", border: "1px solid rgba(224,80,80,0.2)", borderRadius: 10 }}>
+        <div style={{ flex: "1 1 200px", padding: "12px 14px", background: "rgba(8,4,22,0.82)", border: "1px solid rgba(224,80,80,0.25)", borderRadius: 10, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           <p style={{ fontSize: 12, color: "#E05050", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>❌ Avoid</p>
           {y.dont.map(d => <p key={d} style={{ fontSize: 14, color: T.txt2, margin: "0 0 4px", lineHeight: 1.5 }}>• {d}</p>)}
         </div>
@@ -780,7 +782,7 @@ function YearCard({ y, dharmaUnlocked }: { y: YearOutlook; dharmaUnlocked: boole
 function DashaExplainerCard() {
   const [open, setOpen] = useState(false)
   return (
-    <div style={{ ...glassCard, padding: "14px 18px" }}>
+    <div style={{ ...glassCard, padding: "14px 18px", background: "rgba(8,4,22,0.97)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0 }}
@@ -963,13 +965,15 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
         </div>
       ) : (
       <div style={{
-        background:   "rgba(240,168,48,0.08)",
-        border:       "1px solid rgba(240,168,48,0.25)",
-        borderRadius: 10,
-        padding:      "12px 16px",
-        fontSize: 14,
-        color:        "#F0A830",
-        lineHeight:   1.6,
+        background:           "rgba(8,4,22,0.85)",
+        border:               "1px solid rgba(240,168,48,0.25)",
+        borderRadius:         10,
+        padding:              "12px 16px",
+        fontSize:             14,
+        color:                "#F0A830",
+        lineHeight:           1.6,
+        backdropFilter:       "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
       }}>
         <span style={{ fontWeight: 700, letterSpacing: "0.04em" }}>Note —</span>{" "}
         These thematic windows are derived from your Vimśottarī Mahādaśā sequence. Themes reflect the active planetary period at the midpoint of each year — reflection, not prediction.
@@ -987,16 +991,18 @@ export default function ForecastTab({ chart, lang = 'en' }: ForecastTabProps) {
                   key={y.year}
                   onClick={() => setActiveYear(y.year)}
                   style={{
-                    padding: "8px 18px",
-                    borderRadius: 8,
-                    border: active ? "1px solid #D4B870" : "1px solid rgba(114,166,183,0.2)",
-                    background: active ? "rgba(212,184,112,0.12)" : "transparent",
-                    color: active ? "#D4B870" : "#9A90B8",
-                    fontSize: 13,
-                    fontFamily: "Syne,sans-serif",
-                    fontWeight: active ? 700 : 400,
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
+                    padding:              "8px 18px",
+                    borderRadius:         8,
+                    border:               active ? "1px solid #D4B870" : "1px solid rgba(114,166,183,0.25)",
+                    background:           active ? "rgba(212,184,112,0.14)" : "rgba(8,4,22,0.80)",
+                    color:                active ? "#D4B870" : "#B0A8CC",
+                    fontSize:             13,
+                    fontFamily:           "Syne,sans-serif",
+                    fontWeight:           active ? 700 : 400,
+                    cursor:               "pointer",
+                    transition:           "all 0.2s ease",
+                    backdropFilter:       "blur(6px)",
+                    WebkitBackdropFilter: "blur(6px)",
                   }}
                 >
                   {y.year}
