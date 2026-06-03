@@ -1330,13 +1330,28 @@ function DivHousePanel({ houseId, sign, planets, onClose }: DivHousePanelProps) 
   )
 }
 
+// ── Simplify helper — converts scholarly "native" phrasing to second-person ────
+function simplify(text: string): string {
+  return text
+    .replace(/\bthe native\b/gi, 'you')
+    .replace(/\bThe native\b/gi, 'You')
+    .replace(/\bcharacterise\b/gi, 'describe')
+    .replace(/\bcharacterises\b/gi, 'describes')
+    .replace(/\bcharacteristic\b/gi, 'common')
+    .replace(/\bgoverns\b/gi, 'shapes')
+    .replace(/\bGoverns\b/gi, 'Shapes')
+    .replace(/\bthe natal\b/gi, 'your')
+    .replace(/\bone's\b/gi, 'your')
+    .replace(/\bOne's\b/gi, 'Your')
+}
+
 // ── Planet Insights Section (always-visible accordion) ───────────────────────
 interface PlanetInsightRowProps {
   row: { planet: string; sign: string; house: number; dignity: string; degree?: string | number; notes?: string }
 }
 
 function PlanetInsightRow({ row }: PlanetInsightRowProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   const full     = fullName(row.planet) || row.planet
   const col      = planetColor(row.planet)
   const glyphCh  = glyph(row.planet)
@@ -1361,13 +1376,13 @@ function PlanetInsightRow({ row }: PlanetInsightRowProps) {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, color: col, fontWeight: 700 }}>{full}</span>
             <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3 }}>
-              in {row.sign} · House {row.house}{row.degree ? ` · ${Number(row.degree).toFixed ? Number(row.degree).toFixed(1) + '°' : row.degree}` : ''}
+              in {row.sign} · House {row.house}{row.degree ? ` · ${row.degree}` : ''}
             </span>
           </div>
           {row.dignity && (
             <div style={{ marginTop: 3 }}>
               <DignityBadge dignity={row.dignity} />
-              {digDesc && <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: T.txt3, fontStyle: 'italic', marginLeft: 6 }}>{digDesc}</span>}
+              {digDesc && <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt2, fontStyle: 'italic', marginLeft: 6 }}>{digDesc}</span>}
             </div>
           )}
         </div>
@@ -1378,14 +1393,23 @@ function PlanetInsightRow({ row }: PlanetInsightRowProps) {
       {open && interp && (
         <div style={{ paddingBottom: 14, paddingLeft: 38 }}>
           <p style={{
-            fontFamily: 'Cormorant Garamond, serif',
-            fontStyle:  'italic',
+            fontFamily:    'Inter, system-ui, sans-serif',
+            fontSize:      12,
+            color:         T.txt3,
+            margin:        '0 0 6px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}>
+            What this means for you
+          </p>
+          <p style={{
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize:   14,
             color:      T.txt2,
             margin:     0,
-            lineHeight: 1.65,
+            lineHeight: 1.7,
           }}>
-            {interp}
+            {simplify(interp)}
           </p>
           {row.notes && row.notes !== '—' && (
             <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: T.txt3, margin: '6px 0 0', fontStyle: 'italic' }}>
@@ -1457,23 +1481,32 @@ function ChartTabBar({ active, hasD9, hasD10, onChange }: ChartTabBarProps) {
             key={tab.id}
             disabled={tab.disabled}
             onClick={() => !tab.disabled && onChange(tab.id)}
+            title={tab.disabled ? 'Divisional chart — available when chart includes precise birth time and backend ephemeris data' : undefined}
             style={{
-              flex:         1,
-              padding:      '7px 6px',
-              borderRadius: 8,
-              border:       `1px solid ${isActive ? 'rgba(212,184,112,0.5)' : 'transparent'}`,
-              background:   isActive ? 'rgba(212,184,112,0.08)' : 'transparent',
-              color:        tab.disabled ? T.txt3 : isActive ? T.gold : T.txt2,
-              fontFamily:   'Inter, system-ui, sans-serif',
-              fontSize:     13,
-              fontWeight:   isActive ? 600 : 400,
-              cursor:       tab.disabled ? 'not-allowed' : 'pointer',
-              transition:   'all 0.18s',
+              flex:          1,
+              padding:       '7px 6px',
+              borderRadius:  8,
+              border:        `1px solid ${isActive ? 'rgba(212,184,112,0.5)' : 'transparent'}`,
+              background:    isActive ? 'rgba(212,184,112,0.08)' : 'transparent',
+              color:         tab.disabled ? T.txt3 : isActive ? T.gold : T.txt2,
+              fontFamily:    'Inter, system-ui, sans-serif',
+              fontSize:      13,
+              fontWeight:    isActive ? 600 : 400,
+              cursor:        tab.disabled ? 'not-allowed' : 'pointer',
+              transition:    'all 0.18s',
               letterSpacing: '0.02em',
-              opacity:      tab.disabled ? 0.45 : 1,
+              opacity:       tab.disabled ? 0.45 : 1,
+              display:       'flex',
+              flexDirection: 'column',
+              alignItems:    'center',
+              justifyContent: 'center',
+              gap:           1,
             }}
           >
             {tab.label}
+            {tab.disabled && (
+              <span style={{ display: 'block', fontSize: 9, opacity: 0.6, letterSpacing: '0.05em' }}>Coming soon</span>
+            )}
           </button>
         )
       })}

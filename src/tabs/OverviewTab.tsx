@@ -15,18 +15,33 @@ function InfoTip({ text }: { text: string }) {
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
         onClick={() => setShow(s => !s)}
-        style={{ fontSize: 11, color: '#72A6B7', cursor: 'pointer', lineHeight: 1, userSelect: 'none' }}
+        style={{ fontSize: 14, color: '#72A6B7', cursor: 'pointer', lineHeight: 1, userSelect: 'none', opacity: 0.9 }}
         aria-label={text}
       >ⓘ</span>
       {show && (
         <span style={{
-          position: 'absolute', bottom: '120%', left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(8,4,22,0.97)', border: '1px solid rgba(114,166,183,0.3)',
-          borderRadius: 8, padding: '6px 10px', fontSize: 12, color: '#D0C8E0',
-          whiteSpace: 'normal' as const, zIndex: 100, boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-          fontFamily: 'Inter, system-ui, sans-serif', fontStyle: 'normal', lineHeight: 1.5,
-          pointerEvents: 'none', maxWidth: 240,
-          textTransform: 'none' as const, letterSpacing: 'normal', fontWeight: 400,
+          position: 'absolute',
+          top: '130%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(8,4,22,0.97)',
+          border: '1px solid rgba(114,166,183,0.3)',
+          borderRadius: 8,
+          padding: '8px 12px',
+          fontSize: 12,
+          color: '#D0C8E0',
+          whiteSpace: 'normal' as const,
+          zIndex: 200,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontStyle: 'normal',
+          lineHeight: 1.5,
+          pointerEvents: 'none',
+          maxWidth: 260,
+          textTransform: 'none' as const,
+          letterSpacing: 'normal',
+          fontWeight: 400,
+          minWidth: 160,
         }}>
           {text}
         </span>
@@ -183,13 +198,17 @@ function matchFamousNatives(chart: ChartData | null): FamousNative[] {
 function IdentitySection({ chart, lang = 'en' }: { chart: ChartData | null; lang?: string }) {
   const name    = chart?.native?.name ?? 'Your Chart'
   const dob     = chart?.native?.dob
+  const tob     = chart?.native?.tob
   const pob     = chart?.native?.pob
+  const gender  = chart?.native?.gender
   const lagna   = chart?.lagna?.signEn ?? chart?.lagna?.sign ?? '—'
   const lagnaLord = chart?.lagna?.lord
   const moon    = getSignStr(chart?.moonSign) || '—'
+  const sun     = getSignStr(chart?.sunSign) || '—'
   const nakName = chart?.nakshatra?.name ?? '—'
   const nakPada = chart?.nakshatra?.pada
   const nakLord = chart?.nakshatra?.lord
+  const nakDeity = (chart?.nakshatra as any)?.deity
   const ak      = chart?.karakas?.atmakaraka?.planet_name ?? (chart as any)?.ak
   const amk     = chart?.karakas?.amatyakaraka?.planet_name ?? (chart as any)?.amk
 
@@ -199,20 +218,40 @@ function IdentitySection({ chart, lang = 'en' }: { chart: ChartData | null; lang
       <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 30, fontWeight: 400, fontStyle: 'italic', color: T.txt, margin: '0 0 4px', letterSpacing: '0.01em', lineHeight: 1.1 }}>
         {name}
       </h2>
-      {(dob || pob) && (
+      {(dob || tob || pob || gender) && (
         <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, color: T.txt3, margin: '0 0 16px', letterSpacing: '0.06em' }}>
-          {[dob, pob].filter(Boolean).join(' · ')}
+          {[dob, tob, pob, gender].filter(Boolean).join(' · ')}
         </p>
       )}
 
       {/* Key identity grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '14px 20px' }}>
         <IdentityPill label={t('Lagna', 'लग्न', lang)} value={lagna} sub={lagnaLord ? `Lord: ${lagnaLord}` : undefined} color={T.gold} tip="Your rising sign — the zodiac sign on the eastern horizon at birth. Shapes your personality and physical appearance." />
-        <IdentityPill label={t('Birth Nakṣatra', 'जन्म नक्षत्र', lang)} value={nakName} sub={nakLord ? `Lord: ${nakLord}${nakPada ? ` · Pāda ${nakPada}` : ''}` : undefined} color={T.goldBrt} tip="Your Moon's star cluster at birth (1 of 27). Defines your instinctive emotional nature and life themes." />
+        <IdentityPill label={t('Birth Nakṣatra', 'जन्म नक्षत्र', lang)} value={nakName} sub={nakLord ? `Lord: ${nakLord}${nakPada ? ` · Pāda ${nakPada}` : ''}${nakDeity ? ` · ${nakDeity}` : ''}` : undefined} color={T.goldBrt} tip="Your Moon's star cluster at birth (1 of 27). Defines your instinctive emotional nature and life themes." />
         <IdentityPill label={t('Moon Sign', 'चंद्र राशि', lang)} value={moon} color='#D0D8F0' />
+        <IdentityPill label={t('Sun Sign', 'सूर्य राशि', lang)} value={sun} color='#F5C842' />
         {ak  && <IdentityPill label={t('Ātmakāraka', 'आत्मकारक', lang)} value={ak} color={T.gold} tip="Soul indicator — the planet with the highest degree in your chart. Points to your core life lesson and deepest purpose." />}
         {amk && <IdentityPill label={t('Amatyakāraka', 'अमात्यकारक', lang)} value={amk} color={T.violet2} tip="Career/advisor indicator — the second-highest degree planet. Shows your natural professional strengths and ideal mentors." />}
       </div>
+
+      {/* Chart Strength inline bar */}
+      {chart?.chartStrength != null && (
+        <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid rgba(114,166,183,0.12)`, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: T.txt3, letterSpacing: '0.06em' }}>
+            Chart Strength
+          </span>
+          <div style={{ flex: 1, height: 4, background: 'rgba(114,166,183,0.15)', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{
+              width: `${Math.min(100, chart.chartStrength)}%`, height: '100%', borderRadius: 99,
+              background: chart.chartStrength >= 70 ? '#6EC97A' : chart.chartStrength >= 40 ? '#F0A830' : '#E05050',
+              transition: 'width 0.6s ease',
+            }} />
+          </div>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 700, color: chart.chartStrength >= 70 ? '#6EC97A' : chart.chartStrength >= 40 ? '#F0A830' : '#E05050' }}>
+            {chart.chartStrength}/100
+          </span>
+        </div>
+      )}
     </motion.div>
   )
 }
