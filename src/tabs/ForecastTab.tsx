@@ -67,8 +67,8 @@ interface YearOutlook {
   signal: string
   score: number
   dashaColor: string
-  career: { stars: number; narrative: string; hardTruth: string; actions: string[] }
-  wealth:  { stars: number; narrative: string; hardTruth: string; actions: string[] }
+  career: { stars: number; narrative: string; watchOut: string; expect: string[]; actions: string[] }
+  wealth:  { stars: number; narrative: string; watchOut: string; expect: string[]; actions: string[] }
   health: string
   do: string[]
   dont: string[]
@@ -78,6 +78,7 @@ interface YearOutlook {
 const OUTLOOK_PLANET_THEMES: Record<string, {
   career: string; wealth: string; theme: string
   careerHardTruth: string; wealthHardTruth: string
+  careerExpect: string[]; wealthExpect: string[]
   health: string; do: string[]; dont: string[]
   score: number; careerStars: number; wealthStars: number
 }> = {
@@ -87,6 +88,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Identity & Purpose",
     careerHardTruth: "Authentic authority is earned, not performed. Gaps between reputation and reality become visible.",
     wealthHardTruth: "Pride can override prudence. Run financial decisions through a trusted sounding board.",
+    careerExpect: [
+      "Opportunities to step into a leadership or visible role — take them seriously",
+      "Your reputation and personal brand carry more weight than usual",
+      "Recognition for past work may finally arrive — stay consistent",
+    ],
+    wealthExpect: [
+      "Income tied to your position, title, or public standing tends to improve",
+      "Good time to negotiate salary, raise rates, or formalise your value",
+      "Risky financial bets driven by confidence can backfire — slow down big decisions",
+    ],
     health: "Sun periods support vitality. Guard against pride-driven overextension.",
     do: ["Lead where invited", "Make work visible", "Establish long-term professional commitments"],
     dont: ["Overstate credentials", "Make ego-driven financial bets", "Neglect collaborative relationships"],
@@ -98,6 +109,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Reflection & Cycles",
     careerHardTruth: "Unresolved personal patterns show up professionally this year. Address them at the root.",
     wealthHardTruth: "Emotional triggers drive financial decisions more than logic this year.",
+    careerExpect: [
+      "Work in care, wellness, hospitality, or community tends to flow well",
+      "Your instincts about people and situations are sharper than usual — trust them",
+      "Mood fluctuations may affect productivity; build routines that stabilise you",
+    ],
+    wealthExpect: [
+      "Income from nurturing or service-oriented work is supported",
+      "Impulse spending during emotional highs or lows is the main risk to watch",
+      "Automating savings or bills helps you avoid reactive financial decisions",
+    ],
     health: "Mental and emotional health are the priority. Sleep and relational quality matter.",
     do: ["Honour emotional intelligence", "Care for close relationships", "Rest when the body asks"],
     dont: ["Suppress emotional signals", "Make major decisions during emotional lows", "Neglect home and family"],
@@ -109,6 +130,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Intellect & Exchange",
     careerHardTruth: "Ambition without systems fails. Build infrastructure before seeking the stage.",
     wealthHardTruth: "Build reserves, not deploy them. Patience is the wealth strategy.",
+    careerExpect: [
+      "Writing, speaking, teaching, analysis, or tech-adjacent work comes into its own",
+      "Networking and building new professional contacts pays off significantly",
+      "Learning a new skill now can compound into a career asset over the next 3+ years",
+    ],
+    wealthExpect: [
+      "Multiple small income streams are more likely than one big windfall",
+      "Income from knowledge, information, or communication skills tends to grow",
+      "This is a building phase — focus on systems and reserves, not speculation",
+    ],
     health: "Mercury rewards mental hygiene — structured rest prevents overthinking.",
     do: ["Systematise one core workflow", "Invest in a skill that compounds over 3+ years", "Document decisions rigorously"],
     dont: ["Launch ventures without infrastructure", "Neglect rest", "Underestimate how long things take"],
@@ -120,6 +151,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Harmony & Value",
     careerHardTruth: "Results arrive for those who prepared. Harvest season — only for those who planted.",
     wealthHardTruth: "Gains require active stewardship. Do not become passive once momentum arrives.",
+    careerExpect: [
+      "Creative, relational, or beauty-adjacent roles flourish — collaborations open doors",
+      "Business partnerships and client relationships become more rewarding and productive",
+      "This is a natural 'harvest' window — finish and ship things rather than starting fresh",
+    ],
+    wealthExpect: [
+      "Financial flows tend to improve — income from creative work or relationships is supported",
+      "Good time to invest in quality (tools, education, appearance) that pays forward",
+      "Passive income or revenue from existing work can increase with active attention",
+    ],
     health: "Energy returns. Enjoy it without over-scheduling.",
     do: ["Collaborate actively", "Bring a creative project to completion", "Invest in relationships"],
     dont: ["Rush past this window", "Neglect foundations built earlier", "Overcommit"],
@@ -131,6 +172,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Courage & Drive",
     careerHardTruth: "Action without strategy burns resources. Identify the one decisive move before acting broadly.",
     wealthHardTruth: "Mars gains can be lost to Mars decisions. Pause before deploying capital.",
+    careerExpect: [
+      "You have more energy and appetite for bold moves — initiating projects comes naturally",
+      "Competitive or physically demanding environments suit you better than usual",
+      "Impatience is the main pitfall — good decisions made fast still need to be the right ones",
+    ],
+    wealthExpect: [
+      "Gains come from effort and initiative, not luck — hustle pays off",
+      "Avoid large financial bets made in anger, urgency, or competitive frenzy",
+      "Clear one debt or financial obligation that has been dragging — Mars energy supports resolution",
+    ],
     health: "Physical energy is high. Channel it into structured movement; avoid recklessness.",
     do: ["Initiate what has been delayed", "Compete where you have genuine edge", "Establish clear boundaries"],
     dont: ["React without reflection", "Over-leverage", "Ignore signs of burnout"],
@@ -142,6 +193,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Growth & Dharma",
     careerHardTruth: "Growth without depth becomes inflation. Ensure expansion is rooted in genuine value.",
     wealthHardTruth: "Optimism can override diligence. Verify before committing to large ventures.",
+    careerExpect: [
+      "Teaching, mentoring, publishing, law, or advisory roles are especially well-supported",
+      "Opportunities arrive — sometimes through unexpected generosity or a trusted introduction",
+      "Saying yes to growth feels easier, but it's worth filtering for depth over volume",
+    ],
+    wealthExpect: [
+      "This is one of the more favourable periods for wealth growth in the full cycle",
+      "Long-term investments (education, property, equity) tend to outperform short-term plays",
+      "Generosity and ethical behaviour in financial dealings attracts further abundance",
+    ],
     health: "Jupiter supports overall vitality; guard against overindulgence.",
     do: ["Teach or mentor", "Expand into aligned territory", "Invest in wisdom-based relationships"],
     dont: ["Over-promise", "Neglect details in pursuit of vision", "Confuse luck with skill"],
@@ -153,6 +214,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Karma & Structure",
     careerHardTruth: "Ambition without systems fails in Saturn periods. Build infrastructure before seeking the stage.",
     wealthHardTruth: "Build reserves, not deploy them. Patience is the wealth strategy.",
+    careerExpect: [
+      "Work that requires patience, precision, or long-term commitment is where you shine",
+      "Promotions and recognition may feel slow — they tend to arrive later and last longer",
+      "Any corners cut in previous years now show up as problems that need addressing",
+    ],
+    wealthExpect: [
+      "Wealth grows through consistency, not windfalls — small regular savings outperform",
+      "Debt reduction and financial discipline pay off more than speculation right now",
+      "Avoid over-extending or taking on new financial obligations without a clear plan",
+    ],
     health: "Saturn rewards sleep discipline and structured movement.",
     do: ["Maintain consistent routines", "Complete what was started", "Honour commitments without overcommitting"],
     dont: ["Launch ventures without infrastructure", "Neglect rest", "Underestimate how long things take"],
@@ -164,6 +235,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Ambition & Shadow",
     careerHardTruth: "Obsession can masquerade as strategy. Periodically step back to verify direction.",
     wealthHardTruth: "Rahu amplifies desire as much as result. Distinguish genuine opportunity from compulsion.",
+    careerExpect: [
+      "Unusual, cross-cultural, or tech-forward paths open up — embrace what feels unconventional",
+      "Sudden pivots in role, industry, or direction are possible and sometimes necessary",
+      "Intensity and obsession can drive results, but step back periodically to check direction",
+    ],
+    wealthExpect: [
+      "Unexpected windfalls are possible — so are unexpected losses if not managed",
+      "Diversify rather than betting everything on one opportunity, however attractive it looks",
+      "Financial decisions made from FOMO or obsessive desire tend to backfire",
+    ],
     health: "Rest is often neglected in Rahu periods. Schedule recovery as deliberately as action.",
     do: ["Explore unconventional approaches", "Diversify your skill set", "Welcome cross-cultural input"],
     dont: ["Chase every shiny opportunity", "Ignore legal or ethical edges", "Exhaust yourself pursuing illusions"],
@@ -175,6 +256,16 @@ const OUTLOOK_PLANET_THEMES: Record<string, {
     theme: "Release & Wisdom",
     careerHardTruth: "A refining year, not a building year. Forcing external progress will exhaust you.",
     wealthHardTruth: "Preservation outperforms growth this year.",
+    careerExpect: [
+      "Skills and expertise built years ago re-emerge as surprisingly relevant and valuable",
+      "Deep, focused, or behind-the-scenes work suits this period far better than public roles",
+      "Letting go of a role or project that no longer fits may actually accelerate your path",
+    ],
+    wealthExpect: [
+      "Material gains are not the focus — preservation of what you have is the wise strategy",
+      "Unexpected expenses can arise — keep a buffer rather than spending surpluses",
+      "Investments made purely for spiritual or creative reasons often carry hidden value",
+    ],
     health: "Rest is productive. Honour the body's signals.",
     do: ["Meditate or maintain contemplative practice", "Release what no longer serves", "Deepen mastery of existing skills"],
     dont: ["Seek public recognition", "Over-extend financially", "Ignore burnout signals"],
@@ -188,6 +279,16 @@ const OUTLOOK_FALLBACK_PLANET = {
   theme: "Transition & Reflection",
   careerHardTruth: "Clarity precedes action. Use this window to understand before committing.",
   wealthHardTruth: "Review before deploying. Preserve optionality.",
+  careerExpect: [
+    "A quieter, less dramatic career phase — consolidation rather than leaps",
+    "Reviewing and improving existing work tends to pay off more than new ventures",
+    "Relationships and trust built now create future professional opportunities",
+  ],
+  wealthExpect: [
+    "Maintain what you have — this is not a strong growth phase",
+    "Review subscriptions, costs, and financial commitments for anything to trim",
+    "Building savings habits now creates a buffer for the next active phase",
+  ],
   health: "Balance activity and rest during transition periods.",
   do: ["Reflect on patterns", "Consolidate existing efforts", "Strengthen core relationships"],
   dont: ["Force major decisions", "Neglect self-care", "Overcommit resources"],
@@ -237,13 +338,15 @@ function generateYearlyOutlook(chart: { dasha?: { sequence?: { planet: string; s
       career: {
         stars:     themes.careerStars,
         narrative: themes.career,
-        hardTruth: themes.careerHardTruth,
+        watchOut:  themes.careerHardTruth,
+        expect:    themes.careerExpect,
         actions:   themes.do,
       },
       wealth: {
         stars:     themes.wealthStars,
         narrative: themes.wealth,
-        hardTruth: themes.wealthHardTruth,
+        watchOut:  themes.wealthHardTruth,
+        expect:    themes.wealthExpect,
         actions:   ["Review financial position", ...themes.dont.slice(0, 2)],
       },
       health:    themes.health,
@@ -541,76 +644,115 @@ function YearCard({ y, dharmaUnlocked }: { y: YearOutlook; dharmaUnlocked: boole
       {/* Career + Wealth grid */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
         {/* Career */}
-        <div style={{ ...glassCard, flex: "1 1 280px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ ...glassCard, flex: "1 1 280px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 13, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Career Theme', 'करियर विषय')}</span>
-            <Stars count={y.career.stars} />
+            <span title={`${y.career.stars} out of 5 — higher = more active career opportunities this period`}>
+              <Stars count={y.career.stars} />
+            </span>
           </div>
-          <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.career.narrative}</p>
-          {/* Hard Truth */}
-          <div style={{ padding: "10px 12px", background: "rgba(212,184,112,0.08)", borderLeft: "3px solid #D4B870", borderRadius: "0 8px 8px 0", marginBottom: 12 }}>
-            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
-            <p style={{ fontSize: 14, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.career.hardTruth}</p>
+          {/* Summary */}
+          <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: 0 }}>{y.career.narrative}</p>
+          {/* What to expect */}
+          <div>
+            <p style={{ fontSize: 11, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 7px" }}>What to expect</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {y.career.expect.map((pt, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ color: T.gold, fontSize: 12, lineHeight: 1.6, flexShrink: 0 }}>▸</span>
+                  <p style={{ fontSize: 13, color: T.txt2, margin: 0, lineHeight: 1.6 }}>{pt}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Watch out */}
+          <div style={{ padding: "9px 12px", background: "rgba(224,80,80,0.07)", borderLeft: "3px solid rgba(224,80,80,0.5)", borderRadius: "0 8px 8px 0" }}>
+            <p style={{ fontSize: 11, color: "#E07070", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px" }}>⚠ Watch out for</p>
+            <p style={{ fontSize: 13, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.career.watchOut}</p>
           </div>
           {/* Actions */}
-          {dharmaUnlocked ? (
-            <>
-              {y.career.actions.map(a => (
-                <p key={a} style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>• {a}</p>
-              ))}
-              <div style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,106,0.12)", border: "1px solid rgba(76,175,106,0.3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 13, color: "#4CAF6A", fontWeight: 600 }}>✦ Dharma Pass Active</span>
-              </div>
-            </>
-          ) : (
-            <>
-              <p style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>→ {y.career.actions[0]}</p>
-              {careerLocked.length > 0 && (
-                <button
-                  onClick={() => (window as any).openPasscodeModal?.()}
-                  style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 13, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
-                >
-                  🔒 +{careerLocked.length} more actions — unlock with Dharma Pass
-                </button>
-              )}
-            </>
-          )}
+          <div>
+            <p style={{ fontSize: 11, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>Suggested actions</p>
+            {dharmaUnlocked ? (
+              <>
+                {y.career.actions.map(a => (
+                  <p key={a} style={{ fontSize: 13, color: T.txt2, margin: "0 0 5px" }}>• {a}</p>
+                ))}
+                <div style={{ marginTop: 6, padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,106,0.12)", border: "1px solid rgba(76,175,106,0.3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 12, color: "#4CAF6A", fontWeight: 600 }}>✦ Dharma Pass Active</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, color: T.txt2, margin: "0 0 6px" }}>→ {y.career.actions[0]}</p>
+                {careerLocked.length > 0 && (
+                  <button
+                    onClick={() => (window as any).openPasscodeModal?.()}
+                    style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 13, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
+                  >
+                    🔒 +{careerLocked.length} more actions — unlock with Dharma Pass
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Wealth */}
-        <div style={{ ...glassCard, flex: "1 1 280px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ ...glassCard, flex: "1 1 280px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 13, color: T.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "Outfit,sans-serif" }}>{t('Wealth Pattern', 'धन पैटर्न')}</span>
-            <Stars count={y.wealth.stars} />
+            <span title={`${y.wealth.stars} out of 5 — higher = stronger financial growth potential this period`}>
+              <Stars count={y.wealth.stars} />
+            </span>
           </div>
-          <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: "0 0 12px" }}>{y.wealth.narrative}</p>
-          <div style={{ padding: "10px 12px", background: "rgba(212,184,112,0.08)", borderLeft: "3px solid #D4B870", borderRadius: "0 8px 8px 0", marginBottom: 12 }}>
-            <span style={{ fontSize: 11, color: T.gold, textTransform: "uppercase", letterSpacing: "0.12em", display: "block", marginBottom: 4 }}>Hard Truth</span>
-            <p style={{ fontSize: 14, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.wealth.hardTruth}</p>
+          {/* Summary */}
+          <p style={{ fontSize: 13, color: T.txt2, lineHeight: 1.6, margin: 0 }}>{y.wealth.narrative}</p>
+          {/* What to expect */}
+          <div>
+            <p style={{ fontSize: 11, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 7px" }}>What to expect</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {y.wealth.expect.map((pt, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ color: "#6EC97A", fontSize: 12, lineHeight: 1.6, flexShrink: 0 }}>▸</span>
+                  <p style={{ fontSize: 13, color: T.txt2, margin: 0, lineHeight: 1.6 }}>{pt}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Watch out */}
+          <div style={{ padding: "9px 12px", background: "rgba(224,80,80,0.07)", borderLeft: "3px solid rgba(224,80,80,0.5)", borderRadius: "0 8px 8px 0" }}>
+            <p style={{ fontSize: 11, color: "#E07070", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px" }}>⚠ Watch out for</p>
+            <p style={{ fontSize: 13, color: T.txt2, margin: 0, lineHeight: 1.5 }}>{y.wealth.watchOut}</p>
           </div>
           {/* Actions */}
-          {dharmaUnlocked ? (
-            <>
-              {y.wealth.actions.map(a => (
-                <p key={a} style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>• {a}</p>
-              ))}
-              <div style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,106,0.12)", border: "1px solid rgba(76,175,106,0.3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 13, color: "#4CAF6A", fontWeight: 600 }}>✦ Dharma Pass Active</span>
-              </div>
-            </>
-          ) : (
-            <>
-              <p style={{ fontSize: 14, color: T.txt2, margin: "0 0 6px" }}>→ {y.wealth.actions[0]}</p>
-              {wealthLocked.length > 0 && (
-                <button
-                  onClick={() => (window as any).openPasscodeModal?.()}
-                  style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 13, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
-                >
-                  🔒 +{wealthLocked.length} more actions — unlock with Dharma Pass
-                </button>
-              )}
-            </>
-          )}
+          <div>
+            <p style={{ fontSize: 11, color: T.txt3, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>Suggested actions</p>
+            {dharmaUnlocked ? (
+              <>
+                {y.wealth.actions.map(a => (
+                  <p key={a} style={{ fontSize: 13, color: T.txt2, margin: "0 0 5px" }}>• {a}</p>
+                ))}
+                <div style={{ marginTop: 6, padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,106,0.12)", border: "1px solid rgba(76,175,106,0.3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 12, color: "#4CAF6A", fontWeight: 600 }}>✦ Dharma Pass Active</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, color: T.txt2, margin: "0 0 6px" }}>→ {y.wealth.actions[0]}</p>
+                {wealthLocked.length > 0 && (
+                  <button
+                    onClick={() => (window as any).openPasscodeModal?.()}
+                    style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "1px solid rgba(212,184,112,0.3)", background: "rgba(212,184,112,0.05)", color: T.gold, fontSize: 13, cursor: "pointer", fontFamily: "Outfit,sans-serif" }}
+                  >
+                    🔒 +{wealthLocked.length} more actions — unlock with Dharma Pass
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 
