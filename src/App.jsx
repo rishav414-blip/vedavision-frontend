@@ -12,11 +12,22 @@ import Toast from './components/Toast'
 import SAMPLE_CHART from './lib/sampleChart'
 
 const CHART_KEY = 'vv_chart_data'
+// Bump this version whenever the ephemeris engine changes, to force a recompute
+// for all users who have a cached chart from an older (potentially incorrect) run.
+// v2: fixed dateToJD noon-UT bug (2026-06-04) — lagna/nakshatra/dasha were wrong
+const EPHEMERIS_VERSION = 2
 
 function loadSavedChart() {
   try {
     const raw = localStorage.getItem(CHART_KEY)
-    return raw ? JSON.parse(raw) : null
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    // Invalidate charts saved before the current ephemeris version
+    if (!parsed._ephemerisVersion || parsed._ephemerisVersion < EPHEMERIS_VERSION) {
+      localStorage.removeItem(CHART_KEY)
+      return null
+    }
+    return parsed
   } catch { return null }
 }
 
@@ -79,8 +90,8 @@ export default function App() {
 
   function handleChartReady(data) {
     if (data && data.lagna) {
-      // Real chart from API — save it
-      localStorage.setItem(CHART_KEY, JSON.stringify(data))
+      // Real chart from API — save it with ephemeris version stamp
+      localStorage.setItem(CHART_KEY, JSON.stringify({ ...data, _ephemerisVersion: EPHEMERIS_VERSION }))
       setChartData(data)
       setHasRealChart(true)
     }
