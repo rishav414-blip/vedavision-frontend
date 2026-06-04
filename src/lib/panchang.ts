@@ -12,7 +12,7 @@ export function cosd(deg: number): number { return Math.cos(deg * Math.PI / 180)
 export function dateToJD(date: Date): number {
   const y = date.getUTCFullYear()
   const m = date.getUTCMonth() + 1
-  const d = date.getUTCDate() + 0.5   // noon UT
+  const d = date.getUTCDate() + date.getUTCHours() / 24 + date.getUTCMinutes() / 1440 + date.getUTCSeconds() / 86400
   const A = Math.floor(y / 100)
   const B = 2 - A + Math.floor(A / 4)
   return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5

@@ -56,25 +56,27 @@ interface StoredUser {
   plan: string;
 }
 
+// Pre-seeded demo account — always available regardless of localStorage state.
+const DEMO_USER: StoredUser = {
+  name: "Demo User",
+  email: "demo@vedavision.app",
+  password: "demo1234",
+  plan: "free",
+};
+
 function getUsers(): StoredUser[] {
   try {
     const raw = localStorage.getItem(USERS_KEY);
-    return raw ? (JSON.parse(raw) as StoredUser[]) : [];
+    const stored: StoredUser[] = raw ? (JSON.parse(raw) as StoredUser[]) : [];
+    const hasdemo = stored.some((u) => u.email === DEMO_USER.email);
+    return hasdemo ? stored : [DEMO_USER, ...stored];
   } catch {
-    return [];
+    return [DEMO_USER];
   }
 }
 
 function saveUsers(users: StoredUser[]): void {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password + 'vv_salt_2026')
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 // ── Props ──────────────────────────────────────────────────────────────────
@@ -300,32 +302,28 @@ function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const users = getUsers();
-    const candidate = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (!candidate) {
-      setError("Invalid email or password");
+    const byEmail = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (!byEmail) {
+      setError("No account found with that email");
       return;
     }
-    const hashed = await hashPassword(password);
-    // Migration: if stored password is not 64 chars it's plain text — compare plain, then upgrade
-    if (candidate.password.length !== 64) {
-      if (candidate.password !== password) {
-        setError("Invalid email or password");
-        return;
-      }
-      // Upgrade to hashed
-      const updated = users.map((u) =>
-        u.email.toLowerCase() === email.toLowerCase() ? { ...u, password: hashed } : u
-      );
-      saveUsers(updated);
-    } else if (candidate.password !== hashed) {
-      setError("Invalid email or password");
+    // Account has a hashed password from the old hashing period — plain text won't match.
+    // Delete it so the user can re-register with the same email.
+    if (byEmail.password !== password && byEmail.password.length === 64 && /^[0-9a-f]+$/.test(byEmail.password)) {
+      const purged = getUsers().filter((u) => u.email.toLowerCase() !== email.toLowerCase());
+      saveUsers(purged);
+      setError("Your account was stored with an old format. Please create a new account with the same email and password.");
       return;
     }
-    const user: VVUser = { name: candidate.name, email: candidate.email, plan: candidate.plan };
+    if (byEmail.password !== password) {
+      setError("Invalid password");
+      return;
+    }
+    const user: VVUser = { name: byEmail.name, email: byEmail.email, plan: byEmail.plan };
     saveSession(user);
     onEnter(user);
   };
@@ -364,14 +362,22 @@ function LoginForm({
         </span>
       </div>
 
-      <div style={{ textAlign: "center", marginTop: 12 }}>
-        <span
-          className="vv-link"
-          style={{ fontSize: 12, color: T.txt3 }}
-          onClick={onPreviewTour}
-        >
-          Or continue with demo account
-        </span>
+      <div
+        style={{
+          marginTop: 14,
+          padding: "10px 14px",
+          background: "rgba(114,166,183,0.07)",
+          border: "1px solid rgba(114,166,183,0.18)",
+          borderRadius: 10,
+          textAlign: "center",
+        }}
+      >
+        <p style={{ margin: "0 0 4px", fontFamily: FONTS.body, fontSize: 11, letterSpacing: "0.07em", textTransform: "uppercase" as const, color: T.txt3 }}>
+          Demo account
+        </p>
+        <p style={{ margin: 0, fontFamily: FONTS.body, fontSize: 13, color: T.txt2 }}>
+          <strong style={{ color: T.txt }}>demo@vedavision.app</strong> / <strong style={{ color: T.txt }}>demo1234</strong>
+        </p>
       </div>
     </form>
   );
@@ -390,7 +396,7 @@ function SignupForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -406,8 +412,7 @@ function SignupForm({
       return;
     }
 
-    const hashed = await hashPassword(password);
-    const newUser: StoredUser = { name: name.trim(), email: email.toLowerCase(), password: hashed, plan: "free" };
+    const newUser: StoredUser = { name: name.trim(), email: email.toLowerCase(), password, plan: "free" };
     saveUsers([...users, newUser]);
 
     const session: VVUser = { name: newUser.name, email: newUser.email, plan: "free" };
