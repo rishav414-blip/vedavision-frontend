@@ -37,7 +37,7 @@ const TOKENS = {
   danger: '#E05050',
 };
 
-const STREAM_URL = 'https://vedavision-backend.onrender.com/api/jyoti/stream';
+const STREAM_URL = '/api/jyoti/stream';
 const TIMEOUT_MS = 25_000;
 const MAX_HISTORY = 20;
 
